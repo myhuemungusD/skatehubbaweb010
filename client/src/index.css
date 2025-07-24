@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(16, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* SkateHubba custom colors */
+  --skatehubba-primary: hsl(16, 100%, 50%);
+  --skatehubba-primary-hover: hsl(16, 100%, 44%);
+  --skatehubba-dark-bg: hsl(0, 0%, 10%);
+  --skatehubba-card-bg: hsl(0, 0%, 16%);
+  --skatehubba-light-text: hsl(0, 0%, 96%);
+  --skatehubba-secondary-text: hsl(0, 0%, 80%);
+}
+
+.dark {
+  --background: hsl(0, 0%, 10%);
+  --foreground: hsl(0, 0%, 96%);
+  --muted: hsl(0, 0%, 16%);
+  --muted-foreground: hsl(0, 0%, 64.9%);
+  --popover: hsl(0, 0%, 10%);
+  --popover-foreground: hsl(0, 0%, 96%);
+  --card: hsl(0, 0%, 16%);
+  --card-foreground: hsl(0, 0%, 96%);
+  --border: hsl(0, 0%, 16%);
+  --input: hsl(0, 0%, 16%);
+  --primary: hsl(16, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 16%);
+  --secondary-foreground: hsl(0, 0%, 96%);
+  --accent: hsl(0, 0%, 16%);
+  --accent-foreground: hsl(0, 0%, 96%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(0, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-inter antialiased;
+    background-color: var(--skatehubba-dark-bg);
+    color: var(--skatehubba-light-text);
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-skatehubba-primary {
+    background-color: var(--skatehubba-primary);
+  }
+  
+  .bg-skatehubba-primary-hover {
+    background-color: var(--skatehubba-primary-hover);
+  }
+  
+  .bg-skatehubba-dark {
+    background-color: var(--skatehubba-dark-bg);
+  }
+  
+  .bg-skatehubba-card {
+    background-color: var(--skatehubba-card-bg);
+  }
+  
+  .text-skatehubba-primary {
+    color: var(--skatehubba-primary);
+  }
+  
+  .text-skatehubba-light {
+    color: var(--skatehubba-light-text);
+  }
+  
+  .text-skatehubba-secondary {
+    color: var(--skatehubba-secondary-text);
+  }
+  
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+}
