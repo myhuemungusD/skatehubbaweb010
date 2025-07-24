@@ -15,6 +15,7 @@ import {
   Youtube
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import SkateHubbaLogo from "@/components/SkateHubbaLogo";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -58,8 +59,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-skatehubba-dark text-skatehubba-light">
+      {/* Top Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-skatehubba-dark/95 backdrop-blur-sm border-b border-skatehubba-primary/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-center">
+            <SkateHubbaLogo size="md" />
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <header className="min-h-screen flex flex-col justify-center items-center text-center relative overflow-hidden">
+      <header className="min-h-screen flex flex-col justify-center items-center text-center relative overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-10"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -69,6 +79,11 @@ export default function Home() {
         ></div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+          {/* SkateHubba Logo */}
+          <div className="mb-8 flex justify-center">
+            <SkateHubbaLogo size="xl" className="animate-pulse" />
+          </div>
+          
           <div className="mb-6">
             <span className="inline-block bg-skatehubba-primary text-white px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider">
               Coming Soon
