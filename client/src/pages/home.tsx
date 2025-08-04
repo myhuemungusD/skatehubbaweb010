@@ -80,9 +80,6 @@ export default function Home() {
           {/* Hero Section */}
           <section className="mb-12">
             <div className="mb-6">
-              <div className="flex justify-center mb-4">
-                <SkateHubbaLogo size="lg" className="w-40 h-auto rounded-xl bg-[#222] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.3)]" />
-              </div>
               <h1 className="text-4xl font-bold mb-2 text-[#fafafa]">SKATEHUBBA</h1>
               <h2 className="text-2xl mb-6 text-[#fafafa]">Stream. Connect. Skate. Your Skateboarding Social Universe.</h2>
             </div>
