@@ -6,7 +6,7 @@ import SkateHubbaLogo from "@/components/SkateHubbaLogo";
 
 // Import your custom SkateHubba images
 import shopBackground from "@assets/shop backgroung_1754296459156.png";
-import avatarImage from "@assets/cartoonavatar_1754296307132.png";
+import avatarImage from "@assets/f94b6775-118d-47aa-88af-255db05d3bbc-thumbnail_1754296917742.webp";
 import shopTemplate from "@assets/shoptemplate0.2_1754296307132.png";
 import graffWallRack from "@assets/graffwallskateboardrack_1754296307132.png";
 import nftShoe from "@assets/baigeESnft_1754296307131.png";
