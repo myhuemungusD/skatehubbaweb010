@@ -37,8 +37,8 @@ export default function Home() {
         backgroundImage: `url(${shopBackground})`
       }}
     >
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/70 z-0"></div>
+      {/* Light overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/30 z-0"></div>
       <div className="relative z-10">
         {/* Navigation */}
       <nav className="bg-black/60 backdrop-blur-sm border-b border-[#333]/50 mb-0">
@@ -96,7 +96,7 @@ export default function Home() {
               <img 
                 src={avatarImage}
                 alt="Meet Your Crew - Create your SkateHubba avatar"
-                className="w-full max-w-2xl mx-auto rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
+                className="w-full max-w-lg mx-auto rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                 data-testid="img-hero-crew"
               />
               <figcaption className="mt-4">
@@ -142,7 +142,7 @@ export default function Home() {
                 <img 
                   src={shopTemplate}
                   alt="SkateHubba Shop - Get gear and unlock exclusive items"
-                  className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
+                  className="w-full h-48 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                   data-testid="img-gallery-shop"
                 />
                 <figcaption className="mt-3 text-[#fafafa]">SkateHubba Shop</figcaption>
@@ -152,7 +152,7 @@ export default function Home() {
                 <img 
                   src={graffWallRack}
                   alt="Customize Your Boards - Create your perfect setup"
-                  className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
+                  className="w-full h-48 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                   data-testid="img-gallery-boards"
                 />
                 <figcaption className="mt-3 text-[#fafafa]">Customize Your Boards</figcaption>
@@ -162,7 +162,7 @@ export default function Home() {
                 <img 
                   src={nftShoe}
                   alt="NFT Kicks - Collect rare digital skate gear"
-                  className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
+                  className="w-full h-48 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                   data-testid="img-gallery-nft"
                 />
                 <figcaption className="mt-3 text-[#fafafa]">NFT Kicks Collection</figcaption>
