@@ -79,8 +79,8 @@ export default function Home() {
             {/* Hero Image */}
             <figure className="mb-8">
               <img 
-                src="https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?q=80&w=2000&auto=format&fit=crop"
-                alt="Meet Your Crew - Skateboarding community"
+                src="@assets/cartoonavatar_1754296307132.png"
+                alt="Meet Your Crew - Create your SkateHubba avatar"
                 className="w-full max-w-2xl mx-auto rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                 data-testid="img-hero-crew"
               />
@@ -125,18 +125,18 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               <figure className="mb-6">
                 <img 
-                  src="https://images.unsplash.com/photo-1547483921-34b1271a93f2?q=80&w=1000&auto=format&fit=crop"
-                  alt="Vibe Out at SkateHubba Spots"
+                  src="@assets/shoptemplate0.2_1754296307132.png"
+                  alt="SkateHubba Shop - Get gear and unlock exclusive items"
                   className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
-                  data-testid="img-gallery-spots"
+                  data-testid="img-gallery-shop"
                 />
-                <figcaption className="mt-3 text-[#fafafa]">Vibe Out at SkateHubba Spots</figcaption>
+                <figcaption className="mt-3 text-[#fafafa]">SkateHubba Shop</figcaption>
               </figure>
               
               <figure className="mb-6">
                 <img 
-                  src="https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?q=80&w=1000&auto=format&fit=crop"
-                  alt="Customize Your Boards"
+                  src="@assets/graffwallskateboardrack_1754296307132.png"
+                  alt="Customize Your Boards - Create your perfect setup"
                   className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                   data-testid="img-gallery-boards"
                 />
@@ -145,12 +145,12 @@ export default function Home() {
               
               <figure className="mb-6">
                 <img 
-                  src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1000&auto=format&fit=crop"
-                  alt="Street Skating Sessions"
+                  src="@assets/baigeESnft_1754296307131.png"
+                  alt="NFT Kicks - Collect rare digital skate gear"
                   className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
-                  data-testid="img-gallery-sessions"
+                  data-testid="img-gallery-nft"
                 />
-                <figcaption className="mt-3 text-[#fafafa]">Street Skating Sessions</figcaption>
+                <figcaption className="mt-3 text-[#fafafa]">NFT Kicks Collection</figcaption>
               </figure>
             </div>
           </section>
