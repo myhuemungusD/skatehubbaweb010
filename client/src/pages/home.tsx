@@ -32,9 +32,10 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen text-[#fafafa] bg-cover bg-center bg-fixed relative"
+      className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
       style={{
-        backgroundImage: `url(${shopBackground})`
+        backgroundImage: `url(${shopBackground})`,
+        backgroundPosition: '50% 30%'
       }}
     >
       {/* Light overlay for better text readability */}
