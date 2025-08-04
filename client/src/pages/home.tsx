@@ -231,6 +231,36 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Social Follow Section */}
+        <section className="py-12 bg-black/50">
+          <div className="container mx-auto px-4 text-center">
+            <h3 className="text-2xl font-bold mb-6 text-[#fafafa]">Follow Us</h3>
+            <p className="text-lg mb-8 text-[#fafafa]">Stay in the loop and connect with the culture:</p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 max-w-md mx-auto">
+              <a 
+                href="https://instagram.com/SkateHubba_app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-orange-400 hover:text-orange-300 transition-colors text-lg"
+                data-testid="link-instagram"
+              >
+                <span>📸</span>
+                <span>Instagram: @SkateHubba_app</span>
+              </a>
+              <a 
+                href="https://www.facebook.com/profile.php?id=61578731058004&mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-orange-400 hover:text-orange-300 transition-colors text-lg"
+                data-testid="link-facebook"
+              >
+                <span>📘</span>
+                <span>Facebook: SkateHubba</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Footer */}
         <footer className="container mx-auto px-4 py-8 border-t border-[#333] text-center text-[#fafafa]">
           <small>
