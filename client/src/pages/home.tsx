@@ -24,9 +24,17 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#181818] text-[#fafafa]">
-      {/* Navigation */}
-      <nav className="bg-[#131313] border-b border-[#333] mb-0">
+    <div 
+      className="min-h-screen text-[#fafafa] bg-cover bg-center bg-fixed relative"
+      style={{
+        backgroundImage: `url('@assets/shop backgroung_1754296459156.png')`
+      }}
+    >
+      {/* Dark overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/70 z-0"></div>
+      <div className="relative z-10">
+        {/* Navigation */}
+      <nav className="bg-black/60 backdrop-blur-sm border-b border-[#333]/50 mb-0">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
@@ -183,12 +191,13 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-16 border-t border-[#333] pt-4 text-center bg-[#181818]">
-        <div className="container mx-auto px-4">
-          <p className="text-gray-400 text-sm">&copy; 2025 SkateHubba. Level up your skate life.</p>
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="mt-16 border-t border-[#333] pt-4 text-center bg-black/40">
+          <div className="container mx-auto px-4">
+            <p className="text-gray-400 text-sm">&copy; 2025 SkateHubba. Level up your skate life.</p>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
