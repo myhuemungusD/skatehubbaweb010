@@ -4,6 +4,13 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import SkateHubbaLogo from "@/components/SkateHubbaLogo";
 
+// Import your custom SkateHubba images
+import shopBackground from "@assets/shop backgroung_1754296459156.png";
+import avatarImage from "@assets/cartoonavatar_1754296307132.png";
+import shopTemplate from "@assets/shoptemplate0.2_1754296307132.png";
+import graffWallRack from "@assets/graffwallskateboardrack_1754296307132.png";
+import nftShoe from "@assets/baigeESnft_1754296307131.png";
+
 export default function Home() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
@@ -27,7 +34,7 @@ export default function Home() {
     <div 
       className="min-h-screen text-[#fafafa] bg-cover bg-center bg-fixed relative"
       style={{
-        backgroundImage: `url('@assets/shop backgroung_1754296459156.png')`
+        backgroundImage: `url(${shopBackground})`
       }}
     >
       {/* Dark overlay for better text readability */}
@@ -87,7 +94,7 @@ export default function Home() {
             {/* Hero Image */}
             <figure className="mb-8">
               <img 
-                src="@assets/cartoonavatar_1754296307132.png"
+                src={avatarImage}
                 alt="Meet Your Crew - Create your SkateHubba avatar"
                 className="w-full max-w-2xl mx-auto rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                 data-testid="img-hero-crew"
@@ -133,7 +140,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               <figure className="mb-6">
                 <img 
-                  src="@assets/shoptemplate0.2_1754296307132.png"
+                  src={shopTemplate}
                   alt="SkateHubba Shop - Get gear and unlock exclusive items"
                   className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                   data-testid="img-gallery-shop"
@@ -143,7 +150,7 @@ export default function Home() {
               
               <figure className="mb-6">
                 <img 
-                  src="@assets/graffwallskateboardrack_1754296307132.png"
+                  src={graffWallRack}
                   alt="Customize Your Boards - Create your perfect setup"
                   className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                   data-testid="img-gallery-boards"
@@ -153,7 +160,7 @@ export default function Home() {
               
               <figure className="mb-6">
                 <img 
-                  src="@assets/baigeESnft_1754296307131.png"
+                  src={nftShoe}
                   alt="NFT Kicks - Collect rare digital skate gear"
                   className="w-full h-64 object-cover rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)] bg-[#232323]"
                   data-testid="img-gallery-nft"
