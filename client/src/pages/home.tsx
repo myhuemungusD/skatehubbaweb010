@@ -91,34 +91,102 @@ export default function Home() {
         {/* Main Content */}
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
-            {/* Hero Section */}
-            <section className="mb-12">
-              <div className="mb-6">
-                <h1 className="text-4xl font-bold mb-2 text-[#fafafa]">SKATEHUBBA</h1>
-                <h2 className="text-2xl mb-6 text-[#fafafa]">Stream. Connect. Skate. Your Skateboarding Social Universe.</h2>
-                <p className="text-lg mb-8 text-[#fafafa] max-w-3xl mx-auto">
+            {/* Video Ad Style Hero Section */}
+            <section className="mb-16">
+              {/* Main Title */}
+              <div className="mb-12">
+                <h1 className="text-5xl font-bold mb-4 text-[#fafafa] tracking-wider">SKATEHUBBA</h1>
+                <h2 className="text-2xl mb-8 text-[#fafafa]">Stream. Connect. Skate. Your Skateboarding Social Universe.</h2>
+              </div>
+
+              {/* Video Ad Style Sequence */}
+              <div className="space-y-16 max-w-4xl mx-auto">
+                {/* Action Shot */}
+                <div className="text-center">
+                  <div className="mb-6">
+                    <img 
+                      src={avatarImage} 
+                      alt="SkateHubba Action Shot" 
+                      className="w-full max-w-lg mx-auto rounded-lg shadow-2xl bg-[#232323]"
+                      data-testid="img-action-shot"
+                    />
+                  </div>
+                  <h3 className="text-3xl font-bold text-orange-400 mb-4 tracking-wide">
+                    THIS IS WHERE IT STARTS...
+                  </h3>
+                </div>
+
+                {/* Follow Up Shot */}
+                <div className="text-center">
+                  <div className="mb-6">
+                    <img 
+                      src={graffWallRack} 
+                      alt="Pull Up and Drop Clips" 
+                      className="w-full max-w-lg mx-auto rounded-lg shadow-2xl bg-[#232323]"
+                      data-testid="img-follow-up-shot"
+                    />
+                  </div>
+                  <h3 className="text-3xl font-bold text-[#fafafa] mb-4 tracking-wide">
+                    PULL UP. DROP CLIPS. CHALLENGE ANYONE.
+                  </h3>
+                </div>
+
+                {/* Board/Unique Moment Shot */}
+                <div className="text-center">
+                  <div className="mb-6">
+                    <img 
+                      src={shopTemplate} 
+                      alt="Earn Respect and Level Up" 
+                      className="w-full max-w-lg mx-auto rounded-lg shadow-2xl bg-[#232323]"
+                      data-testid="img-board-shot"
+                    />
+                  </div>
+                  <h3 className="text-3xl font-bold text-orange-400 mb-4 tracking-wide">
+                    EARN RESPECT. LEVEL UP. REP YOUR SPOT.
+                  </h3>
+                </div>
+
+                {/* End Shot with Call to Action */}
+                <div className="text-center bg-black/60 rounded-2xl p-12 border border-orange-400/30">
+                  <div className="mb-8">
+                    <img 
+                      src={nftShoe} 
+                      alt="SkateHubba NFT Gear" 
+                      className="w-full max-w-sm mx-auto rounded-lg shadow-2xl bg-[#232323]"
+                      data-testid="img-end-shot"
+                    />
+                  </div>
+                  <h1 className="text-6xl font-bold text-[#fafafa] mb-6 tracking-wider">
+                    SKATEHUBBA
+                  </h1>
+                  <h2 className="text-2xl font-bold text-orange-400 mb-8 tracking-wide">
+                    SKATE. CHALLENGE. STREAM.
+                  </h2>
+                  <button 
+                    onClick={() => scrollToSection('join')}
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
+                    data-testid="button-download-now"
+                  >
+                    DOWNLOAD NOW
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Description */}
+              <div className="mt-16 text-center">
+                <p className="text-lg text-[#fafafa] max-w-3xl mx-auto leading-relaxed">
                   Level up your skate life: customize your skater, discover gear, join digital sessions, and share clips with your crew. SkateHubba is where digital meets street.
                 </p>
-              </div>
-              
-              {/* Hero Image */}
-              <figure className="mb-12">
-                <img 
-                  src={avatarImage} 
-                  alt="SkateHubba Avatar Interface" 
-                  className="w-full max-w-md mx-auto rounded-lg shadow-lg bg-[#232323]"
-                  data-testid="img-hero-avatar"
-                />
-                <figcaption className="mt-4">
+                <div className="mt-8">
                   <button 
                     onClick={() => scrollToSection('features')}
-                    className="text-orange-400 hover:text-orange-300 transition-colors cursor-pointer"
+                    className="text-orange-400 hover:text-orange-300 transition-colors cursor-pointer text-lg font-semibold"
                     data-testid="link-meet-crew"
                   >
-                    Meet Your Crew
+                    Meet Your Crew →
                   </button>
-                </figcaption>
-              </figure>
+                </div>
+              </div>
             </section>
 
             {/* Features Section */}
