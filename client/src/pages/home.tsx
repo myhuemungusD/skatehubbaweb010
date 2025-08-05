@@ -160,7 +160,7 @@ export default function Home() {
                     SKATEHUBBA
                   </h1>
                   <h2 className="text-2xl font-bold text-orange-400 mb-8 tracking-wide">
-                    SKATE. CHALLENGE. STREAM.
+                    SKATE. CHALLENGE. STREAM. TRADE.
                   </h2>
                   <button 
                     onClick={() => scrollToSection('join')}
@@ -204,6 +204,10 @@ export default function Home() {
                 <li className="flex items-start gap-3">
                   <span className="text-orange-400">🎥</span>
                   <span>Stream live sessions & share skate clips</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-orange-400">💰</span>
+                  <span>Trade exclusive gear, NFTs & collectibles with your crew</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-orange-400">🤝</span>
