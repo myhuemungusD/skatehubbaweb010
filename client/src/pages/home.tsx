@@ -230,6 +230,43 @@ export default function Home() {
               </ul>
             </section>
 
+            {/* Development Roadmap */}
+            <section className="mb-12 bg-black/40 rounded-2xl p-8">
+              <h3 className="text-3xl font-bold mb-8 text-[#fafafa] text-center">Development Roadmap</h3>
+              
+              <div className="max-w-4xl mx-auto space-y-8">
+                {/* Phase 1 */}
+                <div className="border-l-4 border-orange-400 pl-6">
+                  <h4 className="text-2xl font-bold text-orange-400 mb-4">Phase 1: Core Loop & Community</h4>
+                  <div className="space-y-3 text-[#fafafa]">
+                    <p><strong>Remote S.K.A.T.E. Battles:</strong> Video upload, challenge/response, 24-hour timer, and basic trick validation (manual at first, AI-assisted later).</p>
+                    <p><strong>Map & Check-Ins:</strong> Geolocation map with skate spots, shops, and parks. Check-in for rewards and see who's nearby.</p>
+                    <p><strong>Live Sessions:</strong> Simple live stream/spectate feature, plus a "Trenches" feed for clips and feedback.</p>
+                    <p><strong>Closet & Avatars:</strong> Basic avatar customization and digital closet for gear flexing.</p>
+                  </div>
+                </div>
+
+                {/* Phase 2 */}
+                <div className="border-l-4 border-orange-400 pl-6">
+                  <h4 className="text-2xl font-bold text-orange-400 mb-4">Phase 2: Social & Progression</h4>
+                  <div className="space-y-3 text-[#fafafa]">
+                    <p><strong>Crews & Rep:</strong> Crew creation, stats, badges, and leaderboards.</p>
+                    <p><strong>Trading & Collectibles:</strong> Item trading with rarity/history, daily challenges, and coin/cosmetic rewards.</p>
+                    <p><strong>Notifications & Chat:</strong> Real-time alerts and WebSocket chat for battles and sessions.</p>
+                  </div>
+                </div>
+
+                {/* Phase 3 */}
+                <div className="border-l-4 border-orange-400 pl-6">
+                  <h4 className="text-2xl font-bold text-orange-400 mb-4">Phase 3: AR & Advanced Features</h4>
+                  <div className="space-y-3 text-[#fafafa]">
+                    <p><strong>AR Spot Check-Ins:</strong> Camera overlay for immersive check-ins and navigation.</p>
+                    <p><strong>Advanced Customization:</strong> More avatar/closet options, limited drops, and pro features.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* Gallery Section */}
             <section id="gallery" className="mb-12">
               <h3 className="text-3xl font-bold mb-8 text-[#fafafa]">Gallery</h3>
