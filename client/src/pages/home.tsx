@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 
 // Import your custom SkateHubba images
 import shopBackground from "@assets/shop backgroung_1754296459156.png";
-import avatarImage from "@assets/f94b6775-118d-47aa-88af-255db05d3bbc-thumbnail_1754296917742.webp";
+import checkinMapImage from "@assets/checkinmap_1754368423116.png";
 import shopTemplate from "@assets/shoptemplate0.2_1754296307132.png";
 import graffWallRack from "@assets/graffwallskateboardrack_1754296307132.png";
 import nftShoe from "@assets/baigeESnft_1754296307131.png";
@@ -105,8 +105,8 @@ export default function Home() {
                 <div className="text-center">
                   <div className="mb-6">
                     <img 
-                      src={avatarImage} 
-                      alt="SkateHubba Action Shot" 
+                      src={checkinMapImage} 
+                      alt="SkateHubba Check-in Map" 
                       className="w-full max-w-lg mx-auto rounded-lg shadow-2xl bg-[#232323]"
                       data-testid="img-action-shot"
                     />
@@ -222,7 +222,7 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <figure className="mb-6">
                   <img 
-                    src={avatarImage} 
+                    src={checkinMapImage} 
                     alt="Vibe Out at SkateHubba Spots" 
                     className="w-full rounded-lg shadow-lg bg-[#232323]"
                     data-testid="img-gallery-spots"
