@@ -54,6 +54,20 @@ export default function Home() {
       
       {/* Content */}
       <div className="relative z-10">
+        {/* Beta Notice */}
+        <div className="bg-orange-500 text-white text-center py-3">
+          <div className="container mx-auto px-4">
+            <strong>BETA VERSION</strong> - We need your feedback to make SkateHubba even better! 
+            <a 
+              href="mailto:hello@skatehubba.com" 
+              className="underline hover:text-orange-200 ml-2"
+              data-testid="link-beta-feedback"
+            >
+              Send Feedback
+            </a>
+          </div>
+        </div>
+
         {/* Navigation */}
         <nav className="bg-[#131313] border-b border-[#333] mb-8">
           <div className="container mx-auto px-4 py-4">
