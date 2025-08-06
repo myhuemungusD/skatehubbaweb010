@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/home";
 import Demo from "@/pages/demo";
 import Tutorial from "@/pages/tutorial";
+import Donate from "@/pages/donate";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -13,6 +14,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/demo" component={Demo} />
+      <Route path="/donate" component={Donate} />
       <Route path="/tutorial">
         {(params) => {
           const userId = new URLSearchParams(window.location.search).get('userId');

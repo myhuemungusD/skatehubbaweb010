@@ -1,12 +1,20 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
+import Stripe from "stripe";
 import { storage } from "./storage";
 import { 
   insertUserProgressSchema, 
   updateUserProgressSchema,
   insertUserSchema
 } from "@shared/schema";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-06-20",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Tutorial Steps Routes
@@ -170,6 +178,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to update user onboarding:", error);
       res.status(500).json({ error: "Failed to update user onboarding" });
+    }
+  });
+
+  // Stripe payment routes
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount, currency = "usd", description = "SkateHubba Donation" } = req.body;
+      
+      if (!amount || amount < 0.50) { // Minimum 50 cents
+        return res.status(400).json({ error: "Amount must be at least $0.50" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        description,
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error: any) {
+      console.error("Payment intent creation failed:", error);
+      res.status(500).json({ 
+        error: "Failed to create payment intent", 
+        details: error.message 
+      });
+    }
+  });
+
+  // Get payment status
+  app.get("/api/payment-intent/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const paymentIntent = await stripe.paymentIntents.retrieve(id);
+      
+      res.json({
+        status: paymentIntent.status,
+        amount: paymentIntent.amount / 100,
+        currency: paymentIntent.currency,
+        description: paymentIntent.description
+      });
+    } catch (error: any) {
+      console.error("Failed to retrieve payment intent:", error);
+      res.status(500).json({ 
+        error: "Failed to retrieve payment intent",
+        details: error.message 
+      });
     }
   });
 

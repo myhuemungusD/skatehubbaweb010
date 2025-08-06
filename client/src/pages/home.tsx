@@ -177,13 +177,13 @@ export default function Home() {
                     SKATE. CHALLENGE. STREAM. TRADE.
                   </h2>
                   <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-                    <button 
-                      onClick={() => scrollToSection('join')}
+                    <a 
+                      href="/donate"
                       className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
-                      data-testid="button-download-now"
+                      data-testid="button-support-now"
                     >
-                      DOWNLOAD NOW
-                    </button>
+                      SUPPORT NOW
+                    </a>
                     <a 
                       href="/demo"
                       className="bg-transparent border-2 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-black text-lg font-bold px-8 py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl"
@@ -201,13 +201,22 @@ export default function Home() {
                   Level up your skate life: customize your skater, discover gear, join digital sessions, and share clips with your crew. SkateHubba is where digital meets street.
                 </p>
                 <div className="mt-8">
-                  <button 
-                    onClick={() => scrollToSection('features')}
-                    className="text-orange-400 hover:text-orange-300 transition-colors cursor-pointer text-lg font-semibold"
-                    data-testid="link-meet-crew"
-                  >
-                    Meet Your Crew →
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-4 items-center">
+                    <button 
+                      onClick={() => scrollToSection('features')}
+                      className="text-orange-400 hover:text-orange-300 transition-colors cursor-pointer text-lg font-semibold"
+                      data-testid="link-meet-crew"
+                    >
+                      Meet Your Crew →
+                    </button>
+                    <a 
+                      href="/donate"
+                      className="px-6 py-2 bg-orange-400/20 border border-orange-400/50 text-orange-400 rounded-lg hover:bg-orange-400/30 transition-all text-sm font-semibold"
+                      data-testid="button-support-project"
+                    >
+                      💰 Support This Project
+                    </a>
+                  </div>
                 </div>
               </div>
             </section>
