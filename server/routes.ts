@@ -8,6 +8,8 @@ import {
   updateUserProgressSchema,
   insertUserSchema
 } from "@shared/schema";
+import crypto from "crypto";
+import validator from "validator";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -15,6 +17,46 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-06-20",
 });
+
+// Security validation functions
+const sanitizeString = (str: string): string => {
+  return validator.escape(str.trim());
+};
+
+const validateId = (id: string): boolean => {
+  return validator.isInt(id, { min: 1 });
+};
+
+const validateEmail = (email: string): boolean => {
+  return validator.isEmail(email) && validator.isLength(email, { max: 254 });
+};
+
+// Authentication middleware
+const authenticateUser = (req: any, res: any, next: any) => {
+  // For demo purposes - implement proper session/JWT validation
+  const authHeader = req.headers.authorization;
+  if (!authHeader && req.path.includes('/users/') && req.method !== 'GET') {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+};
+
+// Request validation middleware
+const validateRequest = (schema: z.ZodSchema) => (req: any, res: any, next: any) => {
+  try {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ 
+        error: "Invalid request data", 
+        details: result.error.errors 
+      });
+    }
+    req.validatedBody = result.data;
+    next();
+  } catch (error) {
+    res.status(400).json({ error: "Request validation failed" });
+  }
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Tutorial Steps Routes
@@ -30,12 +72,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/tutorial/steps/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid step ID" });
+      const { id } = req.params;
+      if (!validateId(id)) {
+        return res.status(400).json({ error: "Invalid step ID format" });
       }
       
-      const step = await storage.getTutorialStep(id);
+      const stepId = parseInt(id);
+      const step = await storage.getTutorialStep(stepId);
       if (!step) {
         return res.status(404).json({ error: "Tutorial step not found" });
       }
@@ -48,14 +91,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Progress Routes
-  app.get("/api/users/:userId/progress", async (req, res) => {
+  app.get("/api/users/:userId/progress", authenticateUser, async (req, res) => {
     try {
-      const userId = parseInt(req.params.userId);
-      if (isNaN(userId)) {
-        return res.status(400).json({ error: "Invalid user ID" });
+      const { userId } = req.params;
+      if (!validateId(userId)) {
+        return res.status(400).json({ error: "Invalid user ID format" });
       }
 
-      const progress = await storage.getUserProgress(userId);
+      const userIdInt = parseInt(userId);
+      const progress = await storage.getUserProgress(userIdInt);
       res.json(progress);
     } catch (error) {
       console.error("Failed to get user progress:", error);
@@ -186,17 +230,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { amount, currency = "usd", description = "SkateHubba Donation" } = req.body;
       
-      if (!amount || amount < 0.50) { // Minimum 50 cents
-        return res.status(400).json({ error: "Amount must be at least $0.50" });
+      // Validate amount
+      if (!amount || typeof amount !== 'number' || amount < 0.50 || amount > 10000) {
+        return res.status(400).json({ error: "Amount must be between $0.50 and $10,000" });
       }
+
+      // Validate currency
+      const allowedCurrencies = ['usd', 'eur', 'gbp', 'cad', 'aud'];
+      if (!allowedCurrencies.includes(currency.toLowerCase())) {
+        return res.status(400).json({ error: "Unsupported currency" });
+      }
+
+      // Sanitize description
+      const sanitizedDescription = sanitizeString(description);
+      if (sanitizedDescription.length > 100) {
+        return res.status(400).json({ error: "Description too long" });
+      }
+
+      // Generate idempotency key for payment safety
+      const idempotencyKey = crypto.randomUUID();
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
-        currency,
-        description,
+        currency: currency.toLowerCase(),
+        description: sanitizedDescription,
         automatic_payment_methods: {
           enabled: true,
         },
+        metadata: {
+          source: 'skatehubba_website',
+          timestamp: new Date().toISOString()
+        }
+      }, {
+        idempotencyKey
       });
 
       res.json({ 
@@ -206,8 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Payment intent creation failed:", error);
       res.status(500).json({ 
-        error: "Failed to create payment intent", 
-        details: error.message 
+        error: "Failed to create payment intent"
       });
     }
   });

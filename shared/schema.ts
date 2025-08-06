@@ -1,3 +1,32 @@
+
+import { z } from "zod";
+
+// Security validation schemas
+export const emailSchema = z.string()
+  .email("Invalid email format")
+  .max(254, "Email too long")
+  .transform(email => email.toLowerCase().trim());
+
+export const usernameSchema = z.string()
+  .min(3, "Username must be at least 3 characters")
+  .max(30, "Username must be less than 30 characters")
+  .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, hyphens, and underscores");
+
+export const passwordSchema = z.string()
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password too long")
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain at least one uppercase letter, one lowercase letter, and one number");
+
+export const paymentAmountSchema = z.number()
+  .min(0.50, "Amount must be at least $0.50")
+  .max(10000, "Amount cannot exceed $10,000");
+
+export const sanitizedStringSchema = z.string()
+  .trim()
+  .max(1000, "String too long")
+  .transform(str => str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
+
+
 import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
