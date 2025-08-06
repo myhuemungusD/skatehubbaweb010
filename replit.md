@@ -111,6 +111,16 @@ The application is designed for easy deployment on platforms like Replit, with a
 
 ## Recent Changes
 
+### 2025-01-25 - Implemented Dynamic Onboarding Tutorial with Interactive Skate Guide
+- **Backend Infrastructure**: Complete tutorial system with tutorial_steps, user_progress, and enhanced user tables
+- **API Endpoints**: Full REST API for tutorial management (/api/tutorial/steps, /api/users/:id/progress, /api/users/:id/onboarding)
+- **Interactive Tutorial Components**: Step-by-step guided experience with tap, swipe, and drag interactions
+- **Progress Tracking**: Detailed analytics on user interactions, completion times, and help usage
+- **Demo System**: Accessible demo page (/demo) with temporary user creation for testing
+- **5-Phase Tutorial Flow**: Welcome intro, map navigation, trenches upload, avatar customization, and challenge system
+- **Comprehensive UI**: Progress bars, step indicators, interactive elements, and completion rewards
+- **Home Page Integration**: Added "Try Tutorial Demo" buttons for easy access from main landing page
+
 ### 2025-01-24 - Added SkateHubba Logo & Updated Messaging
 - Created unique skateboard-inspired SVG logo component with street art elements
 - Added prominent logo display in hero section and fixed navigation header

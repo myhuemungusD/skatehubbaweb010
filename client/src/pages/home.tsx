@@ -176,13 +176,22 @@ export default function Home() {
                   <h2 className="text-2xl font-bold text-orange-400 mb-8 tracking-wide">
                     SKATE. CHALLENGE. STREAM. TRADE.
                   </h2>
-                  <button 
-                    onClick={() => scrollToSection('join')}
-                    className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
-                    data-testid="button-download-now"
-                  >
-                    DOWNLOAD NOW
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                    <button 
+                      onClick={() => scrollToSection('join')}
+                      className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
+                      data-testid="button-download-now"
+                    >
+                      DOWNLOAD NOW
+                    </button>
+                    <a 
+                      href="/demo"
+                      className="bg-transparent border-2 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-black text-lg font-bold px-8 py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl"
+                      data-testid="button-try-tutorial"
+                    >
+                      TRY TUTORIAL DEMO
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -235,6 +244,17 @@ export default function Home() {
               <h3 className="text-3xl font-bold mb-8 text-[#fafafa] text-center">Development Roadmap</h3>
               
               <div className="max-w-4xl mx-auto space-y-8">
+                {/* Interactive Demo Link */}
+                <div className="text-center mb-8">
+                  <a 
+                    href="/demo"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-orange-400/20 border border-orange-400/50 text-orange-400 rounded-lg hover:bg-orange-400/30 transition-all"
+                    data-testid="link-try-interactive-demo"
+                  >
+                    🎮 Try Interactive Demo of These Features
+                  </a>
+                </div>
+                
                 {/* Phase 1 */}
                 <div className="border-l-4 border-orange-400 pl-6">
                   <h4 className="text-2xl font-bold text-orange-400 mb-4">Phase 1: Core Loop & Community</h4>
