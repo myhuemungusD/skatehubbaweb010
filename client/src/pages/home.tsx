@@ -10,6 +10,21 @@ import shopTemplate from "@assets/shoptemplate0.2_1754296307132.png";
 import graffWallRack from "@assets/graffwallskateboardrack_1754296307132.png";
 import nftShoe from "@assets/baigeESnft_1754296307131.png";
 
+// Import the ImageCarousel component
+import { ImageCarousel } from "@/components/ImageCarousel";
+
+// Sample gallery data - replace with your actual images
+const gallerySlides = [
+  {
+    id: 1,
+    images: ["/attached_assets/cartoonavatar_1754296307132.png", "/attached_assets/baigeES_1754296307131.png", "/attached_assets/baigeESnft_1754296307131.png"]
+  },
+  {
+    id: 2, 
+    images: ["/attached_assets/graffwallskateboardrack_1754296307132.png", "/attached_assets/shoptemplate0.2_1754296307132.png", "/attached_assets/shop background_1754296307133.png"]
+  }
+]
+
 export default function Home() {
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -51,7 +66,7 @@ export default function Home() {
     >
       {/* Dark overlay for better text readability */}
       <div className="absolute inset-0 bg-black/30 z-0"></div>
-      
+
       {/* Content */}
       <div className="relative z-10">
         {/* Beta Notice */}
@@ -109,8 +124,10 @@ export default function Home() {
             <section className="mb-16">
               {/* Main Title */}
               <div className="mb-12">
-                <h1 className="text-5xl font-bold mb-4 text-[#fafafa] tracking-wider">SKATEHUBBA</h1>
-                <h2 className="text-2xl mb-8 text-[#fafafa]">Stream. Connect. Skate. Your Skateboarding Social Universe.</h2>
+                <h1 className="text-5xl md:text-7xl font-black text-[#fafafa] mb-6 leading-tight font-orbitron">
+              Stream. Connect. Skate.
+            </h1>
+                <h2 className="text-2xl mb-8 text-[#fafafa]">Your Skateboarding Social Universe.</h2>
               </div>
 
               {/* Video Ad Style Sequence */}
@@ -222,36 +239,40 @@ export default function Home() {
             </section>
 
             {/* Features Section */}
-            <section id="features" className="mb-12">
-              <h3 className="text-3xl font-bold mb-6 text-[#fafafa]">Why SkateHubba?</h3>
-              <ul className="text-left max-w-2xl mx-auto space-y-3 text-[#fafafa]">
-                <li className="flex items-start gap-3">
-                  <span className="text-orange-400">🔥</span>
-                  <span>Customize your own skater & digital skate zone</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-orange-400">🛹</span>
-                  <span>Equip, collect & show off rare skate gear (even NFT kicks!)</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-orange-400">🎥</span>
-                  <span>Stream live sessions & share skate clips</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-orange-400">💰</span>
-                  <span>Trade exclusive gear, NFTs & collectibles with your crew</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-orange-400">🤝</span>
-                  <span>Connect, chat, & squad up with other skaters worldwide</span>
-                </li>
-              </ul>
+            <section id="features" className="features-section py-24 bg-[#0a0a0a]">
+              <div className="container mx-auto px-4">
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-[#fafafa] font-orbitron">
+              Features
+            </h2>
+                <ul className="text-left max-w-2xl mx-auto space-y-3 text-[#fafafa]">
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-400">🔥</span>
+                    <span>Customize your own skater & digital skate zone</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-400">🛹</span>
+                    <span>Equip, collect & show off rare skate gear (even NFT kicks!)</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-400">🎥</span>
+                    <span>Stream live sessions & share skate clips</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-400">💰</span>
+                    <span>Trade exclusive gear, NFTs & collectibles with your crew</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-400">🤝</span>
+                    <span>Connect, chat, & squad up with other skaters worldwide</span>
+                  </li>
+                </ul>
+              </div>
             </section>
 
             {/* Development Roadmap */}
             <section className="mb-12 bg-black/40 rounded-2xl p-8">
-              <h3 className="text-3xl font-bold mb-8 text-[#fafafa] text-center">Development Roadmap</h3>
-              
+              <h3 className="text-3xl font-bold mb-8 text-[#fafafa] text-center font-orbitron">Development Roadmap</h3>
+
               <div className="max-w-4xl mx-auto space-y-8">
                 {/* Interactive Demo Link */}
                 <div className="text-center mb-8">
@@ -263,10 +284,10 @@ export default function Home() {
                     🎮 Try Interactive Demo of These Features
                   </a>
                 </div>
-                
+
                 {/* Phase 1 */}
                 <div className="border-l-4 border-orange-400 pl-6">
-                  <h4 className="text-2xl font-bold text-orange-400 mb-4">Phase 1: Core Loop & Community</h4>
+                  <h4 className="text-2xl font-bold text-orange-400 mb-4 font-orbitron">Phase 1: Core Loop & Community</h4>
                   <div className="space-y-3 text-[#fafafa]">
                     <p><strong>Remote S.K.A.T.E. Battles:</strong> Video upload, challenge/response, 24-hour timer, and basic trick validation (manual at first, AI-assisted later).</p>
                     <p><strong>Map & Check-Ins:</strong> Geolocation map with skate spots, shops, and parks. Check-in for rewards and see who's nearby.</p>
@@ -277,7 +298,7 @@ export default function Home() {
 
                 {/* Phase 2 */}
                 <div className="border-l-4 border-orange-400 pl-6">
-                  <h4 className="text-2xl font-bold text-orange-400 mb-4">Phase 2: Social & Progression</h4>
+                  <h4 className="text-2xl font-bold text-orange-400 mb-4 font-orbitron">Phase 2: Social & Progression</h4>
                   <div className="space-y-3 text-[#fafafa]">
                     <p><strong>Crews & Rep:</strong> Crew creation, stats, badges, and leaderboards.</p>
                     <p><strong>Trading & Collectibles:</strong> Item trading with rarity/history, daily challenges, and coin/cosmetic rewards.</p>
@@ -287,7 +308,7 @@ export default function Home() {
 
                 {/* Phase 3 */}
                 <div className="border-l-4 border-orange-400 pl-6">
-                  <h4 className="text-2xl font-bold text-orange-400 mb-4">Phase 3: AR & Advanced Features</h4>
+                  <h4 className="text-2xl font-bold text-orange-400 mb-4 font-orbitron">Phase 3: AR & Advanced Features</h4>
                   <div className="space-y-3 text-[#fafafa]">
                     <p><strong>AR Spot Check-Ins:</strong> Camera overlay for immersive check-ins and navigation.</p>
                     <p><strong>Advanced Customization:</strong> More avatar/closet options, limited drops, and pro features.</p>
@@ -297,59 +318,25 @@ export default function Home() {
             </section>
 
             {/* Gallery Section */}
-            <section id="gallery" className="mb-12">
-              <h3 className="text-3xl font-bold mb-8 text-[#fafafa]">Gallery</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <figure className="mb-6">
-                  <img 
-                    src={checkinMapImage} 
-                    alt="Vibe Out at SkateHubba Spots" 
-                    className="w-full rounded-lg shadow-lg bg-[#232323]"
-                    data-testid="img-gallery-spots"
-                  />
-                  <figcaption className="mt-3 text-[#fafafa]">Vibe Out at SkateHubba Spots</figcaption>
-                </figure>
-                
-                <figure className="mb-6">
-                  <img 
-                    src={graffWallRack} 
-                    alt="Customize Your Boards" 
-                    className="w-full rounded-lg shadow-lg bg-[#232323]"
-                    data-testid="img-gallery-boards"
-                  />
-                  <figcaption className="mt-3 text-[#fafafa]">Customize Your Boards</figcaption>
-                </figure>
-                
-                <figure className="mb-6">
-                  <img 
-                    src={shopTemplate} 
-                    alt="Gear Up in the Digital Skate Shop" 
-                    className="w-full rounded-lg shadow-lg bg-[#232323]"
-                    data-testid="img-gallery-shop"
-                  />
-                  <figcaption className="mt-3 text-[#fafafa]">Gear Up in the Digital Skate Shop</figcaption>
-                </figure>
-                
-                <figure className="mb-6">
-                  <img 
-                    src={nftShoe} 
-                    alt="Unlock Limited Edition NFT Gear" 
-                    className="w-full rounded-lg shadow-lg bg-[#232323]"
-                    data-testid="img-gallery-nft"
-                  />
-                  <figcaption className="mt-3 text-[#fafafa]">Unlock Limited Edition NFT Gear</figcaption>
-                </figure>
+            <section id="gallery" className="gallery-section py-24 bg-[#111]">
+              <div className="container mx-auto px-4">
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-[#fafafa] font-orbitron">
+              Gallery
+            </h2>
+                <ImageCarousel slides={gallerySlides} />
               </div>
             </section>
           </div>
         </main>
 
         {/* Join Section */}
-        <section id="join" className="py-16 bg-black/40">
+        <section id="join" className="join-section py-24 bg-[#181818]">
           <div className="container mx-auto px-4">
             <article className="max-w-2xl mx-auto text-center">
               <div className="mb-8">
-                <h2 className="text-3xl font-bold mb-4 text-[#fafafa]">Join the SkateHubba Community</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-[#fafafa] font-orbitron">
+              Join the Community
+            </h2>
                 <h3 className="text-xl text-[#fafafa]">Be first to know about updates, exclusive gear drops & sessions.</h3>
               </div>
               <form onSubmit={handleJoinSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -386,7 +373,7 @@ export default function Home() {
         {/* Social Follow Section */}
         <section className="py-12 bg-black/50">
           <div className="container mx-auto px-4 text-center">
-            <h3 className="text-2xl font-bold mb-6 text-[#fafafa]">Follow Us</h3>
+            <h3 className="text-2xl font-bold mb-6 text-[#fafafa] font-orbitron">Follow Us</h3>
             <p className="text-lg mb-8 text-[#fafafa]">Stay in the loop and connect with the culture:</p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6 max-w-md mx-auto">
               <a 
@@ -479,7 +466,7 @@ export default function Home() {
             >
               &times;
             </button>
-            <h3 id="privacy-title" className="text-2xl font-bold mb-4">Privacy Policy</h3>
+            <h3 id="privacy-title" className="text-2xl font-bold mb-4 font-orbitron">Privacy Policy</h3>
             <p className="mb-4"><strong>Effective date: August 2025</strong></p>
             <p className="mb-4">
               SkateHubba collects your name and email only for the purpose of sending you updates and news. We do not share or sell your personal data with anyone.
@@ -508,7 +495,7 @@ export default function Home() {
             >
               &times;
             </button>
-            <h3 id="terms-title" className="text-2xl font-bold mb-4">Terms of Service</h3>
+            <h3 id="terms-title" className="text-2xl font-bold mb-4 font-orbitron">Terms of Service</h3>
             <p className="mb-4"><strong>Effective date: August 2025</strong></p>
             <p className="mb-4">
               By using SkateHubba, you agree to these terms. The service is provided as-is for skateboarding community engagement.
@@ -537,7 +524,7 @@ export default function Home() {
             >
               &times;
             </button>
-            <h3 id="accessibility-title" className="text-2xl font-bold mb-4">Accessibility</h3>
+            <h3 id="accessibility-title" className="text-2xl font-bold mb-4 font-orbitron">Accessibility</h3>
             <p className="mb-4">
               SkateHubba is committed to providing an accessible experience for all users. We follow WCAG guidelines and continuously improve our accessibility features.
             </p>
