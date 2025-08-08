@@ -91,10 +91,11 @@ export default function Donate() {
   // Your actual crypto wallet addresses for receiving donations
   const cryptoAddresses = {
     bitcoin: 'bc1qtlc2pyv3wndeavmfcz4750lmqng9q32h246n8l',
-    ethereum: 'YOUR_ACTUAL_ETHEREUM_ADDRESS_HERE',
-    usdc: 'YOUR_ACTUAL_USDC_ADDRESS_HERE',
-    solana: 'YOUR_ACTUAL_SOLANA_ADDRESS_HERE',
-    dogecoin: 'DJBHyoA1rosNn3B4EbBjmzZqm4Vrn1NGzR'
+    ethereum: '0xE73CeeF1101d2355592A313A299333cB9a55A889',
+    usdc: '0xE73CeeF1101d2355592A313A299333cB9a55A889',
+    solana: '311eHoFpY61cSjZfuXRmZeM6H6Ja7kh5d4JAHY6EQo2z',
+    dogecoin: 'DJBHyoA1rosNn3B4EbBjmzZqm4Vrn1NGzR',
+    litecoin: 'ltc1q8rp2s4x23m5hmazqr7srp7kregqurspskxkkvj'
   };
 
   // Check for success parameter
@@ -457,6 +458,27 @@ export default function Donate() {
                             </div>
                             <p className="text-xs text-gray-300 break-all font-mono bg-gray-900 p-2 rounded">
                               {cryptoAddresses.dogecoin}
+                            </p>
+                          </div>
+
+                          {/* Litecoin */}
+                          <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-600">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-400 text-lg">Ł</span>
+                                <span className="text-[#fafafa] font-semibold">Litecoin (LTC)</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => copyToClipboard(cryptoAddresses.litecoin, 'litecoin')}
+                                className="text-orange-400 hover:text-orange-300"
+                              >
+                                {copiedAddress === 'litecoin' ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                              </Button>
+                            </div>
+                            <p className="text-xs text-gray-300 break-all font-mono bg-gray-900 p-2 rounded">
+                              {cryptoAddresses.litecoin}
                             </p>
                           </div>
                         </div>
