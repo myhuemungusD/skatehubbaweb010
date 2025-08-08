@@ -93,7 +93,8 @@ export default function Donate() {
     bitcoin: 'bc1qtlc2pyv3wndeavmfcz4750lmqng9q32h246n8l',
     ethereum: 'YOUR_ACTUAL_ETHEREUM_ADDRESS_HERE',
     usdc: 'YOUR_ACTUAL_USDC_ADDRESS_HERE',
-    solana: 'YOUR_ACTUAL_SOLANA_ADDRESS_HERE'
+    solana: 'YOUR_ACTUAL_SOLANA_ADDRESS_HERE',
+    dogecoin: 'DJBHyoA1rosNn3B4EbBjmzZqm4Vrn1NGzR'
   };
 
   // Check for success parameter
@@ -435,6 +436,27 @@ export default function Donate() {
                             </div>
                             <p className="text-xs text-gray-300 break-all font-mono bg-gray-900 p-2 rounded">
                               {cryptoAddresses.solana}
+                            </p>
+                          </div>
+
+                          {/* Dogecoin */}
+                          <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-600">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-yellow-400 text-lg">🐕</span>
+                                <span className="text-[#fafafa] font-semibold">Dogecoin (DOGE)</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => copyToClipboard(cryptoAddresses.dogecoin, 'dogecoin')}
+                                className="text-orange-400 hover:text-orange-300"
+                              >
+                                {copiedAddress === 'dogecoin' ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                              </Button>
+                            </div>
+                            <p className="text-xs text-gray-300 break-all font-mono bg-gray-900 p-2 rounded">
+                              {cryptoAddresses.dogecoin}
                             </p>
                           </div>
                         </div>
