@@ -380,7 +380,7 @@ export default function Home() {
           <div className="container mx-auto px-4 text-center">
             <h3 className="text-2xl font-bold mb-6 text-[#fafafa] font-orbitron">Follow Us</h3>
             <p className="text-lg mb-8 text-[#fafafa]">Stay in the loop and connect with the culture:</p>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 max-w-2xl mx-auto">
               <a 
                 href="https://instagram.com/SkateHubba_app"
                 target="_blank"
@@ -400,6 +400,14 @@ export default function Home() {
               >
                 <span>📘</span>
                 <span>Facebook: SkateHubba</span>
+              </a>
+              <a 
+                href="/donate"
+                className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg text-lg font-semibold"
+                data-testid="link-donate-footer"
+              >
+                <span>💰</span>
+                <span>Donate to Dev</span>
               </a>
             </div>
           </div>
