@@ -201,13 +201,6 @@ export default function Home() {
                     >
                       SUPPORT NOW
                     </a>
-                    <a 
-                      href="/demo"
-                      className="bg-transparent border-2 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-black text-lg font-bold px-8 py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl"
-                      data-testid="button-try-tutorial"
-                    >
-                      TRY TUTORIAL DEMO
-                    </a>
                   </div>
                 </div>
               </div>
