@@ -90,7 +90,7 @@ export default function Donate() {
 
   // Your actual crypto wallet addresses for receiving donations
   const cryptoAddresses = {
-    bitcoin: 'YOUR_ACTUAL_BITCOIN_ADDRESS_HERE',
+    bitcoin: 'bc1qtlc2pyv3wndeavmfcz4750lmqng9q32h246n8l',
     ethereum: 'YOUR_ACTUAL_ETHEREUM_ADDRESS_HERE',
     usdc: 'YOUR_ACTUAL_USDC_ADDRESS_HERE',
     solana: 'YOUR_ACTUAL_SOLANA_ADDRESS_HERE'
