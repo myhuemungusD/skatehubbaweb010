@@ -29,6 +29,16 @@ const gallerySlides = [
     id: 3,
     title: "Environment & Locations", 
     images: ["/attached_assets/alley back ground_1754296307133.png", "/attached_assets/profile background_1754296307133.png", "/attached_assets/graff wall_1754296307134.png"]
+  },
+  {
+    id: 4,
+    title: "Game Interface & Avatars",
+    images: ["/attached_assets/avatar4_1754685109473.png", "/attached_assets/avatar11_1754685109474.png", "/attached_assets/avatar6_1754685109474.png"]
+  },
+  {
+    id: 5,
+    title: "Customization & Inventory",
+    images: ["/attached_assets/shopscreen3_1754685109474.png", "/attached_assets/avatar5_1754685109474.png"]
   }
 ]
 
