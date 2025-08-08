@@ -88,12 +88,12 @@ export default function Donate() {
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Crypto wallet addresses - replace with your actual addresses
+  // Your actual crypto wallet addresses for receiving donations
   const cryptoAddresses = {
-    bitcoin: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-    ethereum: '0x742C4B9B0344b2F38aBFf55f7b2C4a5f5D2A0c8E',
-    usdc: '0x742C4B9B0344b2F38aBFf55f7b2C4a5f5D2A0c8E',
-    solana: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+    bitcoin: 'YOUR_ACTUAL_BITCOIN_ADDRESS_HERE',
+    ethereum: 'YOUR_ACTUAL_ETHEREUM_ADDRESS_HERE',
+    usdc: 'YOUR_ACTUAL_USDC_ADDRESS_HERE',
+    solana: 'YOUR_ACTUAL_SOLANA_ADDRESS_HERE'
   };
 
   // Check for success parameter
