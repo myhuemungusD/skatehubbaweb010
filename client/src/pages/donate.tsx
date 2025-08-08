@@ -301,28 +301,67 @@ export default function Donate() {
                       </div>
                     </div>
 
-                    {/* Impact Information */}
+                    {/* Impact Information & Rewards */}
                     <div className="p-4 bg-orange-400/10 rounded-lg border border-orange-400/30">
-                      <h4 className="text-orange-400 font-semibold mb-2">Your Impact</h4>
-                      <div className="text-sm text-gray-300 space-y-1">
+                      <h4 className="text-orange-400 font-semibold mb-3">Your Impact & Rewards</h4>
+                      <div className="text-sm text-gray-300 space-y-2">
                         {selectedAmount >= 250 && (
-                          <p>🏆 Major Contributor - Help fund major feature development</p>
+                          <div className="p-3 bg-purple-500/20 rounded border border-purple-400/30">
+                            <p className="font-semibold text-purple-300">🏆 LEGENDARY CONTRIBUTOR ($250+)</p>
+                            <p>• Help fund major feature development</p>
+                            <p>• Exclusive "Founder" badge on your future SkateHubba profile</p>
+                            <p>• Early access to all beta features (lifetime)</p>
+                            <p>• Your name credited in app "Special Thanks" section</p>
+                            <p>• Direct line to developers for feature suggestions</p>
+                          </div>
                         )}
                         {selectedAmount >= 100 && selectedAmount < 250 && (
-                          <p>🚀 Feature Supporter - Support new interactive features</p>
+                          <div className="p-3 bg-gold-500/20 rounded border border-yellow-400/30">
+                            <p className="font-semibold text-yellow-300">🚀 PRO SUPPORTER ($100+)</p>
+                            <p>• Support new interactive features</p>
+                            <p>• Exclusive "Pro Supporter" badge on your profile</p>
+                            <p>• Early access to major updates (2 weeks before public)</p>
+                            <p>• Your username listed in app credits</p>
+                          </div>
                         )}
                         {selectedAmount >= 50 && selectedAmount < 100 && (
-                          <p>🛹 Community Builder - Help grow the skater network</p>
+                          <div className="p-3 bg-blue-500/20 rounded border border-blue-400/30">
+                            <p className="font-semibold text-blue-300">🛹 COMMUNITY BUILDER ($50+)</p>
+                            <p>• Help grow the skater network</p>
+                            <p>• Exclusive "Community Builder" badge</p>
+                            <p>• Early access to new features (1 week before public)</p>
+                            <p>• Priority support for any issues</p>
+                          </div>
                         )}
                         {selectedAmount >= 25 && selectedAmount < 50 && (
-                          <p>⚡ Platform Supporter - Keep servers running smoothly</p>
+                          <div className="p-3 bg-green-500/20 rounded border border-green-400/30">
+                            <p className="font-semibold text-green-300">⚡ CORE SUPPORTER ($25+)</p>
+                            <p>• Keep servers running smoothly</p>
+                            <p>• Exclusive "Core Supporter" badge</p>
+                            <p>• Access to supporter-only Discord channel</p>
+                          </div>
                         )}
                         {selectedAmount >= 10 && selectedAmount < 25 && (
-                          <p>💪 Contributor - Support daily operations</p>
+                          <div className="p-3 bg-orange-500/20 rounded border border-orange-400/30">
+                            <p className="font-semibold text-orange-300">💪 CONTRIBUTOR ($10+)</p>
+                            <p>• Support daily operations</p>
+                            <p>• Exclusive "Contributor" badge</p>
+                            <p>• Monthly development updates via email</p>
+                          </div>
                         )}
                         {selectedAmount >= 1 && selectedAmount < 10 && (
-                          <p>❤️ Supporter - Every bit helps!</p>
+                          <div className="p-3 bg-gray-500/20 rounded border border-gray-400/30">
+                            <p className="font-semibold text-gray-300">❤️ SUPPORTER ($1+)</p>
+                            <p>• Every bit helps!</p>
+                            <p>• Exclusive "Supporter" badge</p>
+                            <p>• Our eternal gratitude!</p>
+                          </div>
                         )}
+                      </div>
+                      <div className="mt-4 p-3 bg-orange-600/20 rounded border border-orange-500/30">
+                        <p className="text-xs text-orange-200 font-semibold">
+                          🎖️ All rewards will be automatically applied to your SkateHubba account when the platform launches!
+                        </p>
                       </div>
                     </div>
 
@@ -524,6 +563,44 @@ export default function Donate() {
                     </div>
                   </>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Exclusive Perks Preview */}
+            <Card className="bg-black/60 border-gray-600 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-[#fafafa] flex items-center gap-2">
+                  <span className="text-2xl">🎁</span>
+                  Supporter Exclusive Perks
+                </CardTitle>
+                <CardDescription className="text-gray-300">
+                  Get exclusive access and recognition for supporting SkateHubba
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <h5 className="text-orange-400 font-semibold">🏅 Profile Badges</h5>
+                    <p className="text-gray-300">Show off your supporter status with exclusive badges that appear on your SkateHubba profile</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h5 className="text-orange-400 font-semibold">🚀 Early Access</h5>
+                    <p className="text-gray-300">Be among the first to test new features and updates before they go live</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h5 className="text-orange-400 font-semibold">💬 Direct Line</h5>
+                    <p className="text-gray-300">Higher-tier supporters get direct access to suggest features and improvements</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h5 className="text-orange-400 font-semibold">📜 Hall of Fame</h5>
+                    <p className="text-gray-300">Your name listed in the app credits, immortalized in SkateHubba history</p>
+                  </div>
+                </div>
+                <div className="p-3 bg-purple-500/10 rounded border border-purple-400/30">
+                  <p className="text-purple-300 text-sm font-semibold text-center">
+                    🌟 All perks are lifetime rewards - once earned, they're yours forever!
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
