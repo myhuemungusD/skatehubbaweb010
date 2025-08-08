@@ -257,6 +257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         automatic_payment_methods: {
           enabled: true,
         },
+        payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
         metadata: {
           source: 'skatehubba_website',
           timestamp: new Date().toISOString()

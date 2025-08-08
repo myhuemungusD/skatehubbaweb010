@@ -66,8 +66,8 @@ const DonateForm = ({ amount }: DonateFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <PaymentElement className="bg-white rounded-lg p-4" />
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         disabled={!stripe || isLoading}
         className="w-full bg-orange-400 text-black hover:bg-orange-500 font-semibold py-3"
         data-testid="button-submit-payment"
@@ -336,7 +336,7 @@ export default function Donate() {
                           ₿ Cryptocurrency
                         </TabsTrigger>
                       </TabsList>
-                      
+
                       <TabsContent value="card" className="space-y-4">
                         <Button
                           onClick={createPaymentIntent}
@@ -347,14 +347,14 @@ export default function Donate() {
                           {isCreatingPayment ? 'Setting up payment...' : `Proceed to Card Payment - $${selectedAmount}`}
                         </Button>
                       </TabsContent>
-                      
+
                       <TabsContent value="crypto" className="space-y-4">
                         <div className="text-center mb-4">
                           <p className="text-gray-300 text-sm">
                             Send any amount to one of our crypto addresses below:
                           </p>
                         </div>
-                        
+
                         <div className="space-y-4">
                           {/* Bitcoin */}
                           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-600">
