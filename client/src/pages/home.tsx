@@ -13,15 +13,22 @@ import nftShoe from "@assets/baigeESnft_1754296307131.png";
 // Import the ImageCarousel component
 import { ImageCarousel } from "@/components/ImageCarousel";
 
-// Sample gallery data - replace with your actual images
+// Gallery data organized by categories
 const gallerySlides = [
   {
     id: 1,
+    title: "Avatar & Character System",
     images: ["/attached_assets/cartoonavatar_1754296307132.png", "/attached_assets/baigeES_1754296307131.png", "/attached_assets/baigeESnft_1754296307131.png"]
   },
   {
     id: 2, 
+    title: "Shop & Trading System",
     images: ["/attached_assets/graffwallskateboardrack_1754296307132.png", "/attached_assets/shoptemplate0.2_1754296307132.png", "/attached_assets/shop background_1754296307133.png"]
+  },
+  {
+    id: 3,
+    title: "Environment & Locations", 
+    images: ["/attached_assets/alley back ground_1754296307133.png", "/attached_assets/profile background_1754296307133.png", "/attached_assets/graff wall_1754296307134.png"]
   }
 ]
 
@@ -301,12 +308,17 @@ export default function Home() {
             </section>
 
             {/* Gallery Section */}
-            <section id="gallery" className="gallery-section py-24 bg-[#111]">
+            <section id="gallery" className="gallery-section py-24 bg-[#0a0a0a]">
               <div className="container mx-auto px-4">
-                <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-[#fafafa] font-orbitron">
-              Gallery
-            </h2>
-                <ImageCarousel slides={gallerySlides} />
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-[#fafafa] font-orbitron">
+                  Gallery
+                </h2>
+                <p className="text-center text-gray-300 mb-16 max-w-2xl mx-auto">
+                  Explore the visual journey of SkateHubba™ - from character customization to immersive environments
+                </p>
+                <div className="bg-[#131313] rounded-2xl border border-gray-700 overflow-hidden">
+                  <ImageCarousel slides={gallerySlides} />
+                </div>
               </div>
             </section>
           </div>
