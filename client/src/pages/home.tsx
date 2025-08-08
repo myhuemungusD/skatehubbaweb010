@@ -267,16 +267,6 @@ export default function Home() {
               <h3 className="text-3xl font-bold mb-8 text-[#fafafa] text-center font-orbitron">Development Roadmap</h3>
 
               <div className="max-w-4xl mx-auto space-y-8">
-                {/* Interactive Demo Link */}
-                <div className="text-center mb-8">
-                  <a 
-                    href="/demo"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-orange-400/20 border border-orange-400/50 text-orange-400 rounded-lg hover:bg-orange-400/30 transition-all"
-                    data-testid="link-try-interactive-demo"
-                  >
-                    🎮 Try Interactive Demo of These Features
-                  </a>
-                </div>
 
                 {/* Phase 1 */}
                 <div className="border-l-4 border-orange-400 pl-6">
