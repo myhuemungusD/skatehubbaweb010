@@ -248,6 +248,44 @@ export default function Home() {
               </div>
             </section>
 
+            {/* SkateHubba Collectibles Section */}
+            <section className="py-24 bg-gradient-to-br from-orange-500/10 to-purple-600/10 border-y border-orange-400/20">
+              <div className="container mx-auto px-4">
+                <div className="text-center max-w-4xl mx-auto">
+                  <h2 className="text-4xl md:text-6xl font-black text-[#fafafa] mb-8 font-orbitron leading-tight">
+                    Your tricks are worth more than likes—now they're collectibles.
+                  </h2>
+                  <div className="text-left bg-black/50 rounded-2xl p-8 border border-orange-400/30">
+                    <h3 className="text-2xl md:text-3xl font-bold text-orange-400 mb-6 font-orbitron">
+                      SkateHubba Collectibles – Turn Tricks Into Treasure
+                    </h3>
+                    <div className="space-y-4 text-[#fafafa] text-lg leading-relaxed">
+                      <p>
+                        Land a banger? Now it's more than just a clip. With SkateHubba, your best tricks and legendary spot moments can be minted as one-of-a-kind digital collectibles. They're locked on the blockchain—so they can't be faked, copied, or lost.
+                      </p>
+                      <p>
+                        Trade rare gear, earn exclusive drops from your favorite pros, and unlock secret challenges only available to collectible holders. From a first-try rail to an MBD at your local spot, SkateHubba lets you own your moment, flex it forever, and even get rewarded for it.
+                      </p>
+                    </div>
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4 items-center">
+                      <div className="flex items-center gap-2 text-orange-400 font-semibold">
+                        <span className="text-2xl">🏆</span>
+                        <span>Mint Your Moments</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-orange-400 font-semibold">
+                        <span className="text-2xl">🔒</span>
+                        <span>Blockchain Verified</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-orange-400 font-semibold">
+                        <span className="text-2xl">💎</span>
+                        <span>Trade & Collect</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* Features Section */}
             <section id="features" className="features-section py-24 bg-[#0a0a0a]">
               <div className="container mx-auto px-4">
