@@ -18,27 +18,45 @@ const gallerySlides = [
   {
     id: 1,
     title: "Avatar & Character System",
-    images: ["/attached_assets/cartoonavatar_1754296307132.png", "/attached_assets/baigeES_1754296307131.png", "/attached_assets/baigeESnft_1754296307131.png"]
+    images: [
+      "/attached_assets/cartoonavatar_1754296307132.png", 
+      "/attached_assets/baigeES_1754296307131.png", 
+      "/attached_assets/baigeESnft_1754296307131.png",
+      "/attached_assets/avatar4_1754685109473.png",
+      "/attached_assets/avatar11_1754685109474.png",
+      "/attached_assets/avatar6_1754685109474.png",
+      "/attached_assets/avatar222_1754685109473.png",
+      "/attached_assets/avatar5_1754685109474.png"
+    ]
   },
   {
     id: 2, 
     title: "Shop & Trading System",
-    images: ["/attached_assets/graffwallskateboardrack_1754296307132.png", "/attached_assets/shoptemplate0.2_1754296307132.png", "/attached_assets/shop background_1754296307133.png"]
+    images: [
+      "/attached_assets/graffwallskateboardrack_1754296307132.png", 
+      "/attached_assets/shoptemplate0.2_1754296307132.png", 
+      "/attached_assets/shop background_1754296307133.png",
+      "/attached_assets/shopscreen3_1754685109474.png",
+      "/attached_assets/profilecloset_1754685109474.png"
+    ]
   },
   {
     id: 3,
     title: "Environment & Locations", 
-    images: ["/attached_assets/alley back ground_1754296307133.png", "/attached_assets/profile background_1754296307133.png", "/attached_assets/graff wall_1754296307134.png"]
+    images: [
+      "/attached_assets/alley back ground_1754296307133.png", 
+      "/attached_assets/profile background_1754296307133.png", 
+      "/attached_assets/graff wall_1754296307134.png",
+      "/attached_assets/checkinmap_1754368423116.png"
+    ]
   },
   {
     id: 4,
-    title: "Game Interface & Avatars",
-    images: ["/attached_assets/avatar4_1754685109473.png", "/attached_assets/avatar11_1754685109474.png", "/attached_assets/avatar6_1754685109474.png"]
-  },
-  {
-    id: 5,
-    title: "Customization & Inventory",
-    images: ["/attached_assets/shopscreen3_1754685109474.png", "/attached_assets/avatar5_1754685109474.png"]
+    title: "Project Support & Community",
+    images: [
+      "/attached_assets/gofundme_1754684855195.png",
+      "/attached_assets/f94b6775-118d-47aa-88af-255db05d3bbc-thumbnail_1754296917742.webp"
+    ]
   }
 ]
 
