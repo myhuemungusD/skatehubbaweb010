@@ -365,6 +365,27 @@ export default function Donate() {
                       </div>
                     </div>
 
+                    {/* GoFundMe Option */}
+                    <div className="p-4 bg-green-500/10 rounded-lg border border-green-400/30">
+                      <h4 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
+                        <ExternalLink className="w-4 h-4" />
+                        Alternative: Support via GoFundMe
+                      </h4>
+                      <p className="text-sm text-gray-300 mb-3">
+                        Prefer using GoFundMe? You can also support SkateHubba through our campaign:
+                      </p>
+                      <a
+                        href="https://gofund.me/4d6b7234"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                      >
+                        <span>🎯</span>
+                        <span>Donate via GoFundMe</span>
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+
                     {/* Payment Method Selection */}
                     <Tabs value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as 'card' | 'crypto')} className="w-full">
                       <TabsList className="grid w-full grid-cols-2 bg-gray-800">
