@@ -543,14 +543,36 @@ export default function Donate() {
                           </div>
                         </div>
 
+                        {/* Zelle Option */}
+                        <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-600">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-orange-400 text-lg">🏦</span>
+                              <span className="text-[#fafafa] font-semibold">Zelle</span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard('jham3318@gmail.com', 'zelle')}
+                              className="text-orange-400 hover:text-orange-300"
+                            >
+                              {copiedAddress === 'zelle' ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            </Button>
+                          </div>
+                          <p className="text-xs text-gray-300 break-all font-mono bg-gray-900 p-2 rounded">
+                            jham3318@gmail.com
+                          </p>
+                        </div>
+
                         <div className="p-4 bg-orange-400/10 rounded-lg border border-orange-400/30">
                           <h4 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
                             <ExternalLink className="w-4 h-4" />
-                            Crypto Donation Instructions
+                            Alternative Payment Instructions
                           </h4>
                           <div className="text-sm text-gray-300 space-y-1">
-                            <p>• Copy the address for your preferred cryptocurrency</p>
-                            <p>• Send any amount from your wallet to that address</p>
+                            <p>• <strong>Zelle:</strong> Send to jham3318@gmail.com from your banking app</p>
+                            <p>• <strong>Crypto:</strong> Copy the address for your preferred cryptocurrency</p>
+                            <p>• <strong>Crypto:</strong> Send any amount from your wallet to that address</p>
                             <p>• Transaction will appear on the blockchain within minutes</p>
                             <p>• No minimum amount required for crypto donations</p>
                           </div>
