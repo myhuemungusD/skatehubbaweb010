@@ -5,12 +5,12 @@ import Stripe from "stripe";
 import { storage } from "./storage";
 import { 
   insertUserProgressSchema, 
-  updateUserProgressSchema,
-  insertUserSchema
+  updateUserProgressSchema
 } from "@shared/schema";
 import crypto from "crypto";
 import validator from "validator";
 import { sendSubscriberNotification } from "./email";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -32,15 +32,7 @@ const validateEmail = (email: string): boolean => {
   return validator.isEmail(email) && validator.isLength(email, { max: 254 });
 };
 
-// Authentication middleware
-const authenticateUser = (req: any, res: any, next: any) => {
-  // For demo purposes - implement proper session/JWT validation
-  const authHeader = req.headers.authorization;
-  if (!authHeader && req.path.includes('/users/') && req.method !== 'GET') {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-  next();
-};
+// Remove old authentication - now using Replit Auth
 
 // Request validation middleware
 const validateRequest = (schema: z.ZodSchema) => (req: any, res: any, next: any) => {
@@ -60,6 +52,21 @@ const validateRequest = (schema: z.ZodSchema) => (req: any, res: any, next: any)
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Tutorial Steps Routes
   app.get("/api/tutorial/steps", async (req, res) => {
     try {
@@ -92,15 +99,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Progress Routes
-  app.get("/api/users/:userId/progress", authenticateUser, async (req, res) => {
+  app.get("/api/users/:userId/progress", isAuthenticated, async (req, res) => {
     try {
       const { userId } = req.params;
-      if (!validateId(userId)) {
-        return res.status(400).json({ error: "Invalid user ID format" });
-      }
-
-      const userIdInt = parseInt(userId);
-      const progress = await storage.getUserProgress(userIdInt);
+      const progress = await storage.getUserProgress(userId);
       res.json(progress);
     } catch (error) {
       console.error("Failed to get user progress:", error);
@@ -110,11 +112,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/users/:userId/progress/:stepId", async (req, res) => {
     try {
-      const userId = parseInt(req.params.userId);
+      const { userId } = req.params;
       const stepId = parseInt(req.params.stepId);
       
-      if (isNaN(userId) || isNaN(stepId)) {
-        return res.status(400).json({ error: "Invalid user ID or step ID" });
+      if (isNaN(stepId)) {
+        return res.status(400).json({ error: "Invalid step ID" });
       }
 
       const progress = await storage.getUserStepProgress(userId, stepId);
@@ -129,12 +131,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/users/:userId/progress", async (req, res) => {
+  app.post("/api/users/:userId/progress", isAuthenticated, async (req, res) => {
     try {
-      const userId = parseInt(req.params.userId);
-      if (isNaN(userId)) {
-        return res.status(400).json({ error: "Invalid user ID" });
-      }
+      const { userId } = req.params;
 
       const progressData = insertUserProgressSchema.parse({
         ...req.body,
@@ -152,13 +151,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/users/:userId/progress/:stepId", async (req, res) => {
+  app.patch("/api/users/:userId/progress/:stepId", isAuthenticated, async (req, res) => {
     try {
-      const userId = parseInt(req.params.userId);
+      const { userId } = req.params;
       const stepId = parseInt(req.params.stepId);
       
-      if (isNaN(userId) || isNaN(stepId)) {
-        return res.status(400).json({ error: "Invalid user ID or step ID" });
+      if (isNaN(stepId)) {
+        return res.status(400).json({ error: "Invalid step ID" });
       }
 
       const updates = updateUserProgressSchema.parse(req.body);
@@ -179,33 +178,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Onboarding Routes
-  app.get("/api/users/:id", async (req, res) => {
+  app.get("/api/users/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid user ID" });
-      }
-
+      const { id } = req.params;
       const user = await storage.getUser(id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Remove sensitive data
-      const { password, ...safeUser } = user;
-      res.json(safeUser);
+      res.json(user);
     } catch (error) {
       console.error("Failed to get user:", error);
       res.status(500).json({ error: "Failed to retrieve user" });
     }
   });
 
-  app.patch("/api/users/:id/onboarding", async (req, res) => {
+  app.patch("/api/users/:id/onboarding", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid user ID" });
-      }
+      const { id } = req.params;
 
       const { completed, currentStep } = req.body;
       if (typeof completed !== "boolean") {
@@ -217,9 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Remove sensitive data
-      const { password, ...safeUser } = user;
-      res.json(safeUser);
+      res.json(user);
     } catch (error) {
       console.error("Failed to update user onboarding:", error);
       res.status(500).json({ error: "Failed to update user onboarding" });

@@ -1,6 +1,6 @@
 import {
   users, tutorialSteps, userProgress, subscribers,
-  type User, type InsertUser, type TutorialStep, type InsertTutorialStep,
+  type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
 } from "@shared/schema";
 import { db } from "./db";
@@ -8,11 +8,10 @@ import { eq, and, desc } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
 export interface IStorage {
-  // User methods
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUserOnboardingStatus(userId: number, completed: boolean, currentStep?: number): Promise<User | undefined>;
+  // User methods for Replit Auth
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  updateUserOnboardingStatus(userId: string, completed: boolean, currentStep?: number): Promise<User | undefined>;
 
   // Tutorial steps methods
   getAllTutorialSteps(): Promise<TutorialStep[]>;
@@ -20,13 +19,13 @@ export interface IStorage {
   createTutorialStep(step: InsertTutorialStep): Promise<TutorialStep>;
 
   // User progress methods
-  getUserProgress(userId: number): Promise<UserProgress[]>;
-  getUserStepProgress(userId: number, stepId: number): Promise<UserProgress | undefined>;
+  getUserProgress(userId: string): Promise<UserProgress[]>;
+  getUserStepProgress(userId: string, stepId: number): Promise<UserProgress | undefined>;
   createUserProgress(progress: InsertUserProgress): Promise<UserProgress>;
-  updateUserProgress(userId: number, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined>;
+  updateUserProgress(userId: string, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined>;
 
   // Subscriber methods
-  createSubscriber(data: Omit<Subscriber, 'id' | 'subscribedAt'>): Promise<Subscriber>;
+  createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt'>): Promise<Subscriber>;
   getSubscribers(): Promise<Subscriber[]>;
   getSubscriber(email: string): Promise<Subscriber | undefined>;
 
@@ -130,31 +129,34 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // User methods
-  async getUser(id: number): Promise<User | undefined> {
+  // User methods for Replit Auth
+  async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
       .returning();
     return user;
   }
 
-  async updateUserOnboardingStatus(userId: number, completed: boolean, currentStep?: number): Promise<User | undefined> {
+  async updateUserOnboardingStatus(userId: string, completed: boolean, currentStep?: number): Promise<User | undefined> {
     const [user] = await db
       .update(users)
       .set({
         onboardingCompleted: completed,
-        currentTutorialStep: currentStep
+        currentTutorialStep: currentStep,
+        updatedAt: new Date()
       })
       .where(eq(users.id, userId))
       .returning();
@@ -184,7 +186,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User progress methods
-  async getUserProgress(userId: number): Promise<UserProgress[]> {
+  async getUserProgress(userId: string): Promise<UserProgress[]> {
     return await db
       .select()
       .from(userProgress)
@@ -192,7 +194,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(userProgress.stepId);
   }
 
-  async getUserStepProgress(userId: number, stepId: number): Promise<UserProgress | undefined> {
+  async getUserStepProgress(userId: string, stepId: number): Promise<UserProgress | undefined> {
     const [progress] = await db
       .select()
       .from(userProgress)
@@ -208,7 +210,7 @@ export class DatabaseStorage implements IStorage {
     return createdProgress;
   }
 
-  async updateUserProgress(userId: number, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined> {
+  async updateUserProgress(userId: string, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined> {
     const updateData: any = {
       ...updates,
       completedAt: updates.completed ? new Date() : undefined

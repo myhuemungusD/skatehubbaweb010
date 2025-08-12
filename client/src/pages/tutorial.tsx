@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { TutorialStep, User, UserProgress } from '@shared/schema';
 
 interface TutorialProps {
-  userId: number;
+  userId: string;
 }
 
 export default function Tutorial({ userId }: TutorialProps) {

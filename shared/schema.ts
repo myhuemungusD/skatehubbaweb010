@@ -26,16 +26,31 @@ export const sanitizedStringSchema = z.string()
   .transform(str => str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
 
 
-import { pgTable, text, serial, integer, boolean, timestamp, json, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, varchar, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: json("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User storage table for Replit Auth
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  id: varchar("id").primaryKey(),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
   onboardingCompleted: boolean("onboarding_completed").default(false),
   currentTutorialStep: integer("current_tutorial_step").default(0),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const tutorialSteps = pgTable("tutorial_steps", {
@@ -61,7 +76,7 @@ export const tutorialSteps = pgTable("tutorial_steps", {
 
 export const userProgress = pgTable("user_progress", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull(),
   stepId: integer("step_id").notNull(),
   completed: boolean("completed").default(false),
   completedAt: timestamp("completed_at"),
@@ -90,11 +105,6 @@ export const donations = pgTable("donations", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
-
 export const insertTutorialStepSchema = createInsertSchema(tutorialSteps).omit({
   id: true,
 });
@@ -112,14 +122,13 @@ export const updateUserProgressSchema = createInsertSchema(userProgress).pick({
 
 export const insertSubscriberSchema = createInsertSchema(subscribers).omit({
   id: true,
-  subscribedAt: true,
-  isActive: true,
+  createdAt: true,
 });
 
 export const insertDonationSchema = createInsertSchema(donations);
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type UpsertUser = typeof users.$inferInsert;
 export type TutorialStep = typeof tutorialSteps.$inferSelect;
 export type InsertTutorialStep = z.infer<typeof insertTutorialStepSchema>;
 export type UserProgress = typeof userProgress.$inferSelect;
