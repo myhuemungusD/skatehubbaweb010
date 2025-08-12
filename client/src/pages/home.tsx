@@ -136,7 +136,7 @@ const HeroAccessButton = () => {
   return (
     <button 
       onClick={() => setShowForm(true)}
-      className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
+      className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
       data-testid="button-get-early-access"
     >
       Get Early Access
@@ -315,27 +315,28 @@ export default function Home() {
         </nav>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 overflow-x-hidden">
           <div className="text-center">
             {/* Minimal Hero Section */}
-            <section className="py-24">
+            <section className="py-12 md:py-24">
               <div className="max-w-6xl mx-auto">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                   {/* Text Content */}
-                  <div className="text-center lg:text-left space-y-8">
-                    <h1 className="text-5xl md:text-7xl font-black text-[#fafafa] leading-tight font-orbitron">
+                  <div className="text-center lg:text-left space-y-6 md:space-y-8 px-4 lg:px-0">
+                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-[#fafafa] leading-tight font-orbitron">
                       SkateHubba
                     </h1>
-                    <p className="text-xl md:text-2xl text-gray-300">
-                      The skateboarding app where your tricks become collectibles and every spot is a battleground.
+                    <p className="text-lg md:text-xl lg:text-2xl text-gray-300 leading-relaxed">
+                      Turn tricks into collectibles.<br className="hidden sm:block" />
+                      Battle for every spot.
                     </p>
                     
                     {/* Trust & Proof Row */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-w-full">
                       {/* Social Proof */}
-                      <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-400">
-                        <span className="font-medium">As seen on:</span>
-                        <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-6 text-sm text-gray-400">
+                        <span className="font-medium text-center sm:text-left">As seen on:</span>
+                        <div className="flex items-center gap-4 flex-wrap justify-center lg:justify-start">
                           <a href="https://instagram.com/SkateHubba_app" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-400 transition-colors">
                             <span className="text-lg">📸</span>
                           </a>
@@ -352,9 +353,9 @@ export default function Home() {
                       </div>
                       
                       {/* What's Inside */}
-                      <div className="bg-black/30 rounded-lg p-4 border border-gray-600/30">
+                      <div className="bg-black/30 rounded-lg p-4 border border-gray-600/30 max-w-full">
                         <h4 className="text-orange-400 font-semibold mb-3 text-center lg:text-left">What's inside:</h4>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm text-gray-300">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm text-gray-300">
                           <div className="flex items-center gap-2">
                             <span className="text-orange-400">⚡</span>
                             <span>Remote S.K.A.T.E.</span>
@@ -379,10 +380,10 @@ export default function Home() {
                   </div>
                   
                   {/* Phone Mockup */}
-                  <div className="flex justify-center lg:justify-end">
-                    <div className="relative">
+                  <div className="flex justify-center lg:justify-end px-4 lg:px-0">
+                    <div className="relative max-w-xs lg:max-w-none">
                       {/* Phone Frame */}
-                      <div className="relative w-72 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl border-4 border-gray-700">
+                      <div className="relative w-64 md:w-72 h-80 md:h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl border-4 border-gray-700">
                         {/* Screen */}
                         <div className="w-full h-full bg-black rounded-2xl overflow-hidden relative">
                           {/* Map/Check-in Screenshot */}
@@ -391,6 +392,8 @@ export default function Home() {
                             alt="SkateHubba Check-in Map Interface" 
                             className="w-full h-full object-cover"
                             data-testid="hero-phone-mockup"
+                            loading="lazy"
+                            decoding="async"
                           />
                           
                           {/* Floating UI Elements */}
