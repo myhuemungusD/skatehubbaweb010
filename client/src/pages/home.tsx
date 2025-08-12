@@ -189,20 +189,66 @@ export default function Home() {
           <div className="text-center">
             {/* Minimal Hero Section */}
             <section className="py-24">
-              <div className="max-w-4xl mx-auto text-center space-y-8">
-                <h1 className="text-5xl md:text-7xl font-black text-[#fafafa] leading-tight font-orbitron">
-                  SkateHubba
-                </h1>
-                <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
-                  The skateboarding app where your tricks become collectibles and every spot is a battleground.
-                </p>
-                <button 
-                  onClick={() => scrollToSection('join')}
-                  className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
-                  data-testid="button-get-early-access"
-                >
-                  Get Early Access
-                </button>
+              <div className="max-w-6xl mx-auto">
+                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                  {/* Text Content */}
+                  <div className="text-center lg:text-left space-y-8">
+                    <h1 className="text-5xl md:text-7xl font-black text-[#fafafa] leading-tight font-orbitron">
+                      SkateHubba
+                    </h1>
+                    <p className="text-xl md:text-2xl text-gray-300">
+                      The skateboarding app where your tricks become collectibles and every spot is a battleground.
+                    </p>
+                    <button 
+                      onClick={() => scrollToSection('join')}
+                      className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
+                      data-testid="button-get-early-access"
+                    >
+                      Get Early Access
+                    </button>
+                  </div>
+                  
+                  {/* Phone Mockup */}
+                  <div className="flex justify-center lg:justify-end">
+                    <div className="relative">
+                      {/* Phone Frame */}
+                      <div className="relative w-72 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl border-4 border-gray-700">
+                        {/* Screen */}
+                        <div className="w-full h-full bg-black rounded-2xl overflow-hidden relative">
+                          {/* Map/Check-in Screenshot */}
+                          <img 
+                            src={checkinMapImage} 
+                            alt="SkateHubba Check-in Map Interface" 
+                            className="w-full h-full object-cover"
+                            data-testid="hero-phone-mockup"
+                          />
+                          
+                          {/* Floating UI Elements */}
+                          <div className="absolute top-4 left-4 right-4">
+                            <div className="bg-black/80 rounded-lg px-3 py-2 text-white text-sm font-semibold">
+                              📍 Check in at spots near you
+                            </div>
+                          </div>
+                          
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <div className="bg-orange-500/90 rounded-lg px-4 py-3 text-white text-center font-bold">
+                              Tap to Check In
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Phone Details */}
+                        <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gray-600 rounded-full"></div>
+                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gray-600 rounded-full"></div>
+                      </div>
+                      
+                      {/* Floating Action Bubble */}
+                      <div className="absolute -top-6 -right-6 bg-orange-500 text-white p-3 rounded-full shadow-lg animate-bounce">
+                        <span className="text-2xl">🏁</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 
