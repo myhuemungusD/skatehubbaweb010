@@ -279,8 +279,9 @@ export default function Home() {
       className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
       style={{
         backgroundImage: 'url("/attached_assets/alley back ground_1754296307133.png")',
-        backgroundSize: 'cover',
+        backgroundSize: '100% 100%',
         backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed'
       }}
     >

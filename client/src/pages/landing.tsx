@@ -52,8 +52,9 @@ export default function Landing() {
   return (
     <div className="min-h-screen text-[#fafafa]" style={{
       backgroundImage: `url('/attached_assets/alley back ground_1754296307133.png')`,
-      backgroundSize: 'cover',
+      backgroundSize: '100% 100%',
       backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       backgroundAttachment: 'fixed'
     }}>
       {/* Navigation */}
