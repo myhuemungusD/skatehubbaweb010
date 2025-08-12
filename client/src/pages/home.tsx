@@ -14,6 +14,136 @@ import nftShoe from "@assets/baigeESnft_1754296307131.png";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { DonorRecognition } from "@/components/DonorRecognition";
 
+// Hero Access Button Component
+const HeroAccessButton = () => {
+  const [showForm, setShowForm] = useState(false);
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email && firstName) {
+      setIsSubmitting(true);
+      try {
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName,
+            email
+          })
+        });
+
+        if (response.ok) {
+          setIsSuccess(true);
+          toast({
+            title: "Welcome to SkateHubba! 🎉",
+            description: "You're now on the list for updates and exclusive drops.",
+          });
+          setEmail("");
+          setFirstName("");
+        } else {
+          const errorData = await response.json();
+          toast({
+            title: "Subscription Error",
+            description: errorData.error || "Failed to subscribe. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Network Error",
+          description: "Please check your connection and try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
+  if (isSuccess) {
+    return (
+      <div className="space-y-4 max-w-md mx-auto lg:mx-0">
+        <div className="bg-green-500/20 border border-green-400 rounded-lg p-4 text-center">
+          <div className="text-green-400 text-2xl mb-2">🎉</div>
+          <h3 className="text-green-400 font-bold mb-1">You're In!</h3>
+          <p className="text-green-300 text-sm">Get ready for updates, drops & sessions.</p>
+        </div>
+        <button
+          onClick={() => {
+            setIsSuccess(false);
+            setShowForm(false);
+          }}
+          className="text-orange-400 hover:text-orange-300 text-sm"
+        >
+          Subscribe another email →
+        </button>
+      </div>
+    );
+  }
+
+  if (showForm) {
+    return (
+      <div className="space-y-4 max-w-md mx-auto lg:mx-0">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <Input
+            type="text"
+            placeholder="Your Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+            className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400"
+          />
+          <Input
+            type="email"
+            placeholder="Your Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400"
+          />
+          <div className="flex gap-2">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3"
+            >
+              {isSubmitting ? 'Joining...' : 'Join SkateHubba'}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => setShowForm(false)}
+              variant="outline"
+              className="px-3 border-[#333] text-[#fafafa] hover:bg-[#333]"
+            >
+              ×
+            </Button>
+          </div>
+        </form>
+        <p className="text-xs text-gray-400 text-center">
+          Get updates on drops, sessions & early access
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <button 
+      onClick={() => setShowForm(true)}
+      className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
+      data-testid="button-get-early-access"
+    >
+      Get Early Access
+    </button>
+  );
+};
+
 // Gallery data organized by categories
 const gallerySlides = [
   {
@@ -199,13 +329,7 @@ export default function Home() {
                     <p className="text-xl md:text-2xl text-gray-300">
                       The skateboarding app where your tricks become collectibles and every spot is a battleground.
                     </p>
-                    <button 
-                      onClick={() => scrollToSection('join')}
-                      className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
-                      data-testid="button-get-early-access"
-                    >
-                      Get Early Access
-                    </button>
+                    <HeroAccessButton />
                   </div>
                   
                   {/* Phone Mockup */}
