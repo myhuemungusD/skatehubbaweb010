@@ -11,6 +11,7 @@ import crypto from "crypto";
 import validator from "validator";
 import { sendSubscriberNotification } from "./email";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import OpenAI from "openai";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -18,6 +19,8 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-06-20",
 });
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Security validation functions
 const sanitizeString = (str: string): string => {
@@ -404,6 +407,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to get subscribers:", error);
       res.status(500).json({ error: "Failed to retrieve subscribers" });
+    }
+  });
+
+  // OpenAI Assistant route
+  app.post("/api/assistant", async (req, res) => {
+    try {
+      const { persona = "filmer", messages = [] } = req.body || {};
+
+      const system =
+        persona === "editor"
+          ? "You are 'The Editor'—a blunt, no-nonsense skate mag lifer. Keep answers short, direct, and occasionally spicy, but helpful. Avoid profanity. Never claim affiliation with any real person or brand."
+          : "You are 'The Filmer'—a hype filmer buddy. Encouraging, core skate slang, keeps it positive. Be concise and helpful. Never claim affiliation with any real person or brand.";
+
+      const resp = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "system", content: system }, ...messages].slice(-12),
+        temperature: 0.7,
+        max_tokens: 300
+      });
+
+      const answer = resp.choices?.[0]?.message || { role: "assistant", content: "All good!" };
+      res.json({ ok: true, reply: answer });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ ok: false, error: "Assistant error" });
     }
   });
 
