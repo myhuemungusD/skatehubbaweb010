@@ -6,7 +6,7 @@ import { analytics } from "@/lib/analytics";
 import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 
 // Import your custom SkateHubba images
-import shopBackground from "@assets/shop backgroung_1754296459156.png";
+import graffWallBackground from "@assets/graffwallskateboardrack_1754296307132.png";
 import checkinMapImage from "@assets/checkinmap_1754368423116.png";
 import shopTemplate from "@assets/shoptemplate0.2_1754296307132.png";
 import graffWallRack from "@assets/graffwallskateboardrack_1754296307132.png";
@@ -283,7 +283,7 @@ export default function Home() {
     <div
       className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
       style={{
-        backgroundImage: `url(${shopBackground})`,
+        backgroundImage: `url(${graffWallBackground})`,
         backgroundPosition: '50% 30%'
       }}
     >
