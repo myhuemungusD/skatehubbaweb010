@@ -5,12 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { analytics } from "@/lib/analytics";
 import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 
-// Import your custom SkateHubba images
-import graffWallBackground from "@assets/graffwallskateboardrack_1754296307132.png";
-import checkinMapImage from "@assets/checkinmap_1754368423116.png";
-import shopTemplate from "@assets/shoptemplate0.2_1754296307132.png";
-import graffWallRack from "@assets/graffwallskateboardrack_1754296307132.png";
-import nftShoe from "@assets/baigeESnft_1754296307131.png";
+// Placeholder for custom SkateHubba images - removed missing imports
 
 // Import the ImageCarousel component
 import { ImageCarousel } from "@/components/ImageCarousel";
