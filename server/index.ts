@@ -37,7 +37,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Higher limit for development
   message: {
     error: "Too many requests from this IP, please try again later."
   },
@@ -65,9 +65,12 @@ const paymentLimiter = rateLimit({
   legacyHeaders: false
 });
 
-app.use(limiter);
-app.use('/api/auth', authLimiter);
-app.use('/api/create-payment-intent', paymentLimiter);
+// Apply rate limiting only in production
+if (process.env.NODE_ENV !== 'development') {
+  app.use(limiter);
+  app.use('/api/auth', authLimiter);
+  app.use('/api/create-payment-intent', paymentLimiter);
+}
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
