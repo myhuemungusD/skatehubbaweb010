@@ -278,7 +278,7 @@ export default function Home() {
     <div
       className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
       style={{
-        backgroundImage: 'url("/attached_assets/shop background_1754296307133.png")',
+        backgroundImage: 'url("/attached_assets/hubbagraffwall.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'
