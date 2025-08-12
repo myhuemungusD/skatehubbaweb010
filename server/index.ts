@@ -22,8 +22,24 @@ app.use(helmet({
       frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"]
     }
   },
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  }
 }));
+
+// Force HTTPS in production
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https') {
+      res.redirect(`https://${req.header('host')}${req.url}`);
+    } else {
+      next();
+    }
+  });
+}
 
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
@@ -65,11 +81,22 @@ const paymentLimiter = rateLimit({
   legacyHeaders: false
 });
 
+const subscribeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // limit each IP to 3 subscription attempts per 15 minutes
+  message: {
+    error: "Too many subscription attempts, please try again later."
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // Apply rate limiting only in production
 if (process.env.NODE_ENV !== 'development') {
   app.use(limiter);
   app.use('/api/auth', authLimiter);
   app.use('/api/create-payment-intent', paymentLimiter);
+  app.use('/api/subscribe', subscribeLimiter);
 }
 
 // Body parsing with size limits

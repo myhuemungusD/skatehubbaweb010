@@ -32,6 +32,21 @@ const validateEmail = (email: string): boolean => {
   return validator.isEmail(email) && validator.isLength(email, { max: 254 });
 };
 
+// Admin API key middleware
+const requireApiKey = (req: any, res: any, next: any) => {
+  const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+  
+  if (!process.env.ADMIN_API_KEY) {
+    return res.status(500).json({ error: "Admin API key not configured" });
+  }
+  
+  if (!apiKey || apiKey !== process.env.ADMIN_API_KEY) {
+    return res.status(401).json({ error: "Invalid or missing API key" });
+  }
+  
+  next();
+};
+
 // Remove old authentication - now using Replit Auth
 
 // Request validation middleware
@@ -381,8 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all subscribers
-  app.get("/api/subscribers", async (req, res) => {
+  // Get all subscribers (admin only - requires API key)
+  app.get("/api/subscribers", requireApiKey, async (req, res) => {
     try {
       const subscribers = await storage.getSubscribers();
       res.json(subscribers);
