@@ -2,7 +2,7 @@
 import nodemailer from 'nodemailer';
 
 // Email configuration
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransporter({
 export async function sendSubscriberNotification(subscriberData: { firstName: string; email: string }) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: 'skatehubba.app@gmail.com',
+    to: 'jason@skatehubba.com',
     subject: '🛹 New SkateHubba Subscriber!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
