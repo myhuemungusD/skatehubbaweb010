@@ -8,8 +8,7 @@ import BackgroundCarousel from "@/components/BackgroundCarousel";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
-// Import the ImageCarousel component
-import { ImageCarousel } from "@/components/ImageCarousel";
+// Import components
 import { DonorRecognition } from "@/components/DonorRecognition";
 
 // Hero Access Button Component
@@ -162,52 +161,8 @@ const HeroAccessButton = () => {
   );
 };
 
-// Gallery data organized by categories
-const gallerySlides = [
-  {
-    id: 1,
-    title: "Avatar & Character System",
-    images: [
-      "/attached_assets/cartoonavatar_1754296307132.png",
-      "/attached_assets/baigeES_1754296307131.png",
-      "/attached_assets/baigeESnft_1754296307131.png",
-      "/attached_assets/avatar4_1754685109473.png",
-      "/attached_assets/avatar11_1754685109474.png",
-      "/attached_assets/avatar6_1754685109474.png",
-      "/attached_assets/avatar222_1754685109473.png",
-      "/attached_assets/avatar5_1754685109474.png"
-    ]
-  },
-  {
-    id: 2,
-    title: "Shop & Trading System",
-    images: [
-      "/attached_assets/graffwallskateboardrack_1754296307132.png",
-      "/attached_assets/shoptemplate0.2_1754296307132.png",
-      "/attached_assets/shop background_1754296307133.png",
-      "/attached_assets/shopscreen3_1754685109474.png",
-      "/attached_assets/profilecloset_1754685109474.png"
-    ]
-  },
-  {
-    id: 3,
-    title: "Environment & Locations",
-    images: [
-      "/attached_assets/alley back ground_1754296307133.png",
-      "/attached_assets/profile background_1754296307133.png",
-      "/attached_assets/graff wall_1754296307134.png",
-      "/attached_assets/checkinmap_1754368423116.png"
-    ]
-  },
-  {
-    id: 4,
-    title: "Project Support & Community",
-    images: [
-      "/attached_assets/gofundme_1754684855195.png",
-      "/attached_assets/f94b6775-118d-47aa-88af-255db05d3bbc-thumbnail_1754296917742.webp"
-    ]
-  }
-]
+
+
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -704,20 +659,8 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Gallery Section */}
-            <section id="gallery" className="gallery-section py-24 bg-[#0a0a0a]">
-              <div className="container mx-auto px-4">
-                <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-[#fafafa] font-orbitron">
-                  Gallery
-                </h2>
-                <p className="text-center text-gray-300 mb-16 max-w-2xl mx-auto">
-                  Explore the visual journey of SkateHubba™ - from character customization to immersive environments
-                </p>
-                <div className="bg-[#131313] rounded-2xl border border-gray-700 overflow-hidden">
-                  <ImageCarousel slides={gallerySlides} />
-                </div>
-              </div>
-            </section>
+
+
           </div>
         </main>
 
