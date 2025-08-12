@@ -300,6 +300,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Record donation when payment succeeds
+  app.post("/api/record-donation", async (req, res) => {
+    try {
+      const { paymentIntentId, firstName } = req.body;
+      
+      if (!paymentIntentId || !firstName) {
+        return res.status(400).json({ error: "Payment intent ID and first name are required" });
+      }
+
+      // Verify payment with Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== "succeeded") {
+        return res.status(400).json({ error: "Payment not successful" });
+      }
+
+      // Record the donation
+      const donation = await storage.createDonation({
+        firstName: sanitizeString(firstName),
+        amount: paymentIntent.amount,
+        paymentIntentId,
+        status: "succeeded"
+      });
+
+      res.json({ message: "Donation recorded successfully", donationId: donation.id });
+    } catch (error) {
+      console.error("Failed to record donation:", error);
+      res.status(500).json({ error: "Failed to record donation" });
+    }
+  });
+
+  // Get recent donors (first names only)
+  app.get("/api/recent-donors", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      if (limit > 50) {
+        return res.status(400).json({ error: "Limit cannot exceed 50" });
+      }
+
+      const donors = await storage.getRecentDonors(limit);
+      res.json(donors);
+    } catch (error) {
+      console.error("Failed to get recent donors:", error);
+      res.status(500).json({ error: "Failed to retrieve recent donors" });
+    }
+  });
+
   // Subscriber routes
   app.post("/api/subscribe", async (req, res) => {
     try {

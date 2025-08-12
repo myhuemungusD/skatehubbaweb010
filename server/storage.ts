@@ -4,7 +4,8 @@ import {
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
+import * as schema from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -28,9 +29,23 @@ export interface IStorage {
   createSubscriber(data: Omit<Subscriber, 'id' | 'subscribedAt'>): Promise<Subscriber>;
   getSubscribers(): Promise<Subscriber[]>;
   getSubscriber(email: string): Promise<Subscriber | undefined>;
+
+  // Donation methods
+  createDonation(donation: {
+    firstName: string;
+    amount: number;
+    paymentIntentId: string;
+    status: string;
+  }): Promise<any>;
+  updateDonationStatus(paymentIntentId: string, status: string): Promise<any>;
+  getRecentDonors(limit?: number): Promise<{ firstName: string; createdAt: Date }[]>;
 }
 
 export class DatabaseStorage implements IStorage {
+  // Use a private property to hold the db instance if needed for multiple methods,
+  // or directly use the imported `db` as done in the original code.
+  // For consistency with the original code's approach, we'll assume `db` is used directly.
+
   constructor() {
     // Initialize with default tutorial steps
     this.initializeDefaultTutorialSteps();
@@ -226,6 +241,41 @@ export class DatabaseStorage implements IStorage {
   async getSubscriber(email: string): Promise<Subscriber | undefined> {
     const [subscriber] = await db.select().from(subscribers).where(eq(subscribers.email, email));
     return subscriber || undefined;
+  }
+
+  // Donation methods
+  async createDonation(donation: {
+    firstName: string;
+    amount: number;
+    paymentIntentId: string;
+    status: string;
+  }) {
+    const [newDonation] = await db
+      .insert(schema.donations)
+      .values(donation)
+      .returning();
+    return newDonation;
+  }
+
+  async updateDonationStatus(paymentIntentId: string, status: string) {
+    const [updatedDonation] = await db
+      .update(schema.donations)
+      .set({ status })
+      .where(eq(schema.donations.paymentIntentId, paymentIntentId))
+      .returning();
+    return updatedDonation;
+  }
+
+  async getRecentDonors(limit: number = 10): Promise<{ firstName: string; createdAt: Date }[]> {
+    return await db
+      .select({
+        firstName: schema.donations.firstName,
+        createdAt: schema.donations.createdAt
+      })
+      .from(schema.donations)
+      .where(eq(schema.donations.status, "succeeded"))
+      .orderBy(desc(schema.donations.createdAt))
+      .limit(limit);
   }
 }
 

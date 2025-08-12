@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Security validation schemas
@@ -27,7 +26,7 @@ export const sanitizedStringSchema = z.string()
   .transform(str => str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
 
 
-import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
 export const users = pgTable("users", {
@@ -76,11 +75,19 @@ export const userProgress = pgTable("user_progress", {
 });
 
 export const subscribers = pgTable("subscribers", {
-  id: serial("id").primaryKey(),
-  firstName: text("first_name").notNull(),
-  email: text("email").notNull().unique(),
-  subscribedAt: timestamp("subscribed_at").defaultNow(),
-  isActive: boolean("is_active").default(true),
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  firstName: varchar("first_name", { length: 50 }).notNull(),
+  email: varchar("email", { length: 254 }).notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const donations = pgTable("donations", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  firstName: varchar("first_name", { length: 50 }).notNull(),
+  amount: integer("amount").notNull(), // amount in cents
+  paymentIntentId: varchar("payment_intent_id", { length: 255 }).notNull().unique(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -109,6 +116,8 @@ export const insertSubscriberSchema = createInsertSchema(subscribers).omit({
   isActive: true,
 });
 
+export const insertDonationSchema = createInsertSchema(donations);
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type TutorialStep = typeof tutorialSteps.$inferSelect;
@@ -118,3 +127,5 @@ export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
 export type UpdateUserProgress = z.infer<typeof updateUserProgressSchema>;
 export type Subscriber = typeof subscribers.$inferSelect;
 export type InsertSubscriber = z.infer<typeof insertSubscriberSchema>;
+export type Donation = typeof donations.$inferSelect;
+export type InsertDonation = z.infer<typeof insertDonationSchema>;

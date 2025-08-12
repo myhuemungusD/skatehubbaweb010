@@ -12,6 +12,7 @@ import nftShoe from "@assets/baigeESnft_1754296307131.png";
 
 // Import the ImageCarousel component
 import { ImageCarousel } from "@/components/ImageCarousel";
+import { DonorRecognition } from "@/components/DonorRecognition";
 
 // Gallery data organized by categories
 const gallerySlides = [
@@ -145,6 +146,9 @@ export default function Home() {
             </a>
           </div>
         </div>
+
+        {/* Donor Recognition */}
+        <DonorRecognition />
 
         {/* Navigation */}
         <nav className="bg-[#131313] border-b border-[#333] mb-8">

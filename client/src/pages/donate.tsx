@@ -27,6 +27,7 @@ const DonateForm = ({ amount }: DonateFormProps) => {
   const elements = useElements();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [donorName, setDonorName] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,14 +36,24 @@ const DonateForm = ({ amount }: DonateFormProps) => {
       return;
     }
 
+    if (!donorName.trim()) {
+      toast({
+        title: "Name Required",
+        description: "Please enter your first name to be recognized as a supporter.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/donate?success=true`,
+          return_url: `${window.location.origin}/donate?success=true&name=${encodeURIComponent(donorName)}`,
         },
+        redirect: "if_required"
       });
 
       if (error) {
@@ -51,6 +62,30 @@ const DonateForm = ({ amount }: DonateFormProps) => {
           description: error.message,
           variant: "destructive",
         });
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        // Record the donation
+        try {
+          await fetch('/api/record-donation', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              paymentIntentId: paymentIntent.id,
+              firstName: donorName.trim()
+            })
+          });
+        } catch (recordError) {
+          console.error('Failed to record donation:', recordError);
+        }
+
+        toast({
+          title: "Thank You! 🎉",
+          description: "Your donation was successful. You're helping build the future of skateboarding!",
+        });
+        
+        // Redirect to success page
+        window.location.href = `${window.location.origin}/donate?success=true`;
       }
     } catch (err) {
       toast({
@@ -65,6 +100,23 @@ const DonateForm = ({ amount }: DonateFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <label htmlFor="donor-name" className="text-sm font-medium text-[#fafafa]">
+          First Name (for recognition)
+        </label>
+        <input
+          id="donor-name"
+          type="text"
+          placeholder="Enter your first name"
+          value={donorName}
+          onChange={(e) => setDonorName(e.target.value)}
+          className="w-full px-3 py-2 bg-[#232323] border border-[#333] rounded-md text-[#fafafa] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          required
+        />
+        <p className="text-xs text-gray-400">
+          Your first name will be displayed on our supporter recognition banner
+        </p>
+      </div>
       <PaymentElement className="bg-white rounded-lg p-4" />
       <Button
         type="submit"
