@@ -296,7 +296,7 @@ export default function Home() {
       <div className="absolute inset-0 bg-black/30 z-0"></div>
 
       {/* Content */}
-      <div className="relative z-10"></div>
+      <div className="relative z-10">
         {/* Beta Notice */}
         <div className="bg-orange-500 text-white text-center py-3">
           <div className="container mx-auto px-4">
