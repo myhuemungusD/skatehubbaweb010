@@ -3,6 +3,8 @@ import {
   type User, type InsertUser, type TutorialStep, type InsertTutorialStep,
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -23,232 +25,208 @@ export interface IStorage {
   updateUserProgress(userId: number, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined>;
 
   // Subscriber methods
-  createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt' | 'updatedAt'>): Promise<Subscriber>;
+  createSubscriber(data: Omit<Subscriber, 'id' | 'subscribedAt'>): Promise<Subscriber>;
   getSubscribers(): Promise<Subscriber[]>;
   getSubscriber(email: string): Promise<Subscriber | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private tutorialSteps: Map<number, TutorialStep>;
-  private userProgress: Map<string, UserProgress>; // key: `${userId}-${stepId}`
-  private subscribers: Map<string, Subscriber>; // key: email
-  private currentUserId: number;
-  private currentStepId: number;
-  private currentProgressId: number;
-  private currentSubscriberId: number;
-
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.users = new Map();
-    this.tutorialSteps = new Map();
-    this.userProgress = new Map();
-    this.subscribers = new Map();
-    this.currentUserId = 1;
-    this.currentStepId = 1;
-    this.currentProgressId = 1;
-    this.currentSubscriberId = 1;
-
     // Initialize with default tutorial steps
     this.initializeDefaultTutorialSteps();
   }
 
   private async initializeDefaultTutorialSteps() {
-    const defaultSteps: InsertTutorialStep[] = [
-      {
-        title: "Welcome to SkateHubba",
-        description: "Your skateboarding journey starts here! Let's get you set up.",
-        type: "intro",
-        content: {
-          videoUrl: "/tutorial/welcome.mp4"
-        },
-        order: 1,
-        isActive: true
-      },
-      {
-        title: "Navigate Your Map",
-        description: "Learn how to explore skate spots and check in at locations.",
-        type: "interactive",
-        content: {
-          interactiveElements: [
-            { type: 'tap', target: 'map-spot', instruction: 'Tap on a skate spot to see details' },
-            { type: 'tap', target: 'checkin-button', instruction: 'Tap Check-In to mark your visit' }
-          ]
-        },
-        order: 2,
-        isActive: true
-      },
-      {
-        title: "Drop Your First Clip",
-        description: "Record and share your first skateboarding clip in the Trenches.",
-        type: "challenge",
-        content: {
-          challengeData: {
-            action: "Upload a video to Trenches",
-            expectedResult: "Successfully posted clip"
-          }
-        },
-        order: 3,
-        isActive: true
-      },
-      {
-        title: "Customize Your Avatar",
-        description: "Make your skater unique with custom gear and style.",
-        type: "interactive",
-        content: {
-          interactiveElements: [
-            { type: 'tap', target: 'avatar-editor', instruction: 'Tap to open avatar customization' },
-            { type: 'drag', target: 'gear-item', instruction: 'Drag items to equip them' }
-          ]
-        },
-        order: 4,
-        isActive: true
-      },
-      {
-        title: "Challenge a Friend",
-        description: "Start your first S.K.A.T.E. battle with another skater.",
-        type: "challenge",
-        content: {
-          challengeData: {
-            action: "Send a S.K.A.T.E. challenge",
-            expectedResult: "Challenge sent successfully"
-          }
-        },
-        order: 5,
-        isActive: true
-      }
-    ];
+    try {
+      // Check if tutorial steps already exist
+      const existingSteps = await db.select().from(tutorialSteps).limit(1);
+      if (existingSteps.length > 0) return;
 
-    for (const step of defaultSteps) {
-      await this.createTutorialStep(step);
+      const defaultSteps = [
+        {
+          title: "Welcome to SkateHubba",
+          description: "Your skateboarding journey starts here! Let's get you set up.",
+          type: "intro",
+          content: {
+            videoUrl: "/tutorial/welcome.mp4"
+          } as const,
+          order: 1,
+          isActive: true
+        },
+        {
+          title: "Navigate Your Map",
+          description: "Learn how to explore skate spots and check in at locations.",
+          type: "interactive",
+          content: {
+            interactiveElements: [
+              { type: 'tap' as const, target: 'map-spot', instruction: 'Tap on a skate spot to see details' },
+              { type: 'tap' as const, target: 'checkin-button', instruction: 'Tap Check-In to mark your visit' }
+            ]
+          } as const,
+          order: 2,
+          isActive: true
+        },
+        {
+          title: "Drop Your First Clip",
+          description: "Record and share your first skateboarding clip in the Trenches.",
+          type: "challenge",
+          content: {
+            challengeData: {
+              action: "Upload a video to Trenches",
+              expectedResult: "Successfully posted clip"
+            }
+          } as const,
+          order: 3,
+          isActive: true
+        },
+        {
+          title: "Customize Your Avatar",
+          description: "Make your skater unique with custom gear and style.",
+          type: "interactive",
+          content: {
+            interactiveElements: [
+              { type: 'tap' as const, target: 'avatar-editor', instruction: 'Tap to open avatar customization' },
+              { type: 'drag' as const, target: 'gear-item', instruction: 'Drag items to equip them' }
+            ]
+          } as const,
+          order: 4,
+          isActive: true
+        },
+        {
+          title: "Challenge a Friend",
+          description: "Start your first S.K.A.T.E. battle with another skater.",
+          type: "challenge",
+          content: {
+            challengeData: {
+              action: "Send a S.K.A.T.E. challenge",
+              expectedResult: "Challenge sent successfully"
+            }
+          } as const,
+          order: 5,
+          isActive: true
+        }
+      ];
+
+      for (const step of defaultSteps) {
+        await this.createTutorialStep(step);
+      }
+    } catch (error) {
+      console.error('Error initializing default tutorial steps:', error);
     }
   }
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = {
-      ...insertUser,
-      id,
-      onboardingCompleted: false,
-      currentTutorialStep: 0,
-      createdAt: new Date()
-    };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async updateUserOnboardingStatus(userId: number, completed: boolean, currentStep?: number): Promise<User | undefined> {
-    const user = this.users.get(userId);
-    if (!user) return undefined;
-
-    const updatedUser: User = {
-      ...user,
-      onboardingCompleted: completed,
-      currentTutorialStep: currentStep ?? user.currentTutorialStep
-    };
-
-    this.users.set(userId, updatedUser);
-    return updatedUser;
+    const [user] = await db
+      .update(users)
+      .set({
+        onboardingCompleted: completed,
+        currentTutorialStep: currentStep
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || undefined;
   }
 
   // Tutorial steps methods
   async getAllTutorialSteps(): Promise<TutorialStep[]> {
-    return Array.from(this.tutorialSteps.values())
-      .filter(step => step.isActive)
-      .sort((a, b) => a.order - b.order);
+    return await db
+      .select()
+      .from(tutorialSteps)
+      .where(eq(tutorialSteps.isActive, true))
+      .orderBy(tutorialSteps.order);
   }
 
   async getTutorialStep(id: number): Promise<TutorialStep | undefined> {
-    return this.tutorialSteps.get(id);
+    const [step] = await db.select().from(tutorialSteps).where(eq(tutorialSteps.id, id));
+    return step || undefined;
   }
 
-  async createTutorialStep(stepData: InsertTutorialStep): Promise<TutorialStep> {
-    const id = this.currentStepId++;
-    const step: TutorialStep = {
-      ...stepData,
-      id,
-      content: stepData.content || null
-    };
-    this.tutorialSteps.set(id, step);
-    return step;
+  async createTutorialStep(step: InsertTutorialStep): Promise<TutorialStep> {
+    const [createdStep] = await db
+      .insert(tutorialSteps)
+      .values(step as any)
+      .returning();
+    return createdStep;
   }
 
   // User progress methods
   async getUserProgress(userId: number): Promise<UserProgress[]> {
-    return Array.from(this.userProgress.values())
-      .filter(progress => progress.userId === userId)
-      .sort((a, b) => a.stepId - b.stepId);
+    return await db
+      .select()
+      .from(userProgress)
+      .where(eq(userProgress.userId, userId))
+      .orderBy(userProgress.stepId);
   }
 
   async getUserStepProgress(userId: number, stepId: number): Promise<UserProgress | undefined> {
-    const key = `${userId}-${stepId}`;
-    return this.userProgress.get(key);
+    const [progress] = await db
+      .select()
+      .from(userProgress)
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.stepId, stepId)));
+    return progress || undefined;
   }
 
-  async createUserProgress(progressData: InsertUserProgress): Promise<UserProgress> {
-    const id = this.currentProgressId++;
-    const progress: UserProgress = {
-      ...progressData,
-      id,
-      completed: progressData.completed || false,
-      completedAt: null,
-      timeSpent: progressData.timeSpent || null,
-      interactionData: progressData.interactionData || null
-    };
-    const key = `${progressData.userId}-${progressData.stepId}`;
-    this.userProgress.set(key, progress);
-    return progress;
+  async createUserProgress(progress: InsertUserProgress): Promise<UserProgress> {
+    const [createdProgress] = await db
+      .insert(userProgress)
+      .values(progress as any)
+      .returning();
+    return createdProgress;
   }
 
   async updateUserProgress(userId: number, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined> {
-    const key = `${userId}-${stepId}`;
-    const existing = this.userProgress.get(key);
-    if (!existing) return undefined;
-
-    const updatedProgress: UserProgress = {
-      ...existing,
-      completed: updates.completed ?? existing.completed,
-      timeSpent: updates.timeSpent ?? existing.timeSpent,
-      interactionData: updates.interactionData ?? existing.interactionData,
-      completedAt: updates.completed ? new Date() : existing.completedAt
+    const updateData: any = {
+      ...updates,
+      completedAt: updates.completed ? new Date() : undefined
     };
 
-    this.userProgress.set(key, updatedProgress);
-    return updatedProgress;
+    const [updatedProgress] = await db
+      .update(userProgress)
+      .set(updateData)
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.stepId, stepId)))
+      .returning();
+    return updatedProgress || undefined;
   }
 
   // Subscriber methods
-  async createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt' | 'updatedAt'>): Promise<Subscriber> {
-    const id = this.currentSubscriberId++;
-    const subscriber: Subscriber = {
-      ...data,
-      id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isActive: true,
-    };
-    this.subscribers.set(data.email, subscriber);
+  async createSubscriber(data: Omit<Subscriber, 'id' | 'subscribedAt'>): Promise<Subscriber> {
+    const [subscriber] = await db
+      .insert(subscribers)
+      .values(data)
+      .returning();
     return subscriber;
   }
 
   async getSubscribers(): Promise<Subscriber[]> {
-    return Array.from(this.subscribers.values()).filter(sub => sub.isActive);
+    return await db
+      .select()
+      .from(subscribers)
+      .where(eq(subscribers.isActive, true));
   }
 
   async getSubscriber(email: string): Promise<Subscriber | undefined> {
-    return this.subscribers.get(email);
+    const [subscriber] = await db.select().from(subscribers).where(eq(subscribers.email, email));
+    return subscriber || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
