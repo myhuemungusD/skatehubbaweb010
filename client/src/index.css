@@ -187,6 +187,10 @@ a:focus-visible {
   color: #d1d5db !important; /* Lighter gray for better contrast */
 }
 
+.graffiti-bg {
+  background-image: url('/attached_assets/hubbagraffwall.png');
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .text-orange-400 {
