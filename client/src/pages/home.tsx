@@ -25,7 +25,7 @@ const HeroAccessButton = () => {
     if (!email.trim()) return;
 
     setIsSubmitting(true);
-    analytics.subscribeSubmitted(email);
+    analytics.subscribeSubmitted();
 
     try {
       const response = await fetch('/api/subscribe', {
@@ -41,7 +41,7 @@ const HeroAccessButton = () => {
 
       if (response.ok) {
         setIsSuccess(true);
-        analytics.subscribeSuccess(email); // Track successful subscription
+        analytics.subscribeSuccess(); // Track successful subscription
         toast({
           title: "Welcome to SkateHubba! 🎉",
           description: "You're now on the list for updates and exclusive drops.",
@@ -219,7 +219,7 @@ export default function Home() {
     if (!email.trim()) return;
 
     setIsSubmitting(true);
-    analytics.subscribeSubmitted(email); // Track subscription submission
+    analytics.subscribeSubmitted(); // Track subscription submission
 
     try {
       const response = await fetch('/api/subscribe', {
@@ -234,7 +234,7 @@ export default function Home() {
       });
 
       if (response.ok) {
-        analytics.subscribeSuccess(email); // Track successful subscription
+        analytics.subscribeSuccess(); // Track successful subscription
         toast({
           title: "Thanks for joining SkateHubba!",
           description: "We'll keep you updated on updates, exclusive gear drops & sessions.",
@@ -278,7 +278,7 @@ export default function Home() {
     <div
       className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
       style={{
-        backgroundImage: `url(${graffWallBackground})`,
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)',
         backgroundPosition: '50% 30%'
       }}
     >
@@ -425,14 +425,15 @@ export default function Home() {
                         {/* Screen */}
                         <div className="w-full h-full bg-black rounded-2xl overflow-hidden relative">
                           {/* Map/Check-in Screenshot */}
-                          <img
-                            src={checkinMapImage}
-                            alt="SkateHubba mobile app interface showing an interactive map with skateboarding spot check-ins, featuring location pins and a 'Tap to Check In' button for nearby skate spots"
-                            className="w-full h-full object-cover"
+                          <div 
+                            className="w-full h-full bg-gradient-to-br from-orange-900/30 to-gray-900 flex items-center justify-center"
                             data-testid="hero-phone-mockup"
-                            loading="lazy"
-                            decoding="async"
-                          />
+                          >
+                            <div className="text-center text-white">
+                              <div className="text-4xl mb-2">🛹</div>
+                              <div className="text-sm">Map Interface</div>
+                            </div>
+                          </div>
 
                           {/* Floating UI Elements */}
                           <div className="absolute top-4 left-4 right-4">
