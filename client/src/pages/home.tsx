@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { analytics } from "@/lib/analytics";
+import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 
 // Import your custom SkateHubba images
 import shopBackground from "@assets/shop backgroung_1754296459156.png";
@@ -25,45 +27,48 @@ const HeroAccessButton = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && firstName) {
-      setIsSubmitting(true);
-      try {
-        const response = await fetch('/api/subscribe', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firstName,
-            email
-          })
-        });
+    if (!email.trim()) return;
 
-        if (response.ok) {
-          setIsSuccess(true);
-          toast({
-            title: "Welcome to SkateHubba! 🎉",
-            description: "You're now on the list for updates and exclusive drops.",
-          });
-          setEmail("");
-          setFirstName("");
-        } else {
-          const errorData = await response.json();
-          toast({
-            title: "Subscription Error",
-            description: errorData.error || "Failed to subscribe. Please try again.",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
+    setIsSubmitting(true);
+    analytics.subscribeSubmitted(email);
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName,
+          email
+        })
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        analytics.subscribeSuccess(email); // Track successful subscription
         toast({
-          title: "Network Error",
-          description: "Please check your connection and try again.",
+          title: "Welcome to SkateHubba! 🎉",
+          description: "You're now on the list for updates and exclusive drops.",
+        });
+        setEmail("");
+        setFirstName("");
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Subscription Error",
+          description: errorData.error || "Failed to subscribe. Please try again.",
           variant: "destructive"
         });
-      } finally {
-        setIsSubmitting(false);
       }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Please check your connection and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -134,8 +139,11 @@ const HeroAccessButton = () => {
   }
 
   return (
-    <button 
-      onClick={() => setShowForm(true)}
+    <button
+      onClick={() => {
+        setShowForm(true);
+        analytics.ctaClickHero('get_early_access'); // Track CTA click
+      }}
       className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
       data-testid="button-get-early-access"
     >
@@ -150,8 +158,8 @@ const gallerySlides = [
     id: 1,
     title: "Avatar & Character System",
     images: [
-      "/attached_assets/cartoonavatar_1754296307132.png", 
-      "/attached_assets/baigeES_1754296307131.png", 
+      "/attached_assets/cartoonavatar_1754296307132.png",
+      "/attached_assets/baigeES_1754296307131.png",
       "/attached_assets/baigeESnft_1754296307131.png",
       "/attached_assets/avatar4_1754685109473.png",
       "/attached_assets/avatar11_1754685109474.png",
@@ -161,11 +169,11 @@ const gallerySlides = [
     ]
   },
   {
-    id: 2, 
+    id: 2,
     title: "Shop & Trading System",
     images: [
-      "/attached_assets/graffwallskateboardrack_1754296307132.png", 
-      "/attached_assets/shoptemplate0.2_1754296307132.png", 
+      "/attached_assets/graffwallskateboardrack_1754296307132.png",
+      "/attached_assets/shoptemplate0.2_1754296307132.png",
       "/attached_assets/shop background_1754296307133.png",
       "/attached_assets/shopscreen3_1754685109474.png",
       "/attached_assets/profilecloset_1754685109474.png"
@@ -173,10 +181,10 @@ const gallerySlides = [
   },
   {
     id: 3,
-    title: "Environment & Locations", 
+    title: "Environment & Locations",
     images: [
-      "/attached_assets/alley back ground_1754296307133.png", 
-      "/attached_assets/profile background_1754296307133.png", 
+      "/attached_assets/alley back ground_1754296307133.png",
+      "/attached_assets/profile background_1754296307133.png",
       "/attached_assets/graff wall_1754296307134.png",
       "/attached_assets/checkinmap_1754368423116.png"
     ]
@@ -198,41 +206,47 @@ export default function Home() {
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && firstName) {
-      try {
-        const response = await fetch('/api/subscribe', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firstName,
-            email
-          })
-        });
+    if (!email.trim()) return;
 
-        if (response.ok) {
-          toast({
-            title: "Thanks for joining SkateHubba!",
-            description: "We'll keep you updated on updates, exclusive gear drops & sessions.",
-          });
-          setEmail("");
-          setFirstName("");
-        } else {
-          const errorData = await response.json();
-          toast({
-            title: "Subscription Error",
-            description: errorData.error || "Failed to subscribe. Please try again.",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
+    setIsSubmitting(true);
+    analytics.subscribeSubmitted(email); // Track subscription submission
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName,
+          email
+        })
+      });
+
+      if (response.ok) {
+        analytics.subscribeSuccess(email); // Track successful subscription
         toast({
-          title: "Network Error",
-          description: "Please check your connection and try again.",
+          title: "Thanks for joining SkateHubba!",
+          description: "We'll keep you updated on updates, exclusive gear drops & sessions.",
+        });
+        setEmail("");
+        setFirstName("");
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Subscription Error",
+          description: errorData.error || "Failed to subscribe. Please try again.",
           variant: "destructive"
         });
       }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Please check your connection and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -251,7 +265,7 @@ export default function Home() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
       style={{
         backgroundImage: `url(${shopBackground})`,
@@ -266,9 +280,9 @@ export default function Home() {
         {/* Beta Notice */}
         <div className="bg-orange-500 text-white text-center py-3">
           <div className="container mx-auto px-4">
-            <strong>BETA VERSION</strong> - We need your feedback to make SkateHubba even better! 
-            <a 
-              href="mailto:hello@skatehubba.com" 
+            <strong>BETA VERSION</strong> - We need your feedback to make SkateHubba even better!
+            <a
+              href="mailto:hello@skatehubba.com"
               className="underline hover:text-orange-200 ml-2"
               data-testid="link-beta-feedback"
             >
@@ -288,22 +302,31 @@ export default function Home() {
                 <strong className="text-xl text-[#fafafa]">SkateHubba</strong>
               </div>
               <div className="flex gap-6 items-center">
-                <button 
-                  onClick={() => scrollToSection('features')}
+                <button
+                  onClick={() => {
+                    scrollToSection('features');
+                    analytics.ctaClickHero('features_nav'); // Track CTA click
+                  }}
                   className="text-[#fafafa] hover:text-orange-500 transition-colors"
                   data-testid="link-features"
                 >
                   Features
                 </button>
-                <button 
-                  onClick={() => scrollToSection('gallery')}
+                <button
+                  onClick={() => {
+                    scrollToSection('gallery');
+                    analytics.ctaClickHero('gallery_nav'); // Track CTA click
+                  }}
                   className="text-[#fafafa] hover:text-orange-500 transition-colors"
                   data-testid="link-gallery"
                 >
                   Gallery
                 </button>
-                <button 
-                  onClick={() => scrollToSection('join')}
+                <button
+                  onClick={() => {
+                    scrollToSection('join');
+                    analytics.ctaClickHero('join_nav'); // Track CTA click
+                  }}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors"
                   data-testid="button-join-nav"
                 >
@@ -330,7 +353,7 @@ export default function Home() {
                       Turn tricks into collectibles.<br className="hidden sm:block" />
                       Battle for every spot.
                     </p>
-                    
+
                     {/* Trust & Proof Row */}
                     <div className="space-y-4 max-w-full">
                       {/* Social Proof */}
@@ -351,7 +374,7 @@ export default function Home() {
                           </a>
                         </div>
                       </div>
-                      
+
                       {/* What's Inside */}
                       <div className="bg-black/30 rounded-lg p-4 border border-gray-600/30 max-w-full">
                         <h4 className="text-orange-400 font-semibold mb-3 text-center lg:text-left">What's inside:</h4>
@@ -375,10 +398,10 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <HeroAccessButton />
                   </div>
-                  
+
                   {/* Phone Mockup */}
                   <div className="flex justify-center lg:justify-end px-4 lg:px-0">
                     <div className="relative max-w-xs lg:max-w-none">
@@ -387,34 +410,34 @@ export default function Home() {
                         {/* Screen */}
                         <div className="w-full h-full bg-black rounded-2xl overflow-hidden relative">
                           {/* Map/Check-in Screenshot */}
-                          <img 
-                            src={checkinMapImage} 
-                            alt="SkateHubba Check-in Map Interface" 
+                          <img
+                            src={checkinMapImage}
+                            alt="SkateHubba Check-in Map Interface"
                             className="w-full h-full object-cover"
                             data-testid="hero-phone-mockup"
                             loading="lazy"
                             decoding="async"
                           />
-                          
+
                           {/* Floating UI Elements */}
                           <div className="absolute top-4 left-4 right-4">
                             <div className="bg-black/80 rounded-lg px-3 py-2 text-white text-sm font-semibold">
                               📍 Check in at spots near you
                             </div>
                           </div>
-                          
+
                           <div className="absolute bottom-4 left-4 right-4">
                             <div className="bg-orange-500/90 rounded-lg px-4 py-3 text-white text-center font-bold">
                               Tap to Check In
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Phone Details */}
                         <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gray-600 rounded-full"></div>
                         <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gray-600 rounded-full"></div>
                       </div>
-                      
+
                       {/* Floating Action Bubble */}
                       <div className="absolute -top-6 -right-6 bg-orange-500 text-white p-3 rounded-full shadow-lg animate-bounce">
                         <span className="text-2xl">🏁</span>
@@ -469,9 +492,9 @@ export default function Home() {
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-[#fafafa] font-orbitron">
                   🔥 SkateHubba Features – Skate, Stream, Dominate
                 </h2>
-                
+
                 <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-                  
+
                   {/* Real-World Meets Digital */}
                   <div className="bg-black/40 rounded-2xl p-8 border border-orange-400/20">
                     <h3 className="text-2xl font-bold text-orange-400 mb-6 font-orbitron">🏁 Real-World Meets Digital</h3>
@@ -697,8 +720,8 @@ export default function Home() {
             <article className="max-w-2xl mx-auto text-center">
               <div className="mb-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-[#fafafa] font-orbitron">
-              Join the Community
-            </h2>
+                  Join the Community
+                </h2>
                 <h3 className="text-xl text-[#fafafa]">Be first to know about updates, exclusive gear drops & sessions.</h3>
               </div>
               <form onSubmit={handleJoinSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -720,8 +743,8 @@ export default function Home() {
                   className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400"
                   data-testid="input-email"
                 />
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="bg-orange-500 hover:bg-orange-600 text-white"
                   data-testid="button-subscribe"
                 >
@@ -738,7 +761,7 @@ export default function Home() {
             <h3 className="text-2xl font-bold mb-6 text-[#fafafa] font-orbitron">Follow Us</h3>
             <p className="text-lg mb-8 text-[#fafafa]">Stay in the loop and connect with the culture:</p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6 max-w-4xl mx-auto">
-              <a 
+              <a
                 href="https://instagram.com/SkateHubba_app"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -748,7 +771,7 @@ export default function Home() {
                 <span>📸</span>
                 <span>Instagram: @SkateHubba_app</span>
               </a>
-              <a 
+              <a
                 href="https://www.tiktok.com/@skatehubba_app"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -758,7 +781,7 @@ export default function Home() {
                 <span>🎵</span>
                 <span>TikTok: @skatehubba_app</span>
               </a>
-              <a 
+              <a
                 href="https://www.facebook.com/profile.php?id=61578731058004&mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -768,7 +791,7 @@ export default function Home() {
                 <span>📘</span>
                 <span>Facebook: SkateHubba</span>
               </a>
-              <a 
+              <a
                 href="https://www.youtube.com/channel/UCwpWreJbWngkaLVsdOIKyUQ"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -778,7 +801,7 @@ export default function Home() {
                 <span>📺</span>
                 <span>YouTube: SkateHubba</span>
               </a>
-              <a 
+              <a
                 href="/donate"
                 className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg text-lg font-semibold"
                 data-testid="link-donate-footer"
@@ -794,7 +817,7 @@ export default function Home() {
         <footer className="container mx-auto px-4 py-8 border-t border-[#333] text-center text-[#fafafa]">
           <small>
             &copy; 2025 SkateHubba. All rights reserved. •{' '}
-            <button 
+            <button
               onClick={() => openModal('privacy-modal')}
               className="text-orange-400 hover:text-orange-300 transition-colors"
               data-testid="link-privacy"
@@ -802,7 +825,7 @@ export default function Home() {
               Privacy Policy
             </button>{' '}
             •{' '}
-            <button 
+            <button
               onClick={() => openModal('terms-modal')}
               className="text-orange-400 hover:text-orange-300 transition-colors"
               data-testid="link-terms"
@@ -810,7 +833,7 @@ export default function Home() {
               Terms of Service
             </button>{' '}
             •{' '}
-            <a 
+            <a
               href="mailto:hello@skatehubba.com"
               className="text-orange-400 hover:text-orange-300 transition-colors"
               data-testid="link-contact"
@@ -818,7 +841,7 @@ export default function Home() {
               Contact
             </a>{' '}
             •{' '}
-            <button 
+            <button
               onClick={() => openModal('accessibility-modal')}
               className="text-orange-400 hover:text-orange-300 transition-colors"
               data-testid="link-accessibility"
@@ -826,9 +849,9 @@ export default function Home() {
               Accessibility
             </button>{' '}
             •{' '}
-            <a 
-              href="https://replit.com/@jayham710/SkateStream" 
-              target="_blank" 
+            <a
+              href="https://replit.com/@jayham710/SkateStream"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-orange-400 hover:text-orange-300 transition-colors"
               data-testid="link-replit"
@@ -839,8 +862,8 @@ export default function Home() {
         </footer>
 
         {/* Privacy Modal */}
-        <div 
-          id="privacy-modal" 
+        <div
+          id="privacy-modal"
           className="fixed inset-0 bg-black/85 justify-center items-center z-50 hidden"
           tabIndex={-1}
           role="dialog"
@@ -848,7 +871,7 @@ export default function Home() {
           aria-labelledby="privacy-title"
         >
           <div className="bg-[#232323] text-[#fafafa] p-8 rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <button 
+            <button
               className="float-right cursor-pointer text-xl bg-none border-none text-[#fafafa] hover:text-orange-400"
               onClick={() => closeModal('privacy-modal')}
               aria-label="Close"
@@ -868,8 +891,8 @@ export default function Home() {
         </div>
 
         {/* Terms Modal */}
-        <div 
-          id="terms-modal" 
+        <div
+          id="terms-modal"
           className="fixed inset-0 bg-black/85 justify-center items-center z-50 hidden"
           tabIndex={-1}
           role="dialog"
@@ -877,7 +900,7 @@ export default function Home() {
           aria-labelledby="terms-title"
         >
           <div className="bg-[#232323] text-[#fafafa] p-8 rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <button 
+            <button
               className="float-right cursor-pointer text-xl bg-none border-none text-[#fafafa] hover:text-orange-400"
               onClick={() => closeModal('terms-modal')}
               aria-label="Close"
@@ -897,8 +920,8 @@ export default function Home() {
         </div>
 
         {/* Accessibility Modal */}
-        <div 
-          id="accessibility-modal" 
+        <div
+          id="accessibility-modal"
           className="fixed inset-0 bg-black/85 justify-center items-center z-50 hidden"
           tabIndex={-1}
           role="dialog"
@@ -906,7 +929,7 @@ export default function Home() {
           aria-labelledby="accessibility-title"
         >
           <div className="bg-[#232323] text-[#fafafa] p-8 rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <button 
+            <button
               className="float-right cursor-pointer text-xl bg-none border-none text-[#fafafa] hover:text-orange-400"
               onClick={() => closeModal('accessibility-modal')}
               aria-label="Close"
