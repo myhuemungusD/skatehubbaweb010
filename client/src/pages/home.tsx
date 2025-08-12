@@ -187,114 +187,22 @@ export default function Home() {
         {/* Main Content */}
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
-            {/* Video Ad Style Hero Section */}
-            <section className="mb-16">
-              {/* Main Title */}
-              <div className="mb-12">
-                <h1 className="text-5xl md:text-7xl font-black text-[#fafafa] mb-6 leading-tight font-orbitron">
-              Stream. Connect. Skate.
-            </h1>
-                <h2 className="text-2xl mb-8 text-[#fafafa]">Your Skateboarding Social Universe.</h2>
-              </div>
-
-              {/* Video Ad Style Sequence */}
-              <div className="space-y-16 max-w-4xl mx-auto">
-                {/* Action Shot */}
-                <div className="text-center">
-                  <div className="mb-6">
-                    <img 
-                      src={checkinMapImage} 
-                      alt="SkateHubba Check-in Map" 
-                      className="w-full max-w-lg mx-auto rounded-lg shadow-2xl bg-[#232323]"
-                      data-testid="img-action-shot"
-                    />
-                  </div>
-                  <h3 className="text-3xl font-bold text-orange-400 mb-4 tracking-wide">
-                    THIS IS WHERE IT STARTS...
-                  </h3>
-                </div>
-
-                {/* Follow Up Shot */}
-                <div className="text-center">
-                  <div className="mb-6">
-                    <img 
-                      src={graffWallRack} 
-                      alt="Pull Up and Drop Clips" 
-                      className="w-full max-w-lg mx-auto rounded-lg shadow-2xl bg-[#232323]"
-                      data-testid="img-follow-up-shot"
-                    />
-                  </div>
-                  <h3 className="text-3xl font-bold text-[#fafafa] mb-4 tracking-wide">
-                    PULL UP. DROP CLIPS. CHALLENGE ANYONE.
-                  </h3>
-                </div>
-
-                {/* Board/Unique Moment Shot */}
-                <div className="text-center">
-                  <div className="mb-6">
-                    <img 
-                      src={shopTemplate} 
-                      alt="Earn Respect and Level Up" 
-                      className="w-full max-w-lg mx-auto rounded-lg shadow-2xl bg-[#232323]"
-                      data-testid="img-board-shot"
-                    />
-                  </div>
-                  <h3 className="text-3xl font-bold text-orange-400 mb-4 tracking-wide">
-                    EARN RESPECT. LEVEL UP. REP YOUR SPOT.
-                  </h3>
-                </div>
-
-                {/* End Shot with Call to Action */}
-                <div className="text-center bg-black/60 rounded-2xl p-12 border border-orange-400/30">
-                  <div className="mb-8">
-                    <img 
-                      src={nftShoe} 
-                      alt="SkateHubba NFT Gear" 
-                      className="w-full max-w-sm mx-auto rounded-lg shadow-2xl bg-[#232323]"
-                      data-testid="img-end-shot"
-                    />
-                  </div>
-                  <h1 className="text-6xl font-bold text-[#fafafa] mb-6 tracking-wider">
-                    SKATEHUBBA
-                  </h1>
-                  <h2 className="text-2xl font-bold text-orange-400 mb-8 tracking-wide">
-                    SKATE. CHALLENGE. STREAM. TRADE.
-                  </h2>
-                  <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-                    <a 
-                      href="/donate"
-                      className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
-                      data-testid="button-support-now"
-                    >
-                      SUPPORT NOW
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Description */}
-              <div className="mt-16 text-center">
-                <p className="text-lg text-[#fafafa] max-w-3xl mx-auto leading-relaxed">
-                  Level up your skate life: customize your skater, discover gear, join digital sessions, and share clips with your crew. SkateHubba is where digital meets street.
+            {/* Minimal Hero Section */}
+            <section className="py-24">
+              <div className="max-w-4xl mx-auto text-center space-y-8">
+                <h1 className="text-5xl md:text-7xl font-black text-[#fafafa] leading-tight font-orbitron">
+                  SkateHubba
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
+                  The skateboarding app where your tricks become collectibles and every spot is a battleground.
                 </p>
-                <div className="mt-8">
-                  <div className="flex flex-col sm:flex-row gap-4 items-center">
-                    <button 
-                      onClick={() => scrollToSection('features')}
-                      className="text-orange-400 hover:text-orange-300 transition-colors cursor-pointer text-lg font-semibold"
-                      data-testid="link-meet-crew"
-                    >
-                      Meet Your Crew →
-                    </button>
-                    <a 
-                      href="/donate"
-                      className="px-6 py-2 bg-orange-400/20 border border-orange-400/50 text-orange-400 rounded-lg hover:bg-orange-400/30 transition-all text-sm font-semibold"
-                      data-testid="button-support-project"
-                    >
-                      💰 Support This Project
-                    </a>
-                  </div>
-                </div>
+                <button 
+                  onClick={() => scrollToSection('join')}
+                  className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-2xl"
+                  data-testid="button-get-early-access"
+                >
+                  Get Early Access
+                </button>
               </div>
             </section>
 
