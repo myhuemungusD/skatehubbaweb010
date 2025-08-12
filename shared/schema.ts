@@ -76,6 +76,14 @@ export const userProgress = pgTable("user_progress", {
   }>(),
 });
 
+export const subscribers = pgTable("subscribers", {
+  id: serial("id").primaryKey(),
+  firstName: text("first_name").notNull(),
+  email: text("email").notNull().unique(),
+  subscribedAt: timestamp("subscribed_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -96,6 +104,12 @@ export const updateUserProgressSchema = createInsertSchema(userProgress).pick({
   interactionData: true,
 });
 
+export const insertSubscriberSchema = createInsertSchema(subscribers).omit({
+  id: true,
+  subscribedAt: true,
+  isActive: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type TutorialStep = typeof tutorialSteps.$inferSelect;
@@ -103,3 +117,5 @@ export type InsertTutorialStep = z.infer<typeof insertTutorialStepSchema>;
 export type UserProgress = typeof userProgress.$inferSelect;
 export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
 export type UpdateUserProgress = z.infer<typeof updateUserProgressSchema>;
+export type Subscriber = typeof subscribers.$inferSelect;
+export type InsertSubscriber = z.infer<typeof insertSubscriberSchema>;

@@ -65,15 +65,43 @@ export default function Home() {
   const [firstName, setFirstName] = useState("");
   const { toast } = useToast();
 
-  const handleJoinSubmit = (e: React.FormEvent) => {
+  const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email && firstName) {
-      toast({
-        title: "Thanks for joining SkateHubba!",
-        description: "We'll keep you updated on updates, exclusive gear drops & sessions.",
-      });
-      setEmail("");
-      setFirstName("");
+      try {
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName,
+            email
+          })
+        });
+
+        if (response.ok) {
+          toast({
+            title: "Thanks for joining SkateHubba!",
+            description: "We'll keep you updated on updates, exclusive gear drops & sessions.",
+          });
+          setEmail("");
+          setFirstName("");
+        } else {
+          const errorData = await response.json();
+          toast({
+            title: "Subscription Error",
+            description: errorData.error || "Failed to subscribe. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Network Error",
+          description: "Please check your connection and try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
 

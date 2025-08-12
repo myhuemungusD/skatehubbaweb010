@@ -299,6 +299,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Subscriber routes
+  app.post("/api/subscribe", async (req, res) => {
+    try {
+      const { firstName, email } = req.body;
+      
+      // Validate input
+      if (!firstName || !email) {
+        return res.status(400).json({ error: "First name and email are required" });
+      }
+
+      if (!validateEmail(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+
+      const sanitizedFirstName = sanitizeString(firstName);
+      if (sanitizedFirstName.length < 1 || sanitizedFirstName.length > 50) {
+        return res.status(400).json({ error: "First name must be between 1 and 50 characters" });
+      }
+
+      // Check if already subscribed
+      const existingSubscriber = await storage.getSubscriber(email.toLowerCase());
+      if (existingSubscriber) {
+        return res.status(409).json({ error: "Email already subscribed" });
+      }
+
+      const subscriber = await storage.createSubscriber({
+        firstName: sanitizedFirstName,
+        email: email.toLowerCase()
+      });
+
+      res.status(201).json({ 
+        message: "Successfully subscribed!",
+        firstName: subscriber.firstName 
+      });
+    } catch (error) {
+      console.error("Failed to create subscriber:", error);
+      res.status(500).json({ error: "Failed to process subscription" });
+    }
+  });
+
   // Create demo user for testing (temporary)
   app.post("/api/demo-user", async (req, res) => {
     try {

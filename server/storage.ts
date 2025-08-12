@@ -1,7 +1,7 @@
-import { 
-  users, tutorialSteps, userProgress,
+import {
+  users, tutorialSteps, userProgress, subscribers,
   type User, type InsertUser, type TutorialStep, type InsertTutorialStep,
-  type UserProgress, type InsertUserProgress, type UpdateUserProgress
+  type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
 } from "@shared/schema";
 
 export interface IStorage {
@@ -10,35 +10,45 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserOnboardingStatus(userId: number, completed: boolean, currentStep?: number): Promise<User | undefined>;
-  
+
   // Tutorial steps methods
   getAllTutorialSteps(): Promise<TutorialStep[]>;
   getTutorialStep(id: number): Promise<TutorialStep | undefined>;
   createTutorialStep(step: InsertTutorialStep): Promise<TutorialStep>;
-  
+
   // User progress methods
   getUserProgress(userId: number): Promise<UserProgress[]>;
   getUserStepProgress(userId: number, stepId: number): Promise<UserProgress | undefined>;
   createUserProgress(progress: InsertUserProgress): Promise<UserProgress>;
   updateUserProgress(userId: number, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined>;
+
+  // Subscriber methods
+  createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt' | 'updatedAt'>): Promise<Subscriber>;
+  getSubscribers(): Promise<Subscriber[]>;
+  getSubscriber(email: string): Promise<Subscriber | undefined>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private tutorialSteps: Map<number, TutorialStep>;
   private userProgress: Map<string, UserProgress>; // key: `${userId}-${stepId}`
+  private subscribers: Map<string, Subscriber>; // key: email
   private currentUserId: number;
   private currentStepId: number;
   private currentProgressId: number;
+  private currentSubscriberId: number;
+
 
   constructor() {
     this.users = new Map();
     this.tutorialSteps = new Map();
     this.userProgress = new Map();
+    this.subscribers = new Map();
     this.currentUserId = 1;
     this.currentStepId = 1;
     this.currentProgressId = 1;
-    
+    this.currentSubscriberId = 1;
+
     // Initialize with default tutorial steps
     this.initializeDefaultTutorialSteps();
   }
@@ -127,8 +137,8 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { 
-      ...insertUser, 
+    const user: User = {
+      ...insertUser,
       id,
       onboardingCompleted: false,
       currentTutorialStep: 0,
@@ -141,13 +151,13 @@ export class MemStorage implements IStorage {
   async updateUserOnboardingStatus(userId: number, completed: boolean, currentStep?: number): Promise<User | undefined> {
     const user = this.users.get(userId);
     if (!user) return undefined;
-    
+
     const updatedUser: User = {
       ...user,
       onboardingCompleted: completed,
       currentTutorialStep: currentStep ?? user.currentTutorialStep
     };
-    
+
     this.users.set(userId, updatedUser);
     return updatedUser;
   }
@@ -165,8 +175,8 @@ export class MemStorage implements IStorage {
 
   async createTutorialStep(stepData: InsertTutorialStep): Promise<TutorialStep> {
     const id = this.currentStepId++;
-    const step: TutorialStep = { 
-      ...stepData, 
+    const step: TutorialStep = {
+      ...stepData,
       id,
       content: stepData.content || null
     };
@@ -188,8 +198,8 @@ export class MemStorage implements IStorage {
 
   async createUserProgress(progressData: InsertUserProgress): Promise<UserProgress> {
     const id = this.currentProgressId++;
-    const progress: UserProgress = { 
-      ...progressData, 
+    const progress: UserProgress = {
+      ...progressData,
       id,
       completed: progressData.completed || false,
       completedAt: null,
@@ -216,6 +226,28 @@ export class MemStorage implements IStorage {
 
     this.userProgress.set(key, updatedProgress);
     return updatedProgress;
+  }
+
+  // Subscriber methods
+  async createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt' | 'updatedAt'>): Promise<Subscriber> {
+    const id = this.currentSubscriberId++;
+    const subscriber: Subscriber = {
+      ...data,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
+    };
+    this.subscribers.set(data.email, subscriber);
+    return subscriber;
+  }
+
+  async getSubscribers(): Promise<Subscriber[]> {
+    return Array.from(this.subscribers.values()).filter(sub => sub.isActive);
+  }
+
+  async getSubscriber(email: string): Promise<Subscriber | undefined> {
+    return this.subscribers.get(email);
   }
 }
 
