@@ -278,8 +278,8 @@ export default function Home() {
     <div
       className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
       style={{
-        background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)',
-        backgroundPosition: '50% 30%'
+        background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #2d1b69 50%, #0f0c29 75%, #24243e 100%)',
+        backgroundAttachment: 'fixed'
       }}
     >
       {/* Skip to main content link for screen readers */}
