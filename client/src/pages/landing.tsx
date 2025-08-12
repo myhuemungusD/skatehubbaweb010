@@ -50,7 +50,10 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#181818] text-[#fafafa]">
+    <div className="min-h-screen text-[#fafafa]" style={{
+      background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #2d1b69 50%, #0f0c29 75%, #24243e 100%)',
+      backgroundAttachment: 'fixed'
+    }}>
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-[#181818]/90 backdrop-blur-sm border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
