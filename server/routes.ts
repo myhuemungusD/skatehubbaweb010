@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import crypto from "crypto";
 import validator from "validator";
+import { sendSubscriberNotification } from "./email";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -328,6 +329,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: sanitizedFirstName,
         email: email.toLowerCase()
       });
+
+      // Send email notification (async, don't wait for it)
+      sendSubscriberNotification({
+        firstName: subscriber.firstName,
+        email: subscriber.email
+      }).catch(err => console.error('Email notification failed:', err));
 
       res.status(201).json({ 
         message: "Successfully subscribed!",
