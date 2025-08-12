@@ -339,6 +339,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all subscribers
+  app.get("/api/subscribers", async (req, res) => {
+    try {
+      const subscribers = await storage.getSubscribers();
+      res.json(subscribers);
+    } catch (error) {
+      console.error("Failed to get subscribers:", error);
+      res.status(500).json({ error: "Failed to retrieve subscribers" });
+    }
+  });
+
   // Create demo user for testing (temporary)
   app.post("/api/demo-user", async (req, res) => {
     try {
