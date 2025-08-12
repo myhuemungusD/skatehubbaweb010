@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>SkateHubba™ – Stream. Connect. Skate.</title>
+  <meta name="description" content="SkateHubba is the skateboarding social hub — check in at real spots, battle SKATE, stream live sessions, and flex your closet. Join the early access list." />
+  <link rel="canonical" href="https://skatehubba.com/" />
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: #fafafa;
+      background: url('/hubbagraffwall.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .wrap {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 56px 20px;
+      background: transparent; /* remove overlay for clear visibility */
+    }
+    .hero {
+      max-width: 980px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      align-items: center;
+      background: transparent;
+      text-align: center;
+    }
+    h1, .sub, footer, .card, input, button {
+      background: transparent;
+      color: #fff;
+    }
+    .card {
+      border: none;
+      padding: 18px;
+    }
+    input, button {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 1rem;
+    }
+    button {
+      background: #ff6a00;
+      color: #000;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    footer {
+      opacity: .9;
+      font-size: .85rem;
+      color: #fff;
+      text-align: center;
+      margin-top: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="hero">
+      <section>
+        <h1>Stream. Connect. Skate.</h1>
+        <p class="sub">The skateboarding social hub — check in at real spots, battle <strong>SKATE</strong>, stream live sessions, and flex your closet.</p>
+        <div class="card">
+          <form id="sub-form" class="form" autocomplete="off" novalidate>
+            <input id="email" name="email" type="email" placeholder="you@email.com" required />
+            <button id="cta" type="submit">Get early access</button>
+          </form>
+          <p id="msg" class="success"></p>
+          <p id="err" class="error"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div>© <span id="year"></span> SkateHubba™. All rights reserved.</div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const form = document.getElementById('sub-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const msg = document.getElementById('msg');
+      const err = document.getElementById('err');
+      msg.textContent = '';
+      err.textContent = '';
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, source: 'landing' })
+        });
+        const json = await res.json();
+        if (res.ok && json.ok) {
+          msg.textContent = "You're in. Check your inbox for updates!";
+          form.reset();
+        } else {
+          err.textContent = json.error || 'Something went wrong. Please try again later.';
+        }
+      } catch (e) {
+        err.textContent = 'Network error. Try again.';
+      }
+    });
+  </script>
+</body>
+</html>
