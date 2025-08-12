@@ -97,22 +97,36 @@ const HeroAccessButton = () => {
     return (
       <div className="space-y-4 max-w-md mx-auto lg:mx-0">
         <form onSubmit={handleSubmit} className="space-y-3">
-          <Input
-            type="text"
-            placeholder="Your Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400"
-          />
-          <Input
-            type="email"
-            placeholder="Your Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400"
-          />
+          <div>
+            <label htmlFor="hero-first-name" className="sr-only">
+              First Name
+            </label>
+            <Input
+              id="hero-first-name"
+              type="text"
+              placeholder="Your Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              aria-describedby="hero-form-description"
+              className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
+            />
+          </div>
+          <div>
+            <label htmlFor="hero-email" className="sr-only">
+              Email Address
+            </label>
+            <Input
+              id="hero-email"
+              type="email"
+              placeholder="Your Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              aria-describedby="hero-form-description"
+              className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
+            />
+          </div>
           <div className="flex gap-2">
             <Button
               type="submit"
@@ -131,7 +145,7 @@ const HeroAccessButton = () => {
             </Button>
           </div>
         </form>
-        <p className="text-xs text-gray-400 text-center">
+        <p id="hero-form-description" className="text-xs text-gray-300 text-center">
           Get updates on drops, sessions & early access
         </p>
       </div>
@@ -202,6 +216,7 @@ const gallerySlides = [
 export default function Home() {
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
@@ -272,11 +287,16 @@ export default function Home() {
         backgroundPosition: '50% 30%'
       }}
     >
+      {/* Skip to main content link for screen readers */}
+      <a href="#main-content" className="sr-only focus:not-sr-only">
+        Skip to main content
+      </a>
+      
       {/* Dark overlay for better text readability */}
       <div className="absolute inset-0 bg-black/30 z-0"></div>
 
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-10"></div>
         {/* Beta Notice */}
         <div className="bg-orange-500 text-white text-center py-3">
           <div className="container mx-auto px-4">
@@ -338,7 +358,7 @@ export default function Home() {
         </nav>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-8 overflow-x-hidden">
+        <main id="main-content" className="container mx-auto px-4 py-8 overflow-x-hidden" role="main">
           <div className="text-center">
             {/* Minimal Hero Section */}
             <section className="py-12 md:py-24">
@@ -412,7 +432,7 @@ export default function Home() {
                           {/* Map/Check-in Screenshot */}
                           <img
                             src={checkinMapImage}
-                            alt="SkateHubba Check-in Map Interface"
+                            alt="SkateHubba mobile app interface showing an interactive map with skateboarding spot check-ins, featuring location pins and a 'Tap to Check In' button for nearby skate spots"
                             className="w-full h-full object-cover"
                             data-testid="hero-phone-mockup"
                             loading="lazy"
@@ -722,33 +742,49 @@ export default function Home() {
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-[#fafafa] font-orbitron">
                   Join the Community
                 </h2>
-                <h3 className="text-xl text-[#fafafa]">Be first to know about updates, exclusive gear drops & sessions.</h3>
+                <p id="join-form-description" className="text-xl text-[#fafafa]">Be first to know about updates, exclusive gear drops & sessions.</p>
               </div>
               <form onSubmit={handleJoinSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Input
-                  type="text"
-                  placeholder="Your Name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                  className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400"
-                  data-testid="input-firstname"
-                />
-                <Input
-                  type="email"
-                  placeholder="Your Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400"
-                  data-testid="input-email"
-                />
+                <div>
+                  <label htmlFor="join-first-name" className="sr-only">
+                    First Name
+                  </label>
+                  <Input
+                    id="join-first-name"
+                    type="text"
+                    placeholder="Your Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    aria-describedby="join-form-description"
+                    className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
+                    data-testid="input-firstname"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="join-email" className="sr-only">
+                    Email Address
+                  </label>
+                  <Input
+                    id="join-email"
+                    type="email"
+                    placeholder="Your Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    aria-describedby="join-form-description"
+                    className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
+                    data-testid="input-email"
+                  />
+                </div>
                 <Button
                   type="submit"
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                  className="bg-orange-500 hover:bg-orange-600 text-white focus-visible"
                   data-testid="button-subscribe"
+                  disabled={isSubmitting}
+                  aria-describedby="join-form-description"
                 >
-                  Subscribe
+                  {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </Button>
               </form>
             </article>
