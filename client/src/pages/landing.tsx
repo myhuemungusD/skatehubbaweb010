@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
+import BackgroundCarousel from "@/components/BackgroundCarousel";
 
 const SkateHubbaLogo = () => (
   <div className="relative">
