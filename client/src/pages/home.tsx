@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { analytics } from "@/lib/analytics";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { useToast } from "../hooks/use-toast";
+import { analytics } from "../lib/analytics";
 import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
-import BackgroundCarousel from "@/components/BackgroundCarousel";
+import BackgroundCarousel from "../components/BackgroundCarousel";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
 // Import components
-import { DonorRecognition } from "@/components/DonorRecognition";
+import { DonorRecognition } from "../components/DonorRecognition";
 
 // Hero Access Button Component
 const HeroAccessButton = () => {

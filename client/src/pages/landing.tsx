@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
-import BackgroundCarousel from "@/components/BackgroundCarousel";
-import { useToast } from "@/hooks/use-toast";
+import BackgroundCarousel from "../components/BackgroundCarousel";
+import { useToast } from "../hooks/use-toast";
 
 const SkateHubbaLogo = () => (
   <div className="relative">
