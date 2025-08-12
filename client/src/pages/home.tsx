@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { analytics } from "@/lib/analytics";
 import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
+import BackgroundCarousel from "@/components/BackgroundCarousel";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
@@ -275,26 +276,13 @@ export default function Home() {
   };
 
   return (
-    <div
-      className="min-h-screen text-[#fafafa] bg-cover bg-fixed relative"
-      style={{
-        backgroundImage: 'url("/attached_assets/alley back ground_1754296307133.png")',
-        backgroundSize: '100% 100%',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
-      }}
-    >
+    <BackgroundCarousel className="text-[#fafafa]">
       {/* Skip to main content link for screen readers */}
       <a href="#main-content" className="sr-only focus:not-sr-only">
         Skip to main content
       </a>
       
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30 z-0"></div>
 
-      {/* Content */}
-      <div className="relative z-10">
         {/* Beta Notice */}
         <div className="bg-orange-500 text-white text-center py-3">
           <div className="container mx-auto px-4">
@@ -323,7 +311,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     scrollToSection('features');
-                    analytics.ctaClickHero('features_nav'); // Track CTA click
+                    analytics.ctaClickHero(); // Track CTA click
                   }}
                   className="text-[#fafafa] hover:text-orange-500 transition-colors"
                   data-testid="link-features"
@@ -333,7 +321,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     scrollToSection('gallery');
-                    analytics.ctaClickHero('gallery_nav'); // Track CTA click
+                    analytics.ctaClickHero(); // Track CTA click
                   }}
                   className="text-[#fafafa] hover:text-orange-500 transition-colors"
                   data-testid="link-gallery"
@@ -343,7 +331,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     scrollToSection('join');
-                    analytics.ctaClickHero('join_nav'); // Track CTA click
+                    analytics.ctaClickHero(); // Track CTA click
                   }}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors"
                   data-testid="button-join-nav"
@@ -981,7 +969,6 @@ export default function Home() {
             </p>
           </div>
         </div>
-      </div>
-    </div>
+    </BackgroundCarousel>
   );
 }

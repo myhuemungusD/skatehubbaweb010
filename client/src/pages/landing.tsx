@@ -51,13 +51,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen text-[#fafafa]" style={{
-      backgroundImage: `url('/attached_assets/alley back ground_1754296307133.png')`,
-      backgroundSize: '100% 100%',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'fixed'
-    }}>
+    <BackgroundCarousel className="text-[#fafafa]">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-[#181818]/90 backdrop-blur-sm border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -208,6 +202,6 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-    </div>
+    </BackgroundCarousel>
   );
 }

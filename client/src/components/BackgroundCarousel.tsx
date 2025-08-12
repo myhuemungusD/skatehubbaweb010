@@ -8,23 +8,21 @@ const backgroundImages = [
   '/attached_assets/graff wall_1754296307134.png',
   '/attached_assets/graffwallskateboardrack_1754296307132.png',
   '/attached_assets/profile background_1754296307133.png',
-  '/attached_assets/shop background_1754296307133.png',
-  '/attached_assets/shop backgroung_1754296459156.png',
-  '/attached_assets/shopscreen3_1754685109474.png',
-  '/attached_assets/checkinmap_1754368423116.png',
-  '/attached_assets/profilecloset_1754685109474.png'
+  '/attached_assets/shop background_1754296307133.png'
 ];
 
 interface BackgroundCarouselProps {
   autoSlide?: boolean;
   slideInterval?: number;
   className?: string;
+  children?: React.ReactNode;
 }
 
 export default function BackgroundCarousel({ 
   autoSlide = true, 
   slideInterval = 5000,
-  className = ""
+  className = "",
+  children
 }: BackgroundCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -156,6 +154,11 @@ export default function BackgroundCarousel({
         <div className="bg-black/50 text-white px-3 py-1 rounded-lg text-sm">
           {currentIndex + 1} / {backgroundImages.length}
         </div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-30">
+        {children}
       </div>
     </div>
   );
