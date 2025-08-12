@@ -1,0 +1,50 @@
+Here’s your **updated SkateHubba feature list** you can drop straight into your webpage so it’s fresh, clear, and hype enough to grab attention:
+
+---
+
+## **🔥 SkateHubba Features – Skate, Stream, Dominate**
+
+**🏁 Real-World Meets Digital**
+
+* **Live Spot Check-Ins:** Tap into an interactive map, see who’s skating nearby, and claim legendary spots in real time.
+* **Spot Dominance Battles:** Hold down your favorite ledge, rail, or hubba and defend it against challengers.
+
+**🎯 Play Anywhere, Anytime**
+
+* **Remote SKATE Battles:** Record your trick, send the challenge—opponent has 24 hours to reply or take the letter.
+* **Pro Trick Verification:** Verified pros and AI trick review keep battles fair and hype.
+
+**🛍 Flex & Collect**
+
+* **Custom 3D Avatars:** Build your skater’s style with gear, decks, and shoes from real brands and rare drops.
+* **Own Your Gear & Tricks:** Every item has a rarity score and trade history—flex it in your profile or swap with other skaters.
+* **Rotating In-App Shop:** Limited-edition decks, wheels, apparel, and emotes—no ads, just pure culture.
+
+**📈 Progress & Rewards**
+
+* **Daily Challenges & Missions:** Land tricks, hit spots, and complete objectives to earn coins and XP.
+* **Level Up & Unlock:** Gain badges, skins, and exclusive trick animations.
+
+**📹 Live & Social**
+
+* **Skate Streams:** Go live from your spot—choose whether to reveal the location.
+* **Spectator Mode:** Watch friends, pros, or random sessions in real time.
+* **Crew System:** Build a squad, rep your name, and climb leaderboards together.
+
+**🗺 Augmented Skate Reality**
+
+* **Map-Based Events:** Pokémon GO-style community events with boosted rewards at featured spots.
+* **Legendary Spots as Gyms:** Land tricks, stream, and battle for control of the most iconic places in skate history.
+
+**⚙️ Under the Hood** *(for the tech heads)*
+
+* **Ultra-Fast Navigation:** Built on Expo SDK 53 + React Navigation.
+* **Location Precision:** GPS-powered spot check-ins with anti-spoof verification.
+* **Firebase Backbone:** Real-time sync for battles, chat, and item trades.
+* **Auto Cleaner:** Keeps the app light and fast with smart cache & memory management.
+
+---
+
+If you want, I can also make you a **shorter “marketing-friendly” version** of this list so your homepage hits hard without overwhelming people. That way the full breakdown can live on its own “Features” page.
+
+Do you want me to make that short punchy version next?
