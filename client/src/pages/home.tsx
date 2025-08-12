@@ -329,6 +329,52 @@ export default function Home() {
                     <p className="text-xl md:text-2xl text-gray-300">
                       The skateboarding app where your tricks become collectibles and every spot is a battleground.
                     </p>
+                    
+                    {/* Trust & Proof Row */}
+                    <div className="space-y-4">
+                      {/* Social Proof */}
+                      <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-400">
+                        <span className="font-medium">As seen on:</span>
+                        <div className="flex items-center gap-4">
+                          <a href="https://instagram.com/SkateHubba_app" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-400 transition-colors">
+                            <span className="text-lg">📸</span>
+                          </a>
+                          <a href="https://www.tiktok.com/@skatehubba_app" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-400 transition-colors">
+                            <span className="text-lg">🎵</span>
+                          </a>
+                          <a href="https://www.facebook.com/profile.php?id=61578731058004" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-400 transition-colors">
+                            <span className="text-lg">📘</span>
+                          </a>
+                          <a href="https://www.youtube.com/channel/UCwpWreJbWngkaLVsdOIKyUQ" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-400 transition-colors">
+                            <span className="text-lg">📺</span>
+                          </a>
+                        </div>
+                      </div>
+                      
+                      {/* What's Inside */}
+                      <div className="bg-black/30 rounded-lg p-4 border border-gray-600/30">
+                        <h4 className="text-orange-400 font-semibold mb-3 text-center lg:text-left">What's inside:</h4>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm text-gray-300">
+                          <div className="flex items-center gap-2">
+                            <span className="text-orange-400">⚡</span>
+                            <span>Remote S.K.A.T.E.</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-orange-400">📍</span>
+                            <span>Spot Check-ins</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-orange-400">📹</span>
+                            <span>Live Sessions</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-orange-400">🎨</span>
+                            <span>Closet/Gear</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <HeroAccessButton />
                   </div>
                   
