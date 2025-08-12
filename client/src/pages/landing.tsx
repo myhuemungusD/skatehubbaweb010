@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import BackgroundCarousel from "@/components/BackgroundCarousel";
+import { useToast } from "@/hooks/use-toast";
 
 const SkateHubbaLogo = () => (
   <div className="relative">
@@ -43,12 +44,21 @@ const SkateHubbaLogo = () => (
 
 export default function Landing() {
   const [scrollY, setScrollY] = useState(0);
+  const { toast } = useToast();
   
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const testToast = () => {
+    toast({
+      title: "Toast Test",
+      description: "This is a test toast notification to verify functionality.",
+      variant: "default"
+    });
+  };
 
   return (
     <BackgroundCarousel className="text-[#fafafa]">
@@ -108,6 +118,14 @@ export default function Landing() {
                 Support Development
               </Button>
             </Link>
+            <Button 
+              onClick={testToast}
+              variant="secondary"
+              className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-4 text-lg rounded-lg transition-colors"
+              data-testid="button-test-toast"
+            >
+              Test Toast
+            </Button>
           </div>
         </div>
       </section>
