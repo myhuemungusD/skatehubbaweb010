@@ -453,7 +453,7 @@ export default function Donate() {
                             <div className="flex items-center justify-center gap-3">
                               <span className="text-green-400 text-3xl">💰</span>
                               <div>
-                                <h3 className="text-[#fafafa] font-bold text-xl">$skatehubba</h3>
+                                <h3 className="text-[#fafafa] font-bold text-xl">$SkateHubbaApp</h3>
                                 <p className="text-green-400 text-sm">Official SkateHubba CashApp</p>
                               </div>
                             </div>
@@ -462,7 +462,7 @@ export default function Donate() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => copyToClipboard('$skatehubba', 'cashapp')}
+                                onClick={() => copyToClipboard('$SkateHubbaApp', 'cashapp')}
                                 className="text-green-400 hover:text-green-300"
                               >
                                 {copiedAddress === 'cashapp' ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -475,7 +475,7 @@ export default function Donate() {
                               <div className="text-left space-y-1 bg-black/20 p-3 rounded">
                                 <p>1. Open your CashApp</p>
                                 <p>2. Tap "Send" or the $ icon</p>
-                                <p>3. Enter <strong className="text-green-400">$skatehubba</strong></p>
+                                <p>3. Enter <strong className="text-green-400">$SkateHubbaApp</strong></p>
                                 <p>4. Enter your donation amount: <strong className="text-orange-400">${selectedAmount}</strong></p>
                                 <p>5. Add note: "SkateHubba Support" (optional)</p>
                                 <p>6. Send! 🚀</p>
