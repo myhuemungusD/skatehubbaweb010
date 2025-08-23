@@ -4,7 +4,7 @@ import { z } from "zod";
 export const emailSchema = z.string()
   .email("Invalid email format")
   .max(254, "Email too long")
-  .transform(email => email.toLowerCase().trim());
+  .transform((email) => (email as string).toLowerCase().trim());
 
 export const usernameSchema = z.string()
   .min(3, "Username must be at least 3 characters")
@@ -23,7 +23,7 @@ export const paymentAmountSchema = z.number()
 export const sanitizedStringSchema = z.string()
   .trim()
   .max(1000, "String too long")
-  .transform(str => str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
+  .transform((str) => (str as string).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
 
 
 import { pgTable, text, serial, integer, boolean, timestamp, json, varchar, index } from "drizzle-orm/pg-core";
