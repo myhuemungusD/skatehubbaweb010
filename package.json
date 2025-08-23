@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "NODE_ENV=production node dist/server.js",
-    "dev": "NODE_ENV=development tsx server/index.ts",
+    "dev": "NODE_ENV=development npx tsx server/index.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --outDir dist/public",
     "build:server": "esbuild server/index.ts --bundle --platform=node --outfile=dist/server.js --external:@neondatabase/serverless --external:pg --external:ws --external:path --external:fs --external:url --external:crypto --external:os --external:util --external:events --external:stream --external:http --external:https --external:net --external:tls --external:zlib --external:querystring --format=cjs",
