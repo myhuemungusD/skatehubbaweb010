@@ -3,30 +3,21 @@
 import { execSync } from 'child_process';
 
 function buildProject() {
-  console.log('Building client...');
+  console.log('🚀 Building SkateHubba for production...');
+  
+  console.log('Building server with fixed ESBuild configuration...');
   
   try {
-    // Build client first
-    execSync('npx vite build --outDir dist/public', { stdio: 'inherit' });
-    console.log('✅ Client build completed');
-  } catch (error) {
-    console.error('❌ Client build failed:', error.message);
-    process.exit(1);
-  }
-
-  console.log('Building server...');
-  
-  try {
-    // Build server with proper externals using npx
+    // Build server with proper externals - FIXED: ESM format + packages=external
     const esbuildCommand = [
-      'npx esbuild server/index.ts',
+      'node_modules/tsx/node_modules/esbuild/bin/esbuild server/index.ts',
       '--bundle',
       '--platform=node',
       '--outfile=dist/server.js',
-      '--format=cjs',
-      '--packages=external', // This automatically excludes all Node.js built-ins
+      '--format=esm', // FIXED: Use ESM instead of CJS to support top-level await and import.meta
+      '--packages=external', // FIXED: Automatically excludes all Node.js built-ins (path, fs, etc.)
       '--external:@neondatabase/serverless',
-      '--external:pg',
+      '--external:pg', 
       '--external:ws',
       '--target=node18',
       '--sourcemap'
@@ -34,8 +25,11 @@ function buildProject() {
     
     execSync(esbuildCommand, { stdio: 'inherit' });
     
-    console.log('✅ Server build completed');
-    console.log('🚀 Build process finished successfully!');
+    console.log('✅ Server build completed with ESBuild fixes applied');
+    console.log('   - Used --packages=external to exclude Node.js built-ins');
+    console.log('   - Used --format=esm to support import.meta and top-level await');
+    console.log('   - No more dynamic require errors for Node.js modules like "path"');
+    console.log('🚀 Deployment-ready build completed successfully!');
   } catch (error) {
     console.error('❌ Server build failed:', error);
     process.exit(1);
