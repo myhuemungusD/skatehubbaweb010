@@ -1,8 +1,17 @@
 import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
-
 import passport from "passport";
 import session from "express-session";
+import { Strategy } from "passport-openidconnect";
+
+type VerifyFunction = (
+  issuer: string,
+  profile: any,
+  context: any,
+  idToken: string,
+  accessToken: string,
+  refreshToken: string,
+  verified: passport.AuthenticateCallback
+) => void;
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
@@ -75,12 +84,21 @@ export async function setupAuth(app: Express) {
   const config = await getOidcConfig();
 
   const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
+    issuer: string,
+    profile: any,
+    context: any,
+    idToken: string,
+    accessToken: string,
+    refreshToken: string,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    const user = {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      claims: profile,
+      expires_at: profile.exp
+    };
+    await upsertUser(profile);
     verified(null, user);
   };
 
@@ -89,7 +107,9 @@ export async function setupAuth(app: Express) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
-        config,
+        issuer: config.issuer,
+        clientID: process.env.REPL_ID!,
+        clientSecret: process.env.CLIENT_SECRET!,
         scope: "openid email profile offline_access",
         callbackURL: `https://${domain}/api/callback`,
       },
