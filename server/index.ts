@@ -1,9 +1,13 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { validateEnvironment } from "./security";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import cors from "cors";
+
+// Validate environment on startup
+validateEnvironment();
 
 const app = express();
 
@@ -12,22 +16,30 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://js.stripe.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://js.stripe.com", "https://replit.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://api.stripe.com"],
+      connectSrc: ["'self'", "https://api.stripe.com", "wss:", "ws:"],
       fontSrc: ["'self'", "https:", "data:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"]
-    }
+      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"]
+    },
+    reportOnly: false
   },
   crossOriginEmbedderPolicy: false,
   hsts: {
     maxAge: 31536000, // 1 year
     includeSubDomains: true,
     preload: true
-  }
+  },
+  noSniff: true,
+  xssFilter: true,
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  permittedCrossDomainPolicies: false
 }));
 
 // Force HTTPS in production

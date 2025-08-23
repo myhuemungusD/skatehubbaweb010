@@ -24,18 +24,47 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Security validation functions
 const sanitizeString = (str: string): string => {
-  return validator.escape(str.trim());
+  // Remove potential XSS vectors
+  const sanitized = validator.escape(str.trim());
+  // Remove SQL injection patterns
+  return sanitized.replace(/('|(\\')|(;)|(\|)|(\*)|(%)|(<)|(>)|(\{)|(\})|(\[)|(\])|(\()|(\))/g, '');
 };
 
 const validateId = (id: string): boolean => {
-  return validator.isInt(id, { min: 1 });
+  return validator.isInt(id, { min: 1 }) && validator.isLength(id, { max: 20 });
 };
 
 const validateEmail = (email: string): boolean => {
-  return validator.isEmail(email) && validator.isLength(email, { max: 254 });
+  const normalizedEmail = validator.normalizeEmail(email);
+  return normalizedEmail && validator.isEmail(normalizedEmail) && validator.isLength(normalizedEmail, { max: 254 });
 };
 
-// Admin API key middleware
+const validateUserId = (userId: string): boolean => {
+  // Validate Replit user ID format
+  return validator.isLength(userId, { min: 1, max: 100 }) && 
+         validator.matches(userId, /^[a-zA-Z0-9_-]+$/);
+};
+
+// Per-user rate limiting store
+const userRateLimits = new Map();
+
+const createUserRateLimit = (userId: string, maxRequests: number, windowMs: number) => {
+  const now = Date.now();
+  const userKey = `${userId}_${Math.floor(now / windowMs)}`;
+  
+  if (!userRateLimits.has(userKey)) {
+    userRateLimits.set(userKey, 0);
+    // Clean up old entries
+    setTimeout(() => userRateLimits.delete(userKey), windowMs);
+  }
+  
+  const count = userRateLimits.get(userKey) + 1;
+  userRateLimits.set(userKey, count);
+  
+  return count <= maxRequests;
+};
+
+// Admin API key middleware with timing attack protection
 const requireApiKey = (req: any, res: any, next: any) => {
   const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
   
@@ -43,8 +72,42 @@ const requireApiKey = (req: any, res: any, next: any) => {
     return res.status(500).json({ error: "Admin API key not configured" });
   }
   
-  if (!apiKey || apiKey !== process.env.ADMIN_API_KEY) {
+  // Use crypto.timingSafeEqual to prevent timing attacks
+  if (!apiKey || apiKey.length !== process.env.ADMIN_API_KEY.length) {
     return res.status(401).json({ error: "Invalid or missing API key" });
+  }
+  
+  const providedKey = Buffer.from(apiKey, 'utf8');
+  const validKey = Buffer.from(process.env.ADMIN_API_KEY, 'utf8');
+  
+  if (!crypto.timingSafeEqual(providedKey, validKey)) {
+    return res.status(401).json({ error: "Invalid or missing API key" });
+  }
+  
+  next();
+};
+
+// Enhanced user validation middleware
+const validateUserAccess = (req: any, res: any, next: any) => {
+  const { userId } = req.params;
+  const authenticatedUserId = req.user?.claims?.sub;
+  
+  if (!authenticatedUserId) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  
+  if (!validateUserId(userId)) {
+    return res.status(400).json({ error: "Invalid user ID format" });
+  }
+  
+  // Users can only access their own data (except admins)
+  if (userId !== authenticatedUserId && !req.user?.isAdmin) {
+    return res.status(403).json({ error: "Access denied" });
+  }
+  
+  // Check per-user rate limits
+  if (!createUserRateLimit(authenticatedUserId, 100, 60000)) { // 100 requests per minute
+    return res.status(429).json({ error: "Rate limit exceeded for user" });
   }
   
   next();
@@ -117,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Progress Routes
-  app.get("/api/users/:userId/progress", isAuthenticated, async (req, res) => {
+  app.get("/api/users/:userId/progress", isAuthenticated, validateUserAccess, async (req, res) => {
     try {
       const { userId } = req.params;
       const progress = await storage.getUserProgress(userId);
@@ -149,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/users/:userId/progress", isAuthenticated, async (req, res) => {
+  app.post("/api/users/:userId/progress", isAuthenticated, validateUserAccess, async (req, res) => {
     try {
       const { userId } = req.params;
 
@@ -169,7 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/users/:userId/progress/:stepId", isAuthenticated, async (req, res) => {
+  app.patch("/api/users/:userId/progress/:stepId", isAuthenticated, validateUserAccess, async (req, res) => {
     try {
       const { userId } = req.params;
       const stepId = parseInt(req.params.stepId);
@@ -232,14 +295,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe payment routes
+  // Stripe payment routes with enhanced security
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
+      const clientIP = req.ip || req.connection.remoteAddress;
+      const userAgent = req.get('User-Agent');
+      
       const { amount, currency = "usd", description = "SkateHubba Donation" } = req.body;
       
-      // Validate amount
-      if (!amount || typeof amount !== 'number' || amount < 0.50 || amount > 10000) {
+      // Enhanced amount validation
+      if (!amount || typeof amount !== 'number' || amount < 0.50 || amount > 10000 || !Number.isFinite(amount)) {
         return res.status(400).json({ error: "Amount must be between $0.50 and $10,000" });
+      }
+      
+      // Check for suspicious patterns
+      if (amount === Math.floor(amount) && amount > 1000) {
+        console.warn(`Large round number payment attempt: ${amount} from IP: ${clientIP}`);
       }
 
       // Validate currency

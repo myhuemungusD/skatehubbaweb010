@@ -1,10 +1,16 @@
 
 import { storage } from "./storage";
+import { validateEnvironment } from "./security";
 
 async function runPreDeploymentTests() {
   console.log("🚀 Starting pre-deployment tests...");
   
   try {
+    // Test environment security
+    console.log("🔐 Validating environment security...");
+    validateEnvironment();
+    console.log("✅ Environment validation passed");
+    
     // Test database connection
     console.log("📊 Testing database connection...");
     const steps = await storage.getAllTutorialSteps();

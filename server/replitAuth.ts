@@ -47,11 +47,15 @@ export function getSession() {
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    name: 'skatehubba.sid',
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: sessionTtl,
+      sameSite: 'strict'
     },
+    rolling: true, // Reset expiry on activity
+    genid: () => require('crypto').randomBytes(32).toString('hex')
   });
 }
 
