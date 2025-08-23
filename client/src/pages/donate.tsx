@@ -310,32 +310,10 @@ export default function Donate() {
               <CardContent className="space-y-6">
                 {!clientSecret ? (
                   <>
-                    {/* Amount Selection */}
-                    <div className="space-y-4">
-                      <Label className="text-[#fafafa] text-base">Select Amount</Label>
-                      <div className="grid grid-cols-3 gap-3">
-                        {donationAmounts.map((amount) => (
-                          <Button
-                            key={amount}
-                            variant={selectedAmount === amount ? "default" : "outline"}
-                            onClick={() => handleAmountSelect(amount)}
-                            className={
-                              selectedAmount === amount
-                                ? "bg-orange-400 text-black hover:bg-orange-500"
-                                : "border-gray-600 text-[#fafafa] hover:bg-gray-700"
-                            }
-                            data-testid={`button-amount-${amount}`}
-                          >
-                            ${amount}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
                     {/* Custom Amount */}
                     <div className="space-y-2">
-                      <Label htmlFor="custom-amount" className="text-[#fafafa]">
-                        Or enter custom amount
+                      <Label htmlFor="custom-amount" className="text-[#fafafa] text-base">
+                        Amount
                       </Label>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
