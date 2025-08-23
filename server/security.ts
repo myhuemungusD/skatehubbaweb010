@@ -17,8 +17,7 @@ export function validateEnvironment() {
     'DATABASE_URL',
     'SESSION_SECRET',
     'REPL_ID',
-    'STRIPE_SECRET_KEY',
-    'OPENAI_API_KEY'
+    'STRIPE_SECRET_KEY'
   ];
 
   const missing = required.filter(key => !process.env[key]);

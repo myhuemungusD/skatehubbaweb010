@@ -2,6 +2,7 @@ import * as client from "openid-client";
 import passport from "passport";
 import session from "express-session";
 import { Strategy } from "passport-openidconnect";
+import crypto from "crypto";
 
 type VerifyFunction = (
   issuer: string,
@@ -55,7 +56,7 @@ export function getSession() {
       sameSite: 'strict'
     },
     rolling: true, // Reset expiry on activity
-    genid: () => require('crypto').randomBytes(32).toString('hex')
+    genid: () => crypto.randomBytes(32).toString('hex')
   });
 }
 
