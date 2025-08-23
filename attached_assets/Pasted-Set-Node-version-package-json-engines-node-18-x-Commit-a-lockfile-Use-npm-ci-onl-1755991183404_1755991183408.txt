@@ -1,0 +1,108 @@
+Set Node version:
+
+// package.json
+"engines": { "node": "18.x" }
+
+
+Commit a lockfile. Use npm ci only.
+
+2) Split concerns
+
+Client-only deploy now. Server later.
+
+Repo layout:
+
+/client   # Vite app only
+/scripts
+package.json
+
+
+Remove server build steps from deploy until client is stable.
+
+3) Vite config that can’t drift
+// vite.config.ts at repo root
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+export default defineConfig({
+  root: "client",
+  plugins: [react()],
+  server: { host: true, port: 5173, strictPort: true, hmr: { clientPort: 443 } },
+  preview: { host: true, port: 3000 },
+  build: { outDir: "../dist/client", emptyOutDir: true },
+  publicDir: "public"
+});
+
+4) Scripts that gate failures early
+{
+  "scripts": {
+    "predeploy:doctor": "node scripts/doctor.mjs",
+    "clean": "rimraf dist .vite .cache",
+    "build:client": "vite build",
+    "start": "vite preview --host 0.0.0.0 --port 3000",
+    "deploy": "npm run predeploy:doctor && npm ci && npm run clean && npm run build:client"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "rimraf": "^5.0.5"
+  }
+}
+
+
+scripts/doctor.mjs (copy as-is):
+
+import fs from "node:fs";
+import path from "node:path";
+
+const fail = (m) => { console.error("DEPLOY BLOCKED:", m); process.exit(1); };
+
+// 1) index.html location
+if (!fs.existsSync("client/index.html")) fail("client/index.html missing");
+
+// 2) vite root sanity
+const viteCfg = fs.readFileSync("vite.config.ts","utf8");
+if (!/root:\s*["']client["']/.test(viteCfg)) fail("vite.config.ts must set root:'client'");
+
+// 3) env names
+const envs = ["VITE_"];
+const badEnv = Object.keys(process.env).some(k => k.includes("FIREBASE") && !k.startsWith("VITE_"));
+if (badEnv) fail("Client envs must be prefixed VITE_*");
+
+// 4) disallow temperature override for host SDKs
+const scan = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap(d => {
+  const p = path.join(dir, d.name);
+  if (d.isDirectory()) return scan(p);
+  if (/\.(t|j)sx?$/.test(d.name)) return [p];
+  return [];
+});
+const files = fs.existsSync("client/src") ? scan("client/src") : [];
+const tempHits = files.filter(f => /temperature\s*:\s*(0\.\d+|[2-9])/i.test(fs.readFileSync(f, "utf8")));
+if (tempHits.length) fail(`Remove non-default temperature in: ${tempHits.join(", ")}`);
+
+// 5) base path
+if (/base:\s*["']\//.test(viteCfg) === false && viteCfg.includes("base:")) {
+  fail("Remove custom base or set correct subpath; for root deployments omit base");
+}
+
+console.log("Doctor passed");
+
+5) Replit settings
+
+Run command: npm run start
+
+Deploy command: npm run deploy && npm run start
+
+6) Smoke test before declaring “ready”
+
+Add a trivial health check page so you know what version is live:
+
+client/public/version.txt  ->  { "build": "<git-sha>", "ts": "<iso>" }
+
+
+After deploy:
+
+curl -sS https://<your>.replit.app/version.txt
+curl -I  https://<your>.replit.app/
+
+
+Expect 200 OK and the new build metadata.
