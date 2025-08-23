@@ -136,7 +136,7 @@ export default function Donate() {
   const [customAmount, setCustomAmount] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'crypto'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cashapp' | 'crypto'>('card');
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -417,13 +417,16 @@ export default function Donate() {
                     </div>
 
                     {/* Payment Method Selection */}
-                    <Tabs value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as 'card' | 'crypto')} className="w-full">
-                      <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+                    <Tabs value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as 'card' | 'cashapp' | 'crypto')} className="w-full">
+                      <TabsList className="grid w-full grid-cols-3 bg-gray-800">
                         <TabsTrigger value="card" className="data-[state=active]:bg-orange-400 data-[state=active]:text-black">
-                          💳 Card Payment
+                          💳 Card
+                        </TabsTrigger>
+                        <TabsTrigger value="cashapp" className="data-[state=active]:bg-orange-400 data-[state=active]:text-black">
+                          💰 CashApp
                         </TabsTrigger>
                         <TabsTrigger value="crypto" className="data-[state=active]:bg-orange-400 data-[state=active]:text-black">
-                          ₿ Cryptocurrency
+                          ₿ Crypto
                         </TabsTrigger>
                       </TabsList>
 
@@ -436,6 +439,54 @@ export default function Donate() {
                         >
                           {isCreatingPayment ? 'Setting up payment...' : `Proceed to Card Payment - $${selectedAmount}`}
                         </Button>
+                      </TabsContent>
+
+                      <TabsContent value="cashapp" className="space-y-4">
+                        <div className="text-center mb-4">
+                          <p className="text-gray-300 text-sm">
+                            Send any amount directly to our CashApp:
+                          </p>
+                        </div>
+
+                        <div className="p-6 bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-lg border border-green-500/30">
+                          <div className="text-center space-y-4">
+                            <div className="flex items-center justify-center gap-3">
+                              <span className="text-green-400 text-3xl">💰</span>
+                              <div>
+                                <h3 className="text-[#fafafa] font-bold text-xl">$skatehubba</h3>
+                                <p className="text-green-400 text-sm">Official SkateHubba CashApp</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => copyToClipboard('$skatehubba', 'cashapp')}
+                                className="text-green-400 hover:text-green-300"
+                              >
+                                {copiedAddress === 'cashapp' ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                              </Button>
+                              <span className="text-xs text-gray-400">Click to copy cash tag</span>
+                            </div>
+
+                            <div className="space-y-2 text-sm text-gray-300">
+                              <p>💡 <strong>How to send:</strong></p>
+                              <div className="text-left space-y-1 bg-black/20 p-3 rounded">
+                                <p>1. Open your CashApp</p>
+                                <p>2. Tap "Send" or the $ icon</p>
+                                <p>3. Enter <strong className="text-green-400">$skatehubba</strong></p>
+                                <p>4. Enter your donation amount: <strong className="text-orange-400">${selectedAmount}</strong></p>
+                                <p>5. Add note: "SkateHubba Support" (optional)</p>
+                                <p>6. Send! 🚀</p>
+                              </div>
+                            </div>
+
+                            <div className="text-xs text-gray-400 bg-orange-500/10 p-2 rounded">
+                              💬 <strong>Note:</strong> CashApp donations are processed instantly and help us avoid processing fees!
+                            </div>
+                          </div>
+                        </div>
                       </TabsContent>
 
                       <TabsContent value="crypto" className="space-y-4">
