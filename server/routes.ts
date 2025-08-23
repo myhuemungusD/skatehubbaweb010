@@ -12,6 +12,7 @@ import validator from "validator";
 import { sendSubscriberNotification } from "./email";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import OpenAI from "openai";
+import { initializeDatabase } from "./db";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -51,39 +52,39 @@ const userRateLimits = new Map();
 const createUserRateLimit = (userId: string, maxRequests: number, windowMs: number) => {
   const now = Date.now();
   const userKey = `${userId}_${Math.floor(now / windowMs)}`;
-  
+
   if (!userRateLimits.has(userKey)) {
     userRateLimits.set(userKey, 0);
     // Clean up old entries
     setTimeout(() => userRateLimits.delete(userKey), windowMs);
   }
-  
+
   const count = userRateLimits.get(userKey) + 1;
   userRateLimits.set(userKey, count);
-  
+
   return count <= maxRequests;
 };
 
 // Admin API key middleware with timing attack protection
 const requireApiKey = (req: any, res: any, next: any) => {
   const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
-  
+
   if (!process.env.ADMIN_API_KEY) {
     return res.status(500).json({ error: "Admin API key not configured" });
   }
-  
+
   // Use crypto.timingSafeEqual to prevent timing attacks
   if (!apiKey || apiKey.length !== process.env.ADMIN_API_KEY.length) {
     return res.status(401).json({ error: "Invalid or missing API key" });
   }
-  
+
   const providedKey = Buffer.from(apiKey, 'utf8');
   const validKey = Buffer.from(process.env.ADMIN_API_KEY, 'utf8');
-  
+
   if (!crypto.timingSafeEqual(providedKey, validKey)) {
     return res.status(401).json({ error: "Invalid or missing API key" });
   }
-  
+
   next();
 };
 
@@ -91,25 +92,25 @@ const requireApiKey = (req: any, res: any, next: any) => {
 const validateUserAccess = (req: any, res: any, next: any) => {
   const { userId } = req.params;
   const authenticatedUserId = req.user?.claims?.sub;
-  
+
   if (!authenticatedUserId) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  
+
   if (!validateUserId(userId)) {
     return res.status(400).json({ error: "Invalid user ID format" });
   }
-  
+
   // Users can only access their own data (except admins)
   if (userId !== authenticatedUserId && !req.user?.isAdmin) {
     return res.status(403).json({ error: "Access denied" });
   }
-  
+
   // Check per-user rate limits
   if (!createUserRateLimit(authenticatedUserId, 100, 60000)) { // 100 requests per minute
     return res.status(429).json({ error: "Rate limit exceeded for user" });
   }
-  
+
   next();
 };
 
@@ -133,6 +134,9 @@ const validateRequest = (schema: z.ZodSchema) => (req: any, res: any, next: any)
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize database on startup
+  await initializeDatabase();
+
   // Auth middleware
   await setupAuth(app);
 
@@ -165,13 +169,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!validateId(id)) {
         return res.status(400).json({ error: "Invalid step ID format" });
       }
-      
+
       const stepId = parseInt(id);
       const step = await storage.getTutorialStep(stepId);
       if (!step) {
         return res.status(404).json({ error: "Tutorial step not found" });
       }
-      
+
       res.json(step);
     } catch (error) {
       console.error("Failed to get tutorial step:", error);
@@ -195,7 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const stepId = parseInt(req.params.stepId);
-      
+
       if (isNaN(stepId)) {
         return res.status(400).json({ error: "Invalid step ID" });
       }
@@ -204,7 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!progress) {
         return res.status(404).json({ error: "Progress not found" });
       }
-      
+
       res.json(progress);
     } catch (error) {
       console.error("Failed to get user step progress:", error);
@@ -236,14 +240,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const stepId = parseInt(req.params.stepId);
-      
+
       if (isNaN(stepId)) {
         return res.status(400).json({ error: "Invalid step ID" });
       }
 
       const updates = updateUserProgressSchema.parse(req.body);
       const progress = await storage.updateUserProgress(userId, stepId, updates);
-      
+
       if (!progress) {
         return res.status(404).json({ error: "Progress not found" });
       }
@@ -300,14 +304,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientIP = req.ip || req.connection.remoteAddress;
       const userAgent = req.get('User-Agent');
-      
+
       const { amount, currency = "usd", description = "SkateHubba Donation" } = req.body;
-      
+
       // Enhanced amount validation
       if (!amount || typeof amount !== 'number' || amount < 0.50 || amount > 10000 || !Number.isFinite(amount)) {
         return res.status(400).json({ error: "Amount must be between $0.50 and $10,000" });
       }
-      
+
       // Check for suspicious patterns
       if (amount === Math.floor(amount) && amount > 1000) {
         console.warn(`Large round number payment attempt: ${amount} from IP: ${clientIP}`);
@@ -361,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const paymentIntent = await stripe.paymentIntents.retrieve(id);
-      
+
       res.json({
         status: paymentIntent.status,
         amount: paymentIntent.amount / 100,
@@ -381,14 +385,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/record-donation", async (req, res) => {
     try {
       const { paymentIntentId, firstName } = req.body;
-      
+
       if (!paymentIntentId || !firstName) {
         return res.status(400).json({ error: "Payment intent ID and first name are required" });
       }
 
       // Verify payment with Stripe
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      
+
       if (paymentIntent.status !== "succeeded") {
         return res.status(400).json({ error: "Payment not successful" });
       }
@@ -428,7 +432,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/subscribe", async (req, res) => {
     try {
       const { firstName, email } = req.body;
-      
+
       // Validate input
       if (!firstName || !email) {
         return res.status(400).json({ error: "First name and email are required" });

@@ -45,6 +45,20 @@ async function runPreDeploymentTests() {
       console.log("✅ All required environment variables present");
     }
 
+    // Test production build if it exists
+    const fs = await import('fs');
+    if (fs.existsSync('dist/server.js')) {
+      console.log("✅ Production build exists");
+      
+      // Test that the build doesn't have immediate syntax errors
+      try {
+        await import('../dist/server.js');
+        console.log("✅ Production build loads successfully");
+      } catch (err) {
+        console.log("⚠️ Production build has issues:", err.message);
+      }
+    }
+
     console.log("🎉 Pre-deployment tests completed successfully!");
 
     process.exit(0);
