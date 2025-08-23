@@ -8,9 +8,6 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Configure for serverless environment
-neonConfig.fetchConnectionCache = true;
-
 // Create the HTTP client for Neon
 const sql = neon(process.env.DATABASE_URL);
 export const db = drizzle(sql, { schema });

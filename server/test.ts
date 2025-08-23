@@ -48,6 +48,22 @@ async function runPreDeploymentTests() {
     
     console.log("🎉 Pre-deployment tests completed successfully!");
     
+    process.exit(0);
+  } catch (error) {
+    console.error("❌ Pre-deployment tests failed:", error);
+    process.exit(1);
+  }
+}
+
+// Import required modules
+import { storage } from "./storage";
+import { validateEnvironment } from "./security";
+
+// Run tests if this file is executed directly
+if (require.main === module) {
+  runPreDeploymentTests();
+}");
+    
   } catch (error) {
     console.error("❌ Pre-deployment test failed:", error);
     process.exit(1);
