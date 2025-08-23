@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkateHubba App</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <style>
+    body {
+      background: #181818;
+      color: #fafafa;
+    }
+    main.container {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+    .logo {
+      width: 160px;
+      height: auto;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      background: #222;
+      box-shadow: 0 2px 8px #0005;
+    }
+    .gallery-img {
+      border-radius: 10px;
+      box-shadow: 0 1px 8px #0003;
+      background: #232323;
+    }
+    figure {
+      margin-bottom: 1.5rem;
+    }
+    .feature-list {
+      list-style: disc inside;
+      padding-left: 1rem;
+    }
+    .centered {
+      text-align: center;
+    }
+    nav.container-fluid {
+      background: #131313;
+      border-bottom: 1px solid #333;
+      margin-bottom: 2rem;
+    }
+    footer.container {
+      margin-top: 2rem;
+      border-top: 1px solid #333;
+      padding-top: 1rem;
+      text-align: center;
+      background: #181818;
+    }
+    section[aria-label] {
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><strong>SkateHubba</strong></li>
+    </ul>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#join" role="button">Join</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="grid">
+      <section class="centered">
+        <hgroup>
+          <h2>
+            <img src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-jKqHfG0Tz7AvHgUkvJfQw0E1/user-ptQzQk9Hvh4evy3vgAx6bbtD/img-10RfT7tsfno32BRGSZMlKrwl.png?st=2024-08-04T02%3A09%3A36Z&se=2024-08-04T04%3A09%3A36Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image&skoid=37f5c9c9-25b7-444a-86b3-c31c45a6b1e1&sktid=259522a8-893c-44c0-8261-e48c55da70e4&skt=2024-08-04T02%3A09%3A36Z&ske=2024-08-04T04%3A09%3A36Z&sks=b&skv=2021-08-06&sig=yzpQbz1v2AuPqcH3U0m77V8nY7Flso1A0CUKNXOX6nU%3D" alt="SkateHubba Logo" class="logo" /><br>
+            SKATEHUBBA
+          </h2>
+          <h3>Stream. Connect. Skate. Your Skateboarding Social Universe.</h3>
+        </hgroup>
+        <p>
+          Level up your skate life: customize your skater, discover gear, join digital sessions, and share clips with your crew. SkateHubba is where digital meets street.
+        </p>
+        <figure>
+          <img src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-jKqHfG0Tz7AvHgUkvJfQw0E1/user-ptQzQk9Hvh4evy3vgAx6bbtD/img-rWXo2s2GnTtw2v3cwV8q0gM6.png?st=2024-08-04T02%3A10%3A45Z&se=2024-08-04T04%3A10%3A45Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image&skoid=37f5c9c9-25b7-444a-86b3-c31c45a6b1e1&sktid=259522a8-893c-44c0-8261-e48c55da70e4&skt=2024-08-04T02%3A10%3A45Z&ske=2024-08-04T04%3A10%3A45Z&sks=b&skv=2021-08-06&sig=zDlHulSK9JfbD6ExyXk4al6vEO3smYhRmsEXCyldkIo%3D" alt="Skater Avatar" class="gallery-img" width="350"/>
+          <figcaption>
+            <a href="#features" target="_blank">Meet Your Crew</a>
+          </figcaption>
+        </figure>
+        <h3 id="features">Why SkateHubba?</h3>
+        <ul class="feature-list">
+          <li>🔥 Customize your own skater & digital skate zone</li>
+          <li>🛹 Equip, collect & show off rare skate gear (even NFT kicks!)</li>
+          <li>🎥 Stream live sessions & share skate clips</li>
+          <li>🤝 Connect, chat, & squad up with other skaters worldwide</li>
+        </ul>
+        <h3 id="gallery">Gallery</h3>
+        <div class="grid">
+          <figure>
+            <img src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-jKqHfG0Tz7AvHgUkvJfQw0E1/user-ptQzQk9Hvh4evy3vgAx6bbtD/img-EzQUek0wM06mgTcRk0iGRvQd.png?st=2024-08-04T02%3A11%3A27Z&se=2024-08-04T04%3A11%3A27Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image&skoid=37f5c9c9-25b7-444a-86b3-c31c45a6b1e1&sktid=259522a8-893c-44c0-8261-e48c55da70e4&skt=2024-08-04T02%3A11%3A27Z&ske=2024-08-04T04%3A11%3A27Z&sks=b&skv=2021-08-06&sig=Usi5x1RtoUayrOBZYJqug/4f0jFQ0KvwCW2z5X8yLzI%3D" alt="Graffiti Skate Wall" class="gallery-img" width="320"/>
+            <figcaption>Vibe Out at SkateHubba Spots</figcaption>
+          </figure>
+          <figure>
+            <img src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-jKqHfG0Tz7AvHgUkvJfQw0E1/user-ptQzQk9Hvh4evy3vgAx6bbtD/img-EGlyu2xFgB3bXWhC8zbf0uC2.png?st=2024-08-04T02%3A11%3A48Z&se=2024-08-04T04%3A11%3A48Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image&skoid=37f5c9c9-25b7-444a-86b3-c31c45a6b1e1&sktid=259522a8-893c-44c0-8261-e48c55da70e4&skt=2024-08-04T02%3A11%3A48Z&ske=2024-08-04T04%3A11%3A48Z&sks=b&skv=2021-08-06&sig=dtfHle1qHuLcohaDoHPOgNl5h69G3ZzLZk/1wRH5Pio%3D" alt="Skateboard Wall" class="gallery-img" width="320"/>
+            <figcaption>Customize Your Boards</figcaption>
+          </figure>
+          <figure>
+            <img src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-jKqHfG0Tz7AvHgUkvJfQw0E1/user-ptQzQk9Hvh4evy3vgAx6bbtD/img-EXObuOTvn7JK0Q3dN7ymwQZr.png?st=2024-08-04T02%3A12%3A07Z&se=2024-08-04T04%3A12%3A07Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image&skoid=37f5c9c9-25b7-444a-86b3-c31c45a6b1e1&sktid=259522a8-893c-44c0-8261-e48c55da70e4&skt=2024-08-04T02%3A
