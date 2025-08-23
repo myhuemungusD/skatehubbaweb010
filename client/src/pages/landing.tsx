@@ -46,6 +46,7 @@ export default function Landing() {
   const [scrollY, setScrollY] = useState(0);
   const { toast } = useToast();
   
+  
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);

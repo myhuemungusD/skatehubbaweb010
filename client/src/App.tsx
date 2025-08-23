@@ -13,6 +13,7 @@ import NotFound from "./pages/not-found";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#181818] flex items-center justify-center">
@@ -37,7 +38,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/donate" component={Donate} />
           <Route path="/tutorial">
-            {(params) => {
+            {() => {
               const { user } = useAuth();
               return user ? <Tutorial userId={user.id} /> : <NotFound />;
             }}
