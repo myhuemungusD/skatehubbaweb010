@@ -37,7 +37,7 @@ const validateId = (id: string): boolean => {
 
 const validateEmail = (email: string): boolean => {
   const normalizedEmail = validator.normalizeEmail(email);
-  return normalizedEmail && validator.isEmail(normalizedEmail) && validator.isLength(normalizedEmail, { max: 254 });
+  return Boolean(normalizedEmail) && validator.isEmail(normalizedEmail) && validator.isLength(normalizedEmail, { max: 254 });
 };
 
 const validateUserId = (userId: string): boolean => {
@@ -455,7 +455,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const subscriber = await storage.createSubscriber({
         firstName: sanitizedFirstName,
-        email: email.toLowerCase()
+        email: email.toLowerCase(),
+        createdAt: new Date()
       });
 
       // Send email notification (async, don't wait for it)
@@ -513,7 +514,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create demo user for testing (temporary)
   app.post("/api/demo-user", async (req, res) => {
     try {
-      const demoUser = await storage.createUser({
+      const demoUser = await storage.upsertUser({
         username: "demo_skater_" + Date.now(),
         password: "demo123"
       });
