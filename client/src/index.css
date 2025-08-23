@@ -180,11 +180,15 @@ a:focus-visible {
 
 /* Improved color contrast for better readability */
 .text-gray-300 {
-  color: #e5e7eb !important; /* Lighter gray for better contrast */
+  color: #f3f4f6 !important; /* Much lighter gray for better contrast */
 }
 
 .text-gray-400 {
-  color: #d1d5db !important; /* Lighter gray for better contrast */
+  color: #e5e7eb !important; /* Much lighter gray for better contrast */
+}
+
+.text-gray-500 {
+  color: #d1d5db !important; /* Improved contrast for gray-500 */
 }
 
 .graffiti-bg {

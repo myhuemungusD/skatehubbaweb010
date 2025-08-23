@@ -91,20 +91,25 @@ export default function BackgroundCarousel({
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
               index === currentIndex ? 'opacity-100' : 'opacity-0'
             }`}
-            style={{
-              backgroundImage: `url(${image})`,
-              backgroundSize: '100% 100%',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              backgroundAttachment: 'fixed'
-            }}
             data-testid={`background-slide-${index}`}
-          />
+          >
+            <img
+              src={image}
+              alt={`SkateHubba background scene ${index + 1} - Urban skateboarding environment with graffiti walls and street art`}
+              className="w-full h-full object-cover object-center"
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              style={{
+                imageRendering: 'auto',
+                filter: 'brightness(0.8) contrast(1.1) saturate(1.1)',
+              }}
+            />
+          </div>
         ))}
       </div>
 
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30 z-10"></div>
+      {/* Enhanced overlay for better text readability and accessibility */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 z-10"></div>
 
       {/* Navigation Controls */}
       <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20">
