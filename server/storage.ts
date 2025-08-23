@@ -52,80 +52,70 @@ export class DatabaseStorage implements IStorage {
 
   private async initializeDefaultTutorialSteps() {
     try {
-      // Check if tutorial steps already exist
-      const existingSteps = await db.select().from(tutorialSteps).limit(1);
-      if (existingSteps.length > 0) return;
+      // Test database connection first
+      const testQuery = await db.select().from(tutorialSteps).limit(1);
 
-      const defaultSteps = [
+      // Check if tutorial steps already exist
+      if (testQuery.length > 0) {
+        console.log('Tutorial steps already initialized');
+        return;
+      }
+
+      console.log('Initializing default tutorial steps...');
+
+      // Initialize with default steps
+      const defaultSteps: InsertTutorialStep[] = [
         {
           title: "Welcome to SkateHubba",
-          description: "Your skateboarding journey starts here! Let's get you set up.",
+          description: "Learn the basics of navigating the skate community",
           type: "intro",
           content: {
-            videoUrl: "/tutorial/welcome.mp4"
-          } as const,
-          order: 1,
-          isActive: true
+            videoUrl: "https://example.com/intro-video"
+          },
+          order: 1
         },
         {
-          title: "Navigate Your Map",
-          description: "Learn how to explore skate spots and check in at locations.",
+          title: "Interactive Elements",
+          description: "Try tapping, swiping, and dragging elements",
           type: "interactive",
           content: {
             interactiveElements: [
-              { type: 'tap' as const, target: 'map-spot', instruction: 'Tap on a skate spot to see details' },
-              { type: 'tap' as const, target: 'checkin-button', instruction: 'Tap Check-In to mark your visit' }
+              {
+                type: "tap",
+                target: "skate-board",
+                instruction: "Tap the skateboard to pick it up"
+              },
+              {
+                type: "swipe",
+                target: "trick-menu",
+                instruction: "Swipe to browse tricks"
+              }
             ]
-          } as const,
-          order: 2,
-          isActive: true
+          },
+          order: 2
         },
         {
-          title: "Drop Your First Clip",
-          description: "Record and share your first skateboarding clip in the Trenches.",
+          title: "Community Challenge",
+          description: "Complete your first community challenge",
           type: "challenge",
           content: {
             challengeData: {
-              action: "Upload a video to Trenches",
-              expectedResult: "Successfully posted clip"
+              action: "post_trick",
+              expectedResult: "Share a trick with the community"
             }
-          } as const,
-          order: 3,
-          isActive: true
-        },
-        {
-          title: "Customize Your Avatar",
-          description: "Make your skater unique with custom gear and style.",
-          type: "interactive",
-          content: {
-            interactiveElements: [
-              { type: 'tap' as const, target: 'avatar-editor', instruction: 'Tap to open avatar customization' },
-              { type: 'drag' as const, target: 'gear-item', instruction: 'Drag items to equip them' }
-            ]
-          } as const,
-          order: 4,
-          isActive: true
-        },
-        {
-          title: "Challenge a Friend",
-          description: "Start your first S.K.A.T.E. battle with another skater.",
-          type: "challenge",
-          content: {
-            challengeData: {
-              action: "Send a S.K.A.T.E. challenge",
-              expectedResult: "Challenge sent successfully"
-            }
-          } as const,
-          order: 5,
-          isActive: true
+          },
+          order: 3
         }
       ];
 
       for (const step of defaultSteps) {
         await this.createTutorialStep(step);
       }
+
+      console.log('Successfully initialized tutorial steps');
     } catch (error) {
-      console.error('Error initializing default tutorial steps:', error);
+      console.error('Database initialization failed - continuing without default tutorial steps:', error);
+      // Don't throw error to prevent crash loop - app can still function
     }
   }
 
