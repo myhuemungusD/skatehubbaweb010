@@ -9,7 +9,7 @@
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build client",
-    "build:server": "esbuild server/index.ts --bundle --platform=node --outfile=dist/server.js --external:@neondatabase/serverless --external:pg --external:ws --external:@replit/vite-plugin-runtime-error-modal --external:@replit/vite-plugin-cartographer --external:openid-client --external:passport-openidconnect --external:@babel/preset-typescript --external:lightningcss --format=esm",
+    "build:server": "esbuild server/index.ts --bundle --platform=node --outfile=dist/server.js --external:@neondatabase/serverless --external:pg --external:ws --external:openid-client --external:passport --external:passport-openidconnect --format=esm",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "check": "tsc --noEmit"

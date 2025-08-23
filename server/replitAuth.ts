@@ -113,7 +113,10 @@ export async function setupAuth(app: Express) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
-        issuer: config.issuer,
+        issuer: config.issuer.metadata.issuer,
+        authorizationURL: config.issuer.metadata.authorization_endpoint,
+        tokenURL: config.issuer.metadata.token_endpoint,
+        userInfoURL: config.issuer.metadata.userinfo_endpoint,
         clientID: process.env.REPL_ID!,
         clientSecret: process.env.CLIENT_SECRET!,
         scope: "openid email profile offline_access",
