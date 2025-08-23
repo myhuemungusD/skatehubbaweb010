@@ -11,3 +11,30 @@ if (!process.env.DATABASE_URL) {
 // Create the HTTP client for Neon
 const sql = neon(process.env.DATABASE_URL);
 export const db = drizzle(sql, { schema });
+
+export async function initializeDatabase() {
+  try {
+    console.log("Initializing database...");
+
+    // Test database connection first
+    await db.select().from(tutorialSteps).limit(1);
+    console.log("Database connection successful");
+
+    // Check if tutorial steps exist
+    const existingSteps = await db.select().from(tutorialSteps).limit(1);
+
+    if (existingSteps.length === 0) {
+      console.log("Seeding tutorial steps...");
+      await seedTutorialSteps();
+      console.log("Tutorial steps seeded successfully");
+    } else {
+      console.log("Tutorial steps already initialized");
+    }
+  } catch (error) {
+    console.error("Database initialization failed:", error);
+    // Don't throw in production, just log the error
+    if (process.env.NODE_ENV !== 'production') {
+      throw error;
+    }
+  }
+}

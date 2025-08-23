@@ -109,8 +109,15 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  const replitDomains = process.env.REPLIT_DOMAINS?.split(',') || [];
+  const allowedDomains = [
+    'localhost:5000',
+    '0.0.0.0:5000',
+    `${process.env.REPL_SLUG || 'skatehubba'}.${process.env.REPL_OWNER || 'replituser'}.repl.co`,
+    ...replitDomains
+  ];
+
+  for (const domain of allowedDomains) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
