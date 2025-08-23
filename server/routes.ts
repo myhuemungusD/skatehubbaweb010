@@ -27,7 +27,7 @@ const sanitizeString = (str: string): string => {
   // Remove potential XSS vectors
   const sanitized = validator.escape(str.trim());
   // Remove SQL injection patterns
-  return sanitized.replace(/('|(\\')|(;)|(\|)|(\*)|(%)|(<)|(>)|(\{)|(\})|(\[)|(\])|(\()|(\))/g, '');
+  return sanitized.replace(/['\\';|*%<>{}[\]()]/g, '');
 };
 
 const validateId = (id: string): boolean => {
