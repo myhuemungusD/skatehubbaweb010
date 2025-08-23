@@ -23,10 +23,12 @@ if (!process.env.REPLIT_DOMAINS) {
 
 const getOidcConfig = memoize(
   async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
+    return await client.Issuer.discover(
+      process.env.ISSUER_URL ?? "https://replit.com/oidc"
+    ).then(issuer => new issuer.Client({
+      client_id: process.env.REPL_ID!,
+      client_secret: process.env.CLIENT_SECRET!
+    }));
   },
   { maxAge: 3600 * 1000 }
 );
@@ -137,12 +139,8 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+      // Simple logout redirect without end session URL for now
+      res.redirect(`${req.protocol}://${req.hostname}`);
     });
   });
 }
@@ -167,8 +165,10 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
   try {
     const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
+    const tokenSet = await config.refresh(refreshToken);
+    user.access_token = tokenSet.access_token;
+    user.refresh_token = tokenSet.refresh_token;
+    user.expires_at = tokenSet.expires_at;
     return next();
   } catch (error) {
     res.status(401).json({ message: "Unauthorized" });

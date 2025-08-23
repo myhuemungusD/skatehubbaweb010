@@ -46,5 +46,14 @@ task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Pre-deployment Test"
+author = 43703404
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "tsx server/test.ts"
+
 [agent]
 integrations = ["javascript_log_in_with_replit==1.0.0", "javascript_stripe==1.0.0", "javascript_database==1.0.0"]
