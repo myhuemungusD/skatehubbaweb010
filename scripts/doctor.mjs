@@ -26,17 +26,17 @@ const dup = all.filter(p => /vite\.config\.(t|j)s/.test(p) && p !== "vite.config
 if (dup.length) fail(`remove extra vite configs: ${dup.join(", ")}`);
 ok("no duplicate vite configs");
 
-// 4) client envs: must be VITE_*
+// 4) client envs must be VITE_*
 const envFiles = [".env", ".env.production", ".env.local"].filter(f => fs.existsSync(f));
 for (const f of envFiles) {
   const txt = fs.readFileSync(f, "utf8");
-  if (/^((?!^VITE_).)*(FIREBASE|OPENAI|STRIPE)/gim.test(txt)) {
+  if (/^\s*(FIREBASE|OPENAI|STRIPE)[A-Z_]*=.*/gim.test(txt)) {
     fail(`Move client-facing secrets to VITE_* in ${f}`);
   }
 }
 ok("env names sane");
 
-// 5) health artifact
+// 5) write health artifact
 if (!fs.existsSync("client/public")) fs.mkdirSync("client/public", { recursive: true });
 const meta = { build: process.env.REPL_SLUG || "local", ts: new Date().toISOString() };
 fs.writeFileSync("client/public/version.txt", JSON.stringify(meta));
