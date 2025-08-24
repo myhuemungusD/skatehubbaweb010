@@ -50,6 +50,7 @@ export default function Landing() {
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setValidationError("");
 
     // Client-side validation
@@ -74,15 +75,24 @@ export default function Landing() {
       if (data.ok) {
         console.log('Signup success!', data);
         analytics.subscribeSuccess();
+        
+        // Force success state immediately
         setSignupSuccess(true);
+        
+        // Clear form
+        setEmail("");
+        setFirstName("");
+        
+        // Show toast
         toast({
           title: "Welcome to SkateHubba! 🎉",
           description: data.msg || "You're now on the beta list!",
         });
-        setEmail("");
-        setFirstName("");
+        
         // Hide success message after 10 seconds
-        setTimeout(() => setSignupSuccess(false), 10000);
+        setTimeout(() => {
+          setSignupSuccess(false);
+        }, 10000);
       } else {
         toast({
           title: "Signup failed",
@@ -171,14 +181,6 @@ export default function Landing() {
                   <p className="text-gray-300 mb-6 text-center">
                     Sign up to get early access to beta and dev updates
                   </p>
-                  {/* Debug button - remove later */}
-                  <button 
-                    type="button" 
-                    onClick={() => setSignupSuccess(true)}
-                    className="text-xs text-gray-500 mb-2 underline"
-                  >
-                    Test Success Screen
-                  </button>
                   <form onSubmit={handleJoinSubmit} className="space-y-4" autoComplete="on">
                     <div className="grid grid-cols-1 gap-3">
                       <input
@@ -212,7 +214,11 @@ export default function Landing() {
                       disabled={isSubmitting}
                       className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-orange-400 text-white font-bold py-4 rounded-lg transition-colors touch-manipulation text-lg"
                       data-testid="button-hero-join"
-                      style={{ minHeight: '48px', fontSize: '16px' }}
+                      style={{ 
+                        minHeight: '48px', 
+                        fontSize: '16px',
+                        WebkitTapHighlightColor: 'transparent'
+                      }}
                     >
                       {isSubmitting ? 'Signing up...' : 'Sign up'}
                     </button>
