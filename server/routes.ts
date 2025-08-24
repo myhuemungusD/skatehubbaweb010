@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
+import { subscribeLimit } from "./index";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { 
@@ -428,49 +429,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Subscriber routes
-  app.post("/api/subscribe", async (req, res) => {
+  // Subscriber routes with improved security
+  const subscribeSchema = z.object({ 
+    email: z.string().email().max(254), 
+    firstName: z.string().max(50).optional(),
+    company: z.string().optional() // honeypot field
+  });
+
+  app.post("/api/subscribe", subscribeLimit, async (req, res) => {
     try {
-      const { firstName, email } = req.body;
-
-      // Validate input - email is required, firstName is optional
-      if (!email) {
-        return res.status(400).json({ error: "Email is required" });
+      // Validate with Zod
+      const validation = subscribeSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          ok: false, 
+          msg: 'Please enter a valid email address'
+        });
       }
 
-      if (typeof email !== 'string' || email.trim().length === 0) {
-        return res.status(400).json({ error: "Email cannot be empty" });
-      }
+      const { email, firstName, company } = validation.data;
 
-      if (!validateEmail(email)) {
-        return res.status(400).json({ error: "Please enter a valid email address" });
-      }
-
-      // Validate firstName if provided
-      let sanitizedFirstName = "";
-      if (firstName) {
-        if (typeof firstName !== 'string') {
-          return res.status(400).json({ error: "Invalid first name format" });
-        }
-        sanitizedFirstName = sanitizeString(firstName);
-        if (sanitizedFirstName.length > 50) {
-          return res.status(400).json({ error: "First name must be 50 characters or less" });
-        }
+      // Honeypot spam protection
+      if (company) {
+        return res.status(200).json({ ok: true }); // Silent success for bots
       }
 
       const normalizedEmail = email.toLowerCase().trim();
+      const sanitizedFirstName = firstName ? sanitizeString(firstName) : "Skater";
       
       // Check if already subscribed
       const existingSubscriber = await storage.getSubscriber(normalizedEmail);
       if (existingSubscriber) {
-        return res.status(409).json({ 
-          error: "This email is already subscribed",
-          code: "ALREADY_SUBSCRIBED"
+        return res.status(200).json({ 
+          ok: true,
+          msg: "You're already on the list! Thanks for your interest."
         });
       }
 
       const subscriber = await storage.createSubscriber({
-        firstName: sanitizedFirstName || "Skater",
+        firstName: sanitizedFirstName,
         email: normalizedEmail,
         createdAt: new Date()
       });
@@ -481,25 +478,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: subscriber.email
       }).catch(err => console.error('Email notification failed:', err));
 
-      res.status(201).json({ 
-        message: "Welcome to SkateHubba! You're now on the beta list.",
-        success: true,
-        firstName: subscriber.firstName 
+      res.status(200).json({ 
+        ok: true,
+        msg: "Welcome to SkateHubba! You're now on the beta list."
       });
     } catch (error) {
       console.error("Failed to create subscriber:", error);
       
-      // Handle specific database errors
+      // Handle specific database errors gracefully
       if (error.message && error.message.includes('unique constraint')) {
-        return res.status(409).json({ 
-          error: "This email is already subscribed",
-          code: "ALREADY_SUBSCRIBED"
+        return res.status(200).json({ 
+          ok: true,
+          msg: "You're already on the list! Thanks for your interest."
         });
       }
       
       res.status(500).json({ 
-        error: "Unable to process subscription. Please try again.",
-        code: "SERVER_ERROR"
+        ok: false,
+        msg: "Unable to process subscription. Please try again."
       });
     }
   });

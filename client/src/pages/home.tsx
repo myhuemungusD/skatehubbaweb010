@@ -38,35 +38,29 @@ const HeroAccessButton = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(validatedData)
+        body: JSON.stringify({ 
+          ...validatedData,
+          company: "" // honeypot field
+        })
       });
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (data.ok) {
         setIsSuccess(true);
         analytics.subscribeSuccess();
         toast({
           title: "Welcome to SkateHubba! 🎉",
-          description: data.message || "You're now on the beta list!",
+          description: data.msg || "You're now on the beta list!",
         });
         setEmail("");
         setFirstName("");
       } else {
-        // Handle specific error codes
-        if (data.code === 'ALREADY_SUBSCRIBED') {
-          toast({
-            title: "Already signed up! ✅",
-            description: "This email is already on our beta list.",
-            variant: "default"
-          });
-        } else {
-          toast({
-            title: "Signup failed",
-            description: data.error || "Something went wrong. Please try again.",
-            variant: "destructive"
-          });
-        }
+        toast({
+          title: "Signup failed",
+          description: data.msg || "Something went wrong. Please try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -199,34 +193,28 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(validatedData)
+        body: JSON.stringify({ 
+          ...validatedData,
+          company: "" // honeypot field
+        })
       });
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (data.ok) {
         analytics.subscribeSuccess();
         toast({
           title: "Welcome to SkateHubba! 🎉",
-          description: data.message || "You're now on the beta list!",
+          description: data.msg || "You're now on the beta list!",
         });
         setEmail("");
         setFirstName("");
       } else {
-        // Handle specific error codes
-        if (data.code === 'ALREADY_SUBSCRIBED') {
-          toast({
-            title: "Already signed up! ✅",
-            description: "This email is already on our beta list.",
-            variant: "default"
-          });
-        } else {
-          toast({
-            title: "Signup failed",
-            description: data.error || "Something went wrong. Please try again.",
-            variant: "destructive"
-          });
-        }
+        toast({
+          title: "Signup failed",
+          description: data.msg || "Something went wrong. Please try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {

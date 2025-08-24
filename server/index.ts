@@ -73,6 +73,15 @@ const limiter = rateLimit({
   legacyHeaders: false
 });
 
+// Stricter rate limiting for subscription endpoint
+export const subscribeLimit = rateLimit({
+  windowMs: 60_000, // 1 minute
+  max: 5, // 5 requests per minute
+  message: { ok: false, msg: 'Too many subscription attempts, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // limit each IP to 5 auth requests per windowMs
@@ -112,8 +121,8 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 // Body parsing with size limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+app.use(express.json({ limit: '32kb' }));
+app.use(express.urlencoded({ extended: false, limit: '32kb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();
