@@ -80,7 +80,7 @@ export default function Landing() {
                 Sign Up
               </Button>
             </div>
-            <p className="text-gray-400 mt-6">Coming Soon • Free Beta</p>
+            <p className="text-gray-400 mt-6">Sign up now for early beta access and unlock exclusive SkateHubba gear</p>
           </div>
         </section>
 
