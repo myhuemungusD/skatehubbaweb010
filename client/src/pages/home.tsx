@@ -206,10 +206,14 @@ export default function Home() {
         analytics.subscribeSuccess();
         toast({
           title: "Welcome to SkateHubba! 🎉",
-          description: data.msg || "You're now on the beta list!",
+          description: data.msg || "You're now on the beta list! Redirecting to the app...",
         });
         setEmail("");
         setFirstName("");
+        // Redirect to the app demo after successful signup
+        setTimeout(() => {
+          window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
+        }, 2000);
       } else {
         toast({
           title: "Signup failed",

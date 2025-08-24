@@ -33,7 +33,7 @@ function Header() {
         <div className="hidden sm:flex items-center gap-2">
           <a href="#features" className="btn btn-ghost">Features</a>
           <a href="/donate" className="btn btn-ghost">Donate</a>
-          <a href="#signup" className="btn btn-primary">Join the beta</a>
+          <a href="https://skate-hubba-frontend-jayham710.replit.app" className="btn btn-primary">Join the beta</a>
         </div>
       </nav>
     </header>
@@ -56,7 +56,7 @@ function Hero() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a href="/donate" className="btn btn-primary">Donate</a>
-            <a href="#signup" className="btn">Get beta access</a>
+            <a href="https://skate-hubba-frontend-jayham710.replit.app" className="btn">Get beta access</a>
           </div>
           <ul className="mt-6 text-sm text-gray-500">
             <li>24-hr trick reply window · Legendary spot multipliers · Live lobbies and replays</li>
@@ -218,6 +218,10 @@ function Signup() {
 
       if (data.ok) {
         setIsSuccess(true);
+        // Redirect to app demo after successful signup
+        setTimeout(() => {
+          window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
+        }, 2000);
         setEmail("");
         setFirstName("");
         toast({
