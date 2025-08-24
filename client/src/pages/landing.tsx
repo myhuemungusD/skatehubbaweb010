@@ -169,24 +169,28 @@ export default function Landing() {
                   <p className="text-gray-300 mb-6 text-center">
                     Sign up to get early access to beta and dev updates
                   </p>
-                  <form onSubmit={handleJoinSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <form onSubmit={handleJoinSubmit} className="space-y-4" autoComplete="on">
+                    <div className="grid grid-cols-1 gap-3">
                       <input
                         type="text"
+                        name="firstName"
                         placeholder="First name"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                        className="w-full px-4 py-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none text-base"
                         required
+                        autoComplete="given-name"
                         data-testid="input-hero-firstname"
                       />
                       <input
                         type="email"
+                        name="email"
                         placeholder="Enter your email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                        className="w-full px-4 py-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none text-base"
                         required
+                        autoComplete="email"
                         data-testid="input-hero-email"
                       />
                     </div>
@@ -196,8 +200,9 @@ export default function Landing() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 text-white font-bold py-3 rounded-lg transition-colors"
+                      className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-orange-400 text-white font-bold py-4 rounded-lg transition-colors touch-manipulation text-lg"
                       data-testid="button-hero-join"
+                      style={{ minHeight: '48px', fontSize: '16px' }}
                     >
                       {isSubmitting ? 'Signing up...' : 'Sign up'}
                     </button>
