@@ -5,11 +5,34 @@ import { validateEnvironment } from "./security";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import cors from "cors";
+import compression from "compression";
+import pinoHttp from "pino-http";
+import Sentry from "./sentry.js";
 
 // Validate environment on startup
 validateEnvironment();
 
 const app = express();
+
+// Enable gzip compression
+app.use(compression());
+
+// Structured logging
+if (process.env.NODE_ENV === 'production') {
+  app.use(pinoHttp({
+    level: 'info',
+    serializers: {
+      req: (req) => ({
+        method: req.method,
+        url: req.url,
+        userAgent: req.headers['user-agent']
+      }),
+      res: (res) => ({
+        statusCode: res.statusCode
+      })
+    }
+  }));
+}
 
 // Security middleware
 app.use(helmet({

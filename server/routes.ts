@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { subscribeLimit } from "./index";
+import { Resend } from "resend";
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { 
@@ -472,11 +475,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdAt: new Date()
       });
 
-      // Send email notification (async, don't wait for it)
-      sendSubscriberNotification({
-        firstName: subscriber.firstName,
-        email: subscriber.email
-      }).catch(err => console.error('Email notification failed:', err));
+      // Send welcome email with Resend
+      if (resend) {
+        resend.emails.send({
+          from: 'SkateHubba <hello@skatehubba.com>',
+          to: subscriber.email,
+          subject: 'Welcome to SkateHubba! 🛹',
+          html: `
+            <h1>Welcome to SkateHubba, ${subscriber.firstName}!</h1>
+            <p>You're now on the beta list for the ultimate skateboarding platform.</p>
+            <p>We'll notify you as soon as the beta launches.</p>
+            <p>Own your tricks. Play SKATE anywhere.</p>
+            <p>- The SkateHubba Team</p>
+          `
+        }).catch(err => console.error('Email notification failed:', err));
+      } else {
+        // Fallback to existing notification system
+        sendSubscriberNotification({
+          firstName: subscriber.firstName,
+          email: subscriber.email
+        }).catch(err => console.error('Email notification failed:', err));
+      }
 
       res.status(200).json({ 
         ok: true,
@@ -550,6 +569,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to create demo user:", error);
       res.status(500).json({ error: "Failed to create demo user" });
+    }
+  });
+
+  // Web Vitals endpoint for performance monitoring
+  app.post("/api/vitals", async (req, res) => {
+    try {
+      const { name, value, id } = req.body;
+      
+      // Log Web Vitals metrics
+      console.log(`Web Vital - ${name}: ${value}ms (ID: ${id})`);
+      
+      // In production, you might want to send these to analytics
+      // analytics.track('web_vital', { metric: name, value, id });
+      
+      res.status(200).json({ ok: true });
+    } catch (error) {
+      console.error("Failed to record Web Vital:", error);
+      res.status(500).json({ ok: false, msg: "Failed to record metric" });
     }
   });
 
