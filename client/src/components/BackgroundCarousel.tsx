@@ -15,6 +15,9 @@ export default function Background({
           src="/attached_assets/hubbagraffwall.png"
           alt="SkateHubba - Urban skateboarding environment with graffiti wall"
           className="w-full h-full object-cover object-center"
+          loading="eager"
+          decoding="sync"
+          fetchPriority="high"
           style={{
             filter: 'brightness(0.4) contrast(1.2)',
           }}

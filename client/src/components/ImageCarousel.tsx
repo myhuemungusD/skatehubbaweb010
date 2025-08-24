@@ -42,6 +42,8 @@ export function ImageCarousel({ slides }: ImageCarouselProps) {
                         <img
                           src={imageSrc}
                           alt={`${slide.title} - Image ${index + 1}`}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
