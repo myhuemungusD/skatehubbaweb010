@@ -33,14 +33,18 @@ const useSpringAnimation = (isVisible: boolean) => {
   };
 };
 
-// Sophisticated loading states
-const LoadingButton = ({ isLoading, children, ...props }: any) => (
-  <Button 
+// Mobile-optimized loading button
+const LoadingButton = ({ isLoading, children, className, ...props }: any) => (
+  <button
     {...props}
     disabled={isLoading}
-    className={`${props.className} relative overflow-hidden transition-all duration-200 ${
-      isLoading ? 'cursor-wait' : ''
-    }`}
+    className={`${className} relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed`}
+    style={{
+      minHeight: '48px',
+      fontSize: '16px',
+      WebkitTapHighlightColor: 'transparent',
+      touchAction: 'manipulation'
+    }}
   >
     <span className={`transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
       {children}
@@ -50,7 +54,7 @@ const LoadingButton = ({ isLoading, children, ...props }: any) => (
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
       </div>
     )}
-  </Button>
+  </button>
 );
 
 // Systematic component spacing
@@ -122,6 +126,11 @@ export default function UnifiedLanding() {
     e.preventDefault();
     e.stopPropagation();
     setValidationError("");
+    
+    // Blur active element to hide mobile keyboard
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
 
     try {
       const validatedData = subscribeSchema.parse({ email, firstName });
@@ -268,29 +277,40 @@ export default function UnifiedLanding() {
                 <p className="text-gray-300 mb-6 text-center">
                   Be the first to experience the future of skateboarding
                 </p>
-                <form onSubmit={handleJoinSubmit} className="space-y-4" autoComplete="on">
+                <form onSubmit={handleJoinSubmit} className="space-y-4" autoComplete="on" noValidate>
                   <div className="grid grid-cols-1 gap-3">
-                    <Input
+                    <input
                       type="text"
                       name="firstName"
                       placeholder="First name"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="h-12 bg-black/50 border-gray-600/50 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                      className="w-full h-12 px-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-base"
                       required
                       autoComplete="given-name"
                       data-testid="input-hero-firstname"
+                      style={{
+                        fontSize: '16px',
+                        WebkitAppearance: 'none',
+                        WebkitTapHighlightColor: 'transparent'
+                      }}
                     />
-                    <Input
+                    <input
                       type="email"
                       name="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="h-12 bg-black/50 border-gray-600/50 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+                      className="w-full h-12 px-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-base"
                       required
                       autoComplete="email"
+                      inputMode="email"
                       data-testid="input-hero-email"
+                      style={{
+                        fontSize: '16px',
+                        WebkitAppearance: 'none',
+                        WebkitTapHighlightColor: 'transparent'
+                      }}
                     />
                   </div>
                   {validationError && (
