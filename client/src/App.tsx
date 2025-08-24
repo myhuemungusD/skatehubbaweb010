@@ -11,6 +11,8 @@ import NotFound from "./pages/not-found";
 import Tutorial from "./pages/tutorial";
 import Demo from "./pages/demo";
 import DonationPage from "./pages/donate";
+import { analytics as firebaseAnalytics } from "./lib/firebase";
+import { useEffect } from "react";
 
 
 function Router() {
@@ -42,7 +44,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/donate" component={Donate} />
+          <Route path="/donate" component={DonationPage} />
           <Route path="/tutorial">
             {() => {
               const { user } = useAuth();
@@ -57,6 +59,13 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    // Initialize Firebase Analytics on app start
+    if (firebaseAnalytics) {
+      console.log('Firebase Analytics initialized successfully');
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

@@ -75,6 +75,7 @@
     "express-rate-limit": "^7.4.0",
     "express-session": "^1.18.0",
     "favicons": "^7.2.0",
+    "firebase": "^12.1.0",
     "helmet": "^7.1.0",
     "ky": "^1.9.0",
     "lucide-react": "^0.427.0",

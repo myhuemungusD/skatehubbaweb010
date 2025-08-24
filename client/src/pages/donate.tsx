@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, DollarSign, Heart, Users, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { trackDonation, trackButtonClick, trackPageView } from "@/lib/analytics";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
@@ -139,8 +140,10 @@ export default function Donate() {
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const { toast } = useToast();
 
-  // Check for success parameter
+  // Track page view and check for success parameter
   useEffect(() => {
+    trackPageView('Donation Page');
+    
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
       toast({
@@ -154,6 +157,7 @@ export default function Donate() {
   const donationAmounts = [10, 25, 50, 100];
 
   const handleAmountSelect = (amount: number) => {
+    trackButtonClick(`donation_amount_${amount}`, 'donation_page');
     setSelectedAmount(amount);
     setCustomAmount('');
   };
@@ -167,6 +171,9 @@ export default function Donate() {
   };
 
   const createPaymentIntent = async () => {
+    // Track donation initiation
+    trackDonation(selectedAmount, 'stripe');
+    
     if (selectedAmount < 1) {
       toast({
         title: "Invalid Amount",
