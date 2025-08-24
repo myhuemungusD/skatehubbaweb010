@@ -206,28 +206,28 @@ export default function Donate() {
   };
 
   return (
-    <div className="min-h-screen bg-[#181818]" style={{
+    <div className="min-h-screen" style={{
       backgroundImage: `url('/attached_assets/graffwallskateboardrack_1754296307132.png')`,
       backgroundSize: 'cover',
       backgroundPosition: 'center top',
       backgroundAttachment: 'fixed'
     }}>
       <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 bg-transparent">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <Button
               variant="ghost"
               onClick={() => setLocation('/')}
-              className="text-[#fafafa] hover:text-orange-400"
+              className="text-white hover:text-orange-400 bg-transparent border-none"
               data-testid="button-back-home"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-[#fafafa]">Support SkateHubba</h1>
-              <p className="text-gray-300">Help us build the future of skateboarding</p>
+              <h1 className="text-3xl font-bold text-white">Support SkateHubba</h1>
+              <p className="text-gray-200">Help us build the future of skateboarding</p>
             </div>
           </div>
 
