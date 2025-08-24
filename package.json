@@ -54,6 +54,7 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@replit/vite-plugin-cartographer": "^0.3.0",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
+    "@squoosh/cli": "^0.7.1",
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^4.4.0",
     "@tanstack/react-query": "^5.51.23",
