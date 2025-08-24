@@ -17,7 +17,7 @@ export default function Background({
           className="w-full h-full object-cover object-center"
           loading="eager"
           decoding="sync"
-          fetchPriority="high"
+          fetchpriority="high"
           style={{
             filter: 'brightness(0.4) contrast(1.2)',
           }}
