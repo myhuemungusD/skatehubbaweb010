@@ -254,13 +254,6 @@ function Signup() {
           <form onSubmit={handleSubmit} className="card max-w-md mx-auto">
             <div className="space-y-4">
               <input
-                type="text"
-                placeholder="First name (optional)"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-              />
-              <input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
@@ -273,7 +266,7 @@ function Signup() {
                 disabled={isSubmitting || !email.trim()}
                 className="btn btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Joining..." : "Get early access"}
+                {isSubmitting ? "Joining..." : "Join the beta"}
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-4">

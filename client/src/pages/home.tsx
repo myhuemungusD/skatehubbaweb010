@@ -93,21 +93,6 @@ const HeroAccessButton = () => {
       <div className="space-y-4 max-w-md mx-auto lg:mx-0">
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label htmlFor="hero-first-name" className="sr-only">
-              First Name
-            </label>
-            <Input
-              id="hero-first-name"
-              type="text"
-              placeholder="Your Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              aria-describedby="hero-form-description"
-              className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
-            />
-          </div>
-          <div>
             <label htmlFor="hero-email" className="sr-only">
               Email Address
             </label>
@@ -128,7 +113,7 @@ const HeroAccessButton = () => {
               disabled={isSubmitting}
               className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3"
             >
-              {isSubmitting ? 'Joining...' : 'Join SkateHubba'}
+              {isSubmitting ? 'Joining...' : 'Join the beta'}
             </Button>
             <Button
               type="button"
