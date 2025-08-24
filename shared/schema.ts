@@ -97,9 +97,10 @@ export const userProgress = pgTable("user_progress", {
 
 export const subscribers = pgTable("subscribers", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-  firstName: varchar("first_name", { length: 50 }).notNull(),
-  email: varchar("email", { length: 254 }).notNull().unique(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  firstName: text("first_name").notNull(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
 });
 
 export const donations = pgTable("donations", {

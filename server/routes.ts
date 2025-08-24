@@ -441,9 +441,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/subscribe", subscribeLimit, async (req, res) => {
     try {
-      // Validate with Zod
+      // Apple-level validation with detailed error handling
       const validation = subscribeSchema.safeParse(req.body);
       if (!validation.success) {
+        const emailError = validation.error.errors.find(e => e.path.includes('email'));
+        if (emailError) {
+          return res.status(400).json({ 
+            ok: false, 
+            msg: emailError.message
+          });
+        }
         return res.status(400).json({ 
           ok: false, 
           msg: 'Please enter a valid email address'
@@ -452,69 +459,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { email, firstName, company } = validation.data;
 
-      // Honeypot spam protection
+      // Advanced honeypot spam protection
       if (company) {
-        return res.status(200).json({ ok: true }); // Silent success for bots
+        console.log(`🤖 Honeypot triggered from IP: ${req.ip}`);
+        return res.status(200).json({ ok: true, msg: "Thanks for your interest!" });
       }
 
       const normalizedEmail = email.toLowerCase().trim();
       const sanitizedFirstName = firstName ? sanitizeString(firstName) : "Skater";
       
-      // Check if already subscribed
+      // Enhanced duplicate check with better messaging
       const existingSubscriber = await storage.getSubscriber(normalizedEmail);
       if (existingSubscriber) {
         return res.status(200).json({ 
           ok: true,
-          msg: "You're already on the list! Thanks for your interest."
+          msg: `Welcome back, ${existingSubscriber.firstName}! You're already signed up. We'll keep you posted on all the latest.`
         });
       }
 
+      // Create subscriber with Apple-level data structure
       const subscriber = await storage.createSubscriber({
         firstName: sanitizedFirstName,
-        email: normalizedEmail,
-        createdAt: new Date()
+        email: normalizedEmail
       });
 
-      // Send welcome email with Resend
-      if (resend) {
-        resend.emails.send({
-          from: 'SkateHubba <hello@skatehubba.com>',
-          to: subscriber.email,
-          subject: 'Welcome to SkateHubba! 🛹',
-          html: `
-            <h1>Welcome to SkateHubba, ${subscriber.firstName}!</h1>
-            <p>You're now on the beta list for the ultimate skateboarding platform.</p>
-            <p>We'll notify you as soon as the beta launches.</p>
-            <p>Own your tricks. Play SKATE anywhere.</p>
-            <p>- The SkateHubba Team</p>
-          `
-        }).catch(err => console.error('Email notification failed:', err));
-      } else {
-        // Fallback to existing notification system
-        sendSubscriberNotification({
-          firstName: subscriber.firstName,
-          email: subscriber.email
-        }).catch(err => console.error('Email notification failed:', err));
-      }
+      // Log successful database save
+      console.log(`✅ New subscriber saved: ${normalizedEmail} (ID: ${subscriber.id})`);
 
+      // Send welcome email (non-blocking, Apple-style)
+      setImmediate(async () => {
+        try {
+          if (resend) {
+            await resend.emails.send({
+              from: 'SkateHubba <hello@skatehubba.com>',
+              to: subscriber.email,
+              subject: 'Welcome to SkateHubba! 🛹',
+              html: `
+                <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+                  <h1 style="color: #f97316;">Welcome to SkateHubba, ${subscriber.firstName}!</h1>
+                  <p>You're officially part of the crew. 🛹</p>
+                  <p>We'll hit you up when the beta drops.</p>
+                  <p style="font-weight: bold;">Own your tricks. Play SKATE anywhere.</p>
+                  <p style="color: #666;">- The SkateHubba Team</p>
+                </div>
+              `
+            });
+            console.log(`📧 Welcome email sent to ${normalizedEmail}`);
+          } else {
+            await sendSubscriberNotification({
+              firstName: subscriber.firstName,
+              email: subscriber.email
+            });
+            console.log(`📧 Fallback email sent to ${normalizedEmail}`);
+          }
+        } catch (emailError) {
+          console.error(`📧 Email sending failed (non-critical):`, emailError);
+        }
+      });
+
+      // Apple-level success response
       res.status(200).json({ 
         ok: true,
-        msg: "Welcome to SkateHubba! You're now on the beta list."
+        msg: `Welcome to SkateHubba, ${sanitizedFirstName}! 🛹 You're officially in the crew. We'll drop you a line when the beta drops.`,
+        data: {
+          email: normalizedEmail,
+          firstName: sanitizedFirstName,
+          id: subscriber.id
+        }
       });
-    } catch (error) {
-      console.error("Failed to create subscriber:", error);
       
-      // Handle specific database errors gracefully
-      if (error.message && error.message.includes('unique constraint')) {
-        return res.status(200).json({ 
-          ok: true,
-          msg: "You're already on the list! Thanks for your interest."
-        });
+    } catch (error) {
+      console.error("❌ Subscription error:", error);
+      
+      // Enhanced error handling with specific error types
+      if (error instanceof Error) {
+        if (error.message.includes('unique constraint') || error.message.includes('duplicate key')) {
+          return res.status(200).json({ 
+            ok: true,
+            msg: "You're already part of the crew! We'll keep you updated on all the latest drops."
+          });
+        }
+        
+        if (error.message.includes('invalid email')) {
+          return res.status(400).json({ 
+            ok: false,
+            msg: "Please enter a valid email address"
+          });
+        }
       }
       
+      // Generic error with Apple-level UX
       res.status(500).json({ 
         ok: false,
-        msg: "Unable to process subscription. Please try again."
+        msg: "Something went wrong. Please try again in a moment."
       });
     }
   });
