@@ -157,7 +157,11 @@ const HeroAccessButton = () => {
   return (
     <button
       onClick={() => {
-        window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
+        // Scroll to signup form instead of external link
+        const signupSection = document.getElementById('join-beta');
+        if (signupSection) {
+          signupSection.scrollIntoView({ behavior: 'smooth' });
+        }
         analytics.ctaClickHero('get_early_access'); // Track CTA click
       }}
       className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
@@ -280,7 +284,11 @@ export default function Home() {
               <div className="flex gap-6 items-center">
                 <button
                   onClick={() => {
-                    window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
+                    // Scroll to signup form instead of external link
+        const signupSection = document.getElementById('join-beta');
+        if (signupSection) {
+          signupSection.scrollIntoView({ behavior: 'smooth' });
+        }
                     analytics.ctaClickHero(); // Track CTA click
                   }}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors"
