@@ -44,9 +44,12 @@ function Hero() {
       <div className="grid lg:grid-cols-2 gap-10 items-center">
         <div>
           <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight">
-            Own Your Tricks. <span className="text-gray-500">Play SKATE anywhere.</span>
+            SkateHubba
           </h1>
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-xl text-gray-600">
+            Own your tricks. Play SKATE anywhere.
+          </p>
+          <p className="mt-2 text-gray-600">
             Remote SKATE battles. Legendary spot check-ins. Live lobbies. Built for core skaters.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
