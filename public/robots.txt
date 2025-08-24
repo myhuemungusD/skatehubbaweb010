@@ -1,0 +1,10 @@
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://skatehubba.com/sitemap.xml
+
+# Disallow admin or sensitive areas (add as needed)
+# Disallow: /admin/
+# Disallow: /api/
