@@ -1,5 +1,14 @@
 import { Button } from "../components/ui/button";
 import Background from "../components/BackgroundCarousel";
+import { useState } from "react";
+import { useToast } from "../hooks/use-toast";
+import { analytics } from "../lib/analytics";
+import { z } from "zod";
+
+const subscribeSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  firstName: z.string().min(1, "First name is required"),
+});
 
 const SkateHubbaLogo = () => (
   <div className="relative">
@@ -27,6 +36,64 @@ const SkateHubbaLogo = () => (
 );
 
 export default function Landing() {
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState("");
+  const { toast } = useToast();
+
+  const handleJoinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setValidationError("");
+
+    // Client-side validation
+    try {
+      const validatedData = subscribeSchema.parse({ email, firstName });
+      setIsSubmitting(true);
+      analytics.subscribeSubmitted();
+
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          ...validatedData,
+          company: "" // honeypot field
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        analytics.subscribeSuccess();
+        toast({
+          title: "Welcome to SkateHubba! 🎉",
+          description: data.msg || "You're now on the beta list!",
+        });
+        setEmail("");
+        setFirstName("");
+      } else {
+        toast({
+          title: "Signup failed",
+          description: data.msg || "Something went wrong. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setValidationError(error.errors[0]?.message || "Please check your email");
+      } else {
+        toast({
+          title: "Network Error",
+          description: "Please check your connection and try again.",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <Background className="text-white">
       {/* Navigation */}
@@ -38,17 +105,14 @@ export default function Landing() {
               <span className="text-xl font-bold">SkateHubba</span>
             </div>
             <div className="flex items-center space-x-8">
-              <a href="#features" className="text-gray-300 hover:text-orange-500 transition-colors">Features</a>
-              <a href="#join" className="text-gray-300 hover:text-orange-500 transition-colors">Join</a>
               <Button 
                 onClick={() => {
-                  // Go directly to the app demo
-                  window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
+                  window.location.href = '/donate';
                 }}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2 rounded-lg font-semibold"
-                data-testid="button-demo-nav"
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold"
+                data-testid="button-donate-nav"
               >
-                Try Demo
+                Donate
               </Button>
             </div>
           </div>
@@ -68,56 +132,61 @@ export default function Landing() {
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto" data-testid="text-hero-subtitle">
               Own your tricks. Play SKATE anywhere.
             </p>
-            <div className="flex justify-center">
-              <Button 
-                onClick={() => {
-                  // Go to email signup
-                  window.location.href = '/new#signup';
-                }}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                data-testid="button-hero-signup"
-              >
-                Sign Up
-              </Button>
+            
+            {/* Beta Signup Form */}
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-orange-400/30 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4 text-center">
+                Join the beta
+              </h3>
+              <p className="text-gray-300 mb-6 text-center">
+                Be the first to experience the future of skateboarding. Get exclusive early access.
+              </p>
+              <form onSubmit={handleJoinSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="First name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                    required
+                    data-testid="input-hero-firstname"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                    required
+                    data-testid="input-hero-email"
+                  />
+                </div>
+                {validationError && (
+                  <p className="text-red-400 text-sm text-center">{validationError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 text-white font-bold py-3 rounded-lg transition-colors"
+                  data-testid="button-hero-join"
+                >
+                  {isSubmitting ? 'Joining...' : 'Join the beta'}
+                </button>
+              </form>
             </div>
-            <p className="text-gray-400 mt-6">Sign up now for early beta access and unlock exclusive SkateHubba gear</p>
           </div>
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 px-6 bg-black/60">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4" data-testid="text-features-title">
-                Why Skaters Choose SkateHubba
-              </h2>
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                Connect with the global skate community and level up your skills
-              </p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 text-center hover:bg-white/15 transition-all duration-300" data-testid="card-feature-stream">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl">🎥</span>
-                </div>
-                <h3 className="text-xl font-bold mb-4">Live Streaming</h3>
-                <p className="text-gray-300">Broadcast your sessions and connect with skaters worldwide</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 text-center hover:bg-white/15 transition-all duration-300" data-testid="card-feature-connect">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl">🌍</span>
-                </div>
-                <h3 className="text-xl font-bold mb-4">Global Community</h3>
-                <p className="text-gray-300">Find local skaters, join crews, and build lasting friendships</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 text-center hover:bg-white/15 transition-all duration-300" data-testid="card-feature-progress">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl">🏆</span>
-                </div>
-                <h3 className="text-xl font-bold mb-4">Skill Tracking</h3>
-                <p className="text-gray-300">Log tricks, track progress, and celebrate achievements</p>
-              </div>
-            </div>
+        <section className="py-20 px-6 bg-black/60">
+          <div className="max-w-6xl mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-4" data-testid="text-features-title">
+              Why Skaters Choose SkateHubba
+            </h2>
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+              Connect with the global skate community and level up your skills
+            </p>
           </div>
         </section>
 
