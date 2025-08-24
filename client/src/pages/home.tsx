@@ -5,6 +5,8 @@ import { useToast } from "../hooks/use-toast";
 import { analytics } from "../lib/analytics";
 import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 import BackgroundCarousel from "../components/BackgroundCarousel";
+import { z } from "zod";
+import { subscribeSchema } from "@shared/schema";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
@@ -18,50 +20,64 @@ const HeroAccessButton = () => {
   const [firstName, setFirstName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [validationError, setValidationError] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    setValidationError("");
 
-    setIsSubmitting(true);
-    analytics.subscribeSubmitted();
-
+    // Client-side validation
     try {
+      const validatedData = subscribeSchema.parse({ email, firstName });
+      setIsSubmitting(true);
+      analytics.subscribeSubmitted();
+
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          firstName,
-          email
-        })
+        body: JSON.stringify(validatedData)
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         setIsSuccess(true);
-        analytics.subscribeSuccess(); // Track successful subscription
+        analytics.subscribeSuccess();
         toast({
           title: "Welcome to SkateHubba! 🎉",
-          description: "You're now on the list for updates and exclusive drops.",
+          description: data.message || "You're now on the beta list!",
         });
         setEmail("");
         setFirstName("");
       } else {
-        const errorData = await response.json();
+        // Handle specific error codes
+        if (data.code === 'ALREADY_SUBSCRIBED') {
+          toast({
+            title: "Already signed up! ✅",
+            description: "This email is already on our beta list.",
+            variant: "default"
+          });
+        } else {
+          toast({
+            title: "Signup failed",
+            description: data.error || "Something went wrong. Please try again.",
+            variant: "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setValidationError(error.errors[0]?.message || "Please check your email");
+      } else {
         toast({
-          title: "Subscription Error",
-          description: errorData.error || "Failed to subscribe. Please try again.",
+          title: "Network Error",
+          description: "Please check your connection and try again.",
           variant: "destructive"
         });
       }
-    } catch (error) {
-      toast({
-        title: "Network Error",
-        description: "Please check your connection and try again.",
-        variant: "destructive"
-      });
     } finally {
       setIsSubmitting(false);
     }
@@ -101,11 +117,19 @@ const HeroAccessButton = () => {
               type="email"
               placeholder="Your Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setValidationError("");
+              }}
               required
               aria-describedby="hero-form-description"
-              className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
+              className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible ${
+                validationError ? "border-red-500" : ""
+              }`}
             />
+            {validationError && (
+              <p className="text-red-400 text-sm mt-1">{validationError}</p>
+            )}
           </div>
           <div className="flex gap-2">
             <Button
@@ -153,49 +177,63 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState("");
   const { toast } = useToast();
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    setValidationError("");
 
-    setIsSubmitting(true);
-    analytics.subscribeSubmitted(); // Track subscription submission
-
+    // Client-side validation
     try {
+      const validatedData = subscribeSchema.parse({ email, firstName });
+      setIsSubmitting(true);
+      analytics.subscribeSubmitted();
+
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          firstName,
-          email
-        })
+        body: JSON.stringify(validatedData)
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        analytics.subscribeSuccess(); // Track successful subscription
+        analytics.subscribeSuccess();
         toast({
-          title: "Thanks for joining SkateHubba!",
-          description: "We'll keep you updated on updates, exclusive gear drops & sessions.",
+          title: "Welcome to SkateHubba! 🎉",
+          description: data.message || "You're now on the beta list!",
         });
         setEmail("");
         setFirstName("");
       } else {
-        const errorData = await response.json();
+        // Handle specific error codes
+        if (data.code === 'ALREADY_SUBSCRIBED') {
+          toast({
+            title: "Already signed up! ✅",
+            description: "This email is already on our beta list.",
+            variant: "default"
+          });
+        } else {
+          toast({
+            title: "Signup failed",
+            description: data.error || "Something went wrong. Please try again.",
+            variant: "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setValidationError(error.errors[0]?.message || "Please check your email");
+      } else {
         toast({
-          title: "Subscription Error",
-          description: errorData.error || "Failed to subscribe. Please try again.",
+          title: "Network Error",
+          description: "Please check your connection and try again.",
           variant: "destructive"
         });
       }
-    } catch (error) {
-      toast({
-        title: "Network Error",
-        description: "Please check your connection and try again.",
-        variant: "destructive"
-      });
     } finally {
       setIsSubmitting(false);
     }
@@ -494,12 +532,22 @@ export default function Home() {
                     type="email"
                     placeholder="Your Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setValidationError("");
+                    }}
                     required
                     aria-describedby="join-form-description"
-                    className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
+                    className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible ${
+                      validationError ? "border-red-500" : ""
+                    }`}
                     data-testid="input-email"
                   />
+                  {validationError && (
+                    <div className="col-span-full">
+                      <p className="text-red-400 text-sm mt-1">{validationError}</p>
+                    </div>
+                  )}
                 </div>
                 <Button
                   type="submit"

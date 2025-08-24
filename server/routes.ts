@@ -433,29 +433,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { firstName, email } = req.body;
 
-      // Validate input
-      if (!firstName || !email) {
-        return res.status(400).json({ error: "First name and email are required" });
+      // Validate input - email is required, firstName is optional
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      if (typeof email !== 'string' || email.trim().length === 0) {
+        return res.status(400).json({ error: "Email cannot be empty" });
       }
 
       if (!validateEmail(email)) {
-        return res.status(400).json({ error: "Invalid email format" });
+        return res.status(400).json({ error: "Please enter a valid email address" });
       }
 
-      const sanitizedFirstName = sanitizeString(firstName);
-      if (sanitizedFirstName.length < 1 || sanitizedFirstName.length > 50) {
-        return res.status(400).json({ error: "First name must be between 1 and 50 characters" });
+      // Validate firstName if provided
+      let sanitizedFirstName = "";
+      if (firstName) {
+        if (typeof firstName !== 'string') {
+          return res.status(400).json({ error: "Invalid first name format" });
+        }
+        sanitizedFirstName = sanitizeString(firstName);
+        if (sanitizedFirstName.length > 50) {
+          return res.status(400).json({ error: "First name must be 50 characters or less" });
+        }
       }
 
+      const normalizedEmail = email.toLowerCase().trim();
+      
       // Check if already subscribed
-      const existingSubscriber = await storage.getSubscriber(email.toLowerCase());
+      const existingSubscriber = await storage.getSubscriber(normalizedEmail);
       if (existingSubscriber) {
-        return res.status(409).json({ error: "Email already subscribed" });
+        return res.status(409).json({ 
+          error: "This email is already subscribed",
+          code: "ALREADY_SUBSCRIBED"
+        });
       }
 
       const subscriber = await storage.createSubscriber({
-        firstName: sanitizedFirstName,
-        email: email.toLowerCase(),
+        firstName: sanitizedFirstName || "Skater",
+        email: normalizedEmail,
         createdAt: new Date()
       });
 
@@ -466,12 +482,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }).catch(err => console.error('Email notification failed:', err));
 
       res.status(201).json({ 
-        message: "Successfully subscribed!",
+        message: "Welcome to SkateHubba! You're now on the beta list.",
+        success: true,
         firstName: subscriber.firstName 
       });
     } catch (error) {
       console.error("Failed to create subscriber:", error);
-      res.status(500).json({ error: "Failed to process subscription" });
+      
+      // Handle specific database errors
+      if (error.message && error.message.includes('unique constraint')) {
+        return res.status(409).json({ 
+          error: "This email is already subscribed",
+          code: "ALREADY_SUBSCRIBED"
+        });
+      }
+      
+      res.status(500).json({ 
+        error: "Unable to process subscription. Please try again.",
+        code: "SERVER_ERROR"
+      });
     }
   });
 

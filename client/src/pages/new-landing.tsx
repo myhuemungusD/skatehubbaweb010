@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
+import { z } from "zod";
+import { subscribeSchema } from "@shared/schema";
 
 const DONATE_STRIPE = import.meta.env.VITE_DONATE_STRIPE_URL || "#";
 const DONATE_PAYPAL = import.meta.env.VITE_DONATE_PAYPAL_URL || "#";
@@ -191,44 +193,63 @@ function Signup() {
   const [firstName, setFirstName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [validationError, setValidationError] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    setValidationError("");
 
-    setIsSubmitting(true);
-
+    // Client-side validation
     try {
+      const validatedData = subscribeSchema.parse({ email, firstName });
+      setIsSubmitting(true);
+
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          firstName,
-          email
-        })
+        body: JSON.stringify(validatedData)
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         setIsSuccess(true);
         setEmail("");
         setFirstName("");
         toast({
-          title: "Welcome to the crew! 🛹",
-          description: "You'll get beta access as soon as we launch.",
+          title: "Welcome to SkateHubba! 🛹",
+          description: data.message || "You're now on the beta list!",
           variant: "default"
         });
       } else {
-        throw new Error('Failed to subscribe');
+        // Handle specific error codes
+        if (data.code === 'ALREADY_SUBSCRIBED') {
+          toast({
+            title: "Already signed up! ✅",
+            description: "This email is already on our beta list.",
+            variant: "default"
+          });
+        } else {
+          toast({
+            title: "Signup failed",
+            description: data.error || "Something went wrong. Please try again.",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
-      toast({
-        title: "Signup failed",
-        description: "Please try again or contact support.",
-        variant: "destructive"
-      });
+      if (error instanceof z.ZodError) {
+        setValidationError(error.errors[0]?.message || "Please check your email");
+      } else {
+        toast({
+          title: "Network Error",
+          description: "Please check your connection and try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -257,10 +278,18 @@ function Signup() {
                 type="email"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setValidationError("");
+                }}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${
+                  validationError ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {validationError && (
+                <p className="text-red-500 text-sm -mt-2">{validationError}</p>
+              )}
               <button
                 type="submit"
                 disabled={isSubmitting || !email.trim()}
