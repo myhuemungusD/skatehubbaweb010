@@ -287,15 +287,12 @@ export default function Home() {
               <div className="flex gap-6 items-center">
                 <button
                   onClick={() => {
-                    const element = document.getElementById('signup');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    window.location.href = '/donate';
                   }}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors"
-                  data-testid="button-join-nav"
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors"
+                  data-testid="button-donate-nav"
                 >
-                  Join the Beta
+                  Donate
                 </button>
               </div>
             </div>
@@ -363,17 +360,47 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                      <HeroAccessButton />
-                      <button
-                        onClick={() => {
-                          window.location.href = '/donate';
-                        }}
-                        className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
-                        data-testid="button-support-skatehubba"
-                      >
-                        Support SkateHubba
-                      </button>
+                    {/* Beta Signup Form */}
+                    <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-orange-400/30 max-w-md mx-auto lg:mx-0">
+                      <h3 className="text-2xl font-bold text-[#fafafa] mb-4 text-center lg:text-left">
+                        Join the beta
+                      </h3>
+                      <p className="text-gray-300 mb-6 text-center lg:text-left">
+                        Be the first to experience the future of skateboarding. Get exclusive early access.
+                      </p>
+                      <form onSubmit={handleJoinSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            placeholder="First name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                            required
+                            data-testid="input-hero-firstname"
+                          />
+                          <input
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                            required
+                            data-testid="input-hero-email"
+                          />
+                        </div>
+                        {validationError && (
+                          <p className="text-red-400 text-sm">{validationError}</p>
+                        )}
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 text-white font-bold py-3 rounded-lg transition-colors"
+                          data-testid="button-hero-join"
+                        >
+                          {isSubmitting ? 'Joining...' : 'Join the beta'}
+                        </button>
+                      </form>
                     </div>
                   </div>
 
@@ -508,73 +535,6 @@ export default function Home() {
           </div>
         </main>
 
-        {/* Join Section */}
-        <section id="signup" className="join-section py-24 bg-[#181818]">
-          <div className="container mx-auto px-4">
-            <article className="max-w-2xl mx-auto text-center">
-              <div className="mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-[#fafafa] font-orbitron">
-                  Join the Beta
-                </h2>
-                <p id="join-form-description" className="text-xl text-[#fafafa]">Be first to know about updates, exclusive gear drops & sessions.</p>
-              </div>
-              <form onSubmit={handleJoinSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="join-first-name" className="sr-only">
-                    First Name
-                  </label>
-                  <Input
-                    id="join-first-name"
-                    type="text"
-                    placeholder="Your Name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                    aria-describedby="join-form-description"
-                    className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
-                    data-testid="input-firstname"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="join-email" className="sr-only">
-                    Email Address
-                  </label>
-                  <Input
-                    id="join-email"
-                    type="email"
-                    placeholder="Your Email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setValidationError("");
-                    }}
-                    required
-                    aria-describedby="join-form-description join-form-error"
-                    aria-invalid={validationError ? "true" : "false"}
-                    className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none ${
-                      validationError ? "border-red-500" : ""
-                    }`}
-                    data-testid="input-email"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="bg-orange-500 hover:bg-orange-600 text-white focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
-                  data-testid="button-subscribe"
-                  disabled={isSubmitting}
-                  aria-describedby="join-form-description"
-                >
-                  {isSubmitting ? 'Subscribing...' : 'Subscribe'}
-                </Button>
-              </form>
-              <div id="join-form-error" role="alert" aria-live="polite" className="min-h-[1.25rem] mt-4">
-                {validationError && (
-                  <p className="text-red-400 text-sm">{validationError}</p>
-                )}
-              </div>
-            </article>
-          </div>
-        </section>
 
         {/* Social Follow Section */}
         <section className="py-12 bg-black/50">
