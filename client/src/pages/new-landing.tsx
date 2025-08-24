@@ -58,10 +58,8 @@ function Hero() {
             <a href="#donate" className="btn btn-primary">Donate</a>
             <a href="https://skate-hubba-frontend-jayham710.replit.app" className="btn">Get beta access</a>
           </div>
-          <ul className="mt-6 text-sm text-gray-500 space-y-1">
-            <li>• 24-hr trick reply window</li>
-            <li>• Spot check-ins with bonus points</li>
-            <li>• Live streaming & spectating</li>
+          <ul className="mt-6 text-sm text-gray-500">
+            <li>24-hr trick reply window · Legendary spot multipliers · Live lobbies and replays</li>
           </ul>
         </div>
         <div className="relative">
@@ -167,7 +165,7 @@ function Donate() {
           Support the vision
         </h2>
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-          Help us build the ultimate skateboarding platform. Every donation helps us add more features and support the community.
+          Support the build. Keep the beta rolling.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a 
@@ -299,7 +297,7 @@ function Signup() {
                 disabled={isSubmitting || !email.trim()}
                 className="btn btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
               >
-                {isSubmitting ? "Joining..." : "Join the beta"}
+                {isSubmitting ? "Submitting..." : "Join the beta"}
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-4">
