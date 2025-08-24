@@ -41,7 +41,7 @@ export default function Landing() {
               <a href="#features" className="text-gray-300 hover:text-orange-500 transition-colors">Features</a>
               <a href="#join" className="text-gray-300 hover:text-orange-500 transition-colors">Join</a>
               <Button 
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app'}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2 rounded-lg font-semibold"
                 data-testid="button-login"
               >
@@ -67,7 +67,7 @@ export default function Landing() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app'}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                 data-testid="button-hero-login"
               >
@@ -136,7 +136,7 @@ export default function Landing() {
               Be among the first to experience the next generation of skateboarding social connection
             </p>
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app'}
               className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-12 py-4 text-xl font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               data-testid="button-join-cta"
             >
