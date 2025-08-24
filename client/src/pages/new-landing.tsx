@@ -282,7 +282,7 @@ function Signup() {
                   required
                   aria-describedby="signup-form-error"
                   aria-invalid={validationError ? "true" : "false"}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${
+                  className={`w-full px-4 py-3 border rounded-xl transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 focus:border-transparent ${
                     validationError ? "border-red-500" : "border-gray-200"
                   }`}
                 />
