@@ -72,6 +72,7 @@ export default function Landing() {
       const data = await response.json();
 
       if (data.ok) {
+        console.log('Signup success!', data);
         analytics.subscribeSuccess();
         setSignupSuccess(true);
         toast({
@@ -80,8 +81,8 @@ export default function Landing() {
         });
         setEmail("");
         setFirstName("");
-        // Hide success message after 8 seconds
-        setTimeout(() => setSignupSuccess(false), 8000);
+        // Hide success message after 10 seconds
+        setTimeout(() => setSignupSuccess(false), 10000);
       } else {
         toast({
           title: "Signup failed",
@@ -90,6 +91,7 @@ export default function Landing() {
         });
       }
     } catch (error) {
+      console.error('Signup error:', error);
       if (error instanceof z.ZodError) {
         setValidationError(error.errors[0]?.message || "Please check your email");
       } else {
@@ -169,6 +171,14 @@ export default function Landing() {
                   <p className="text-gray-300 mb-6 text-center">
                     Sign up to get early access to beta and dev updates
                   </p>
+                  {/* Debug button - remove later */}
+                  <button 
+                    type="button" 
+                    onClick={() => setSignupSuccess(true)}
+                    className="text-xs text-gray-500 mb-2 underline"
+                  >
+                    Test Success Screen
+                  </button>
                   <form onSubmit={handleJoinSubmit} className="space-y-4" autoComplete="on">
                     <div className="grid grid-cols-1 gap-3">
                       <input
