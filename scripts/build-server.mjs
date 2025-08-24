@@ -11,11 +11,11 @@ const externals = [
 ];
 
 await build({
-  entryPoints: ["server/index.ts"],
+  entryPoints: ["server/production.ts"],
   outfile: "dist/server/index.js",
   platform: "node",
   target: "node18",
-  format: "esm",              // ESM so top-level await is valid
+  format: "esm",
   bundle: true,
   external: externals,
   sourcemap: true
