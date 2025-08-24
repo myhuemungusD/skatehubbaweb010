@@ -6,7 +6,7 @@ import { analytics } from "../lib/analytics";
 import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 import BackgroundCarousel from "../components/BackgroundCarousel";
 import { z } from "zod";
-import { subscribeSchema } from "@shared/schema";
+import { NewSubscriberInput } from "@shared/schema";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
@@ -29,7 +29,7 @@ const HeroAccessButton = () => {
 
     // Client-side validation
     try {
-      const validatedData = subscribeSchema.parse({ email, firstName });
+      const validatedData = NewSubscriberInput.parse({ email, firstName });
       setIsSubmitting(true);
       analytics.subscribeSubmitted(validatedData.email);
 
@@ -187,7 +187,7 @@ export default function Home() {
 
     // Client-side validation
     try {
-      const validatedData = subscribeSchema.parse({ email, firstName });
+      const validatedData = NewSubscriberInput.parse({ email, firstName });
       setIsSubmitting(true);
       analytics.subscribeSubmitted(validatedData.email);
 

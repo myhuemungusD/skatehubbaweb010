@@ -9,7 +9,8 @@ import Stripe from "stripe";
 import { storage } from "./storage";
 import { 
   insertUserProgressSchema, 
-  updateUserProgressSchema
+  updateUserProgressSchema,
+  NewSubscriberInput
 } from "../shared/schema.js";
 import crypto from "crypto";
 import validator from "validator";
@@ -433,9 +434,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Subscriber routes with improved security
-  const subscribeSchema = z.object({ 
-    email: z.string().email().max(254), 
-    firstName: z.string().max(50).optional(),
+  const subscribeSchema = NewSubscriberInput.extend({
     company: z.string().optional() // honeypot field
   });
 

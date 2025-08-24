@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
 import { z } from "zod";
-import { subscribeSchema } from "@shared/schema";
+import { NewSubscriberInput } from "@shared/schema";
 
 const DONATE_STRIPE = import.meta.env.VITE_DONATE_STRIPE_URL || "#";
 const DONATE_PAYPAL = import.meta.env.VITE_DONATE_PAYPAL_URL || "#";
@@ -200,7 +200,7 @@ function Signup() {
 
     // Client-side validation
     try {
-      const validatedData = subscribeSchema.parse({ email, firstName });
+      const validatedData = NewSubscriberInput.parse({ email, firstName });
       setIsSubmitting(true);
 
       const response = await fetch('/api/subscribe', {

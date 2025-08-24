@@ -1,16 +1,23 @@
 import { z } from "zod";
 
-// Security validation schemas
-export const emailSchema = z.string()
-  .min(1, "Email is required")
-  .email("Please enter a valid email address")
-  .max(254, "Email address is too long")
-  .transform((email) => (email as string).toLowerCase().trim());
-
-export const subscribeSchema = z.object({
-  email: emailSchema,
-  firstName: z.string().max(50, "Name must be 50 characters or less").optional().default("")
+export const NewSubscriberInput = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "First name required")
+    .max(50)
+    .optional(),
+  email: z.string().email().transform(v => v.trim().toLowerCase()),
+  isActive: z.boolean().optional(), // default true in service/repo
 });
+export type NewSubscriberInput = z.infer<typeof NewSubscriberInput>;
+
+export const SubscriberSchema = NewSubscriberInput.extend({
+  id: z.string(),
+  isActive: z.boolean(),
+  createdAt: z.date(),
+});
+export type SubscriberData = z.infer<typeof SubscriberSchema>;
 
 export const usernameSchema = z.string()
   .min(3, "Username must be at least 3 characters")
