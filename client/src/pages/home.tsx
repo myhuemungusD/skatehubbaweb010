@@ -157,14 +157,16 @@ const HeroAccessButton = () => {
   return (
     <button
       onClick={() => {
-        // Go to the new landing page with working signup system
-        window.location.href = '/new#signup';
-        analytics.ctaClickHero('get_early_access'); // Track CTA click
+        const element = document.getElementById('signup');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+        analytics.ctaClickHero('join_beta'); // Track CTA click
       }}
       className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
-      data-testid="button-get-early-access"
+      data-testid="button-join-beta"
     >
-      Get Early Access
+      Join the Beta
     </button>
   );
 };
@@ -285,14 +287,15 @@ export default function Home() {
               <div className="flex gap-6 items-center">
                 <button
                   onClick={() => {
-                    // Go to the new landing page with working signup system
-        window.location.href = '/new#signup';
-                    analytics.ctaClickHero(); // Track CTA click
+                    const element = document.getElementById('signup');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors"
                   data-testid="button-join-nav"
                 >
-                  Join
+                  Join the Beta
                 </button>
               </div>
             </div>
@@ -360,7 +363,18 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <HeroAccessButton />
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                      <HeroAccessButton />
+                      <button
+                        onClick={() => {
+                          window.location.href = '/donate';
+                        }}
+                        className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
+                        data-testid="button-support-skatehubba"
+                      >
+                        Support SkateHubba
+                      </button>
+                    </div>
                   </div>
 
                   {/* Phone Mockup */}
@@ -495,12 +509,12 @@ export default function Home() {
         </main>
 
         {/* Join Section */}
-        <section id="join" className="join-section py-24 bg-[#181818]">
+        <section id="signup" className="join-section py-24 bg-[#181818]">
           <div className="container mx-auto px-4">
             <article className="max-w-2xl mx-auto text-center">
               <div className="mb-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-[#fafafa] font-orbitron">
-                  Join the Community
+                  Join the Beta
                 </h2>
                 <p id="join-form-description" className="text-xl text-[#fafafa]">Be first to know about updates, exclusive gear drops & sessions.</p>
               </div>
@@ -610,11 +624,11 @@ export default function Home() {
               </a>
               <a
                 href="/donate"
-                className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg text-lg font-semibold"
+                className="flex items-center gap-3 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg text-lg font-semibold"
                 data-testid="link-donate-footer"
               >
-                <span>💰</span>
-                <span>Donate to Dev</span>
+                <span>💚</span>
+                <span>Support SkateHubba</span>
               </a>
             </div>
           </div>
