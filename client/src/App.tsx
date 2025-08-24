@@ -4,11 +4,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { useAuth } from "./hooks/useAuth";
-import Home from "./pages/home";
 import Landing from "./pages/landing";
-import Tutorial from "./pages/tutorial";
-import Donate from "./pages/donate";
+import NewLanding from "./pages/new-landing";
+import Home from "./pages/home";
 import NotFound from "./pages/not-found";
+import Tutorial from "./pages/tutorial";
+import Demo from "./pages/demo";
+import DonationPage from "./pages/donate";
+
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -30,8 +33,11 @@ function Router() {
       {!isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
-          <Route path="/donate" component={Donate} />
-          <Route component={Landing} />
+          <Route path="/new" component={NewLanding} />
+          <Route path="/home" component={Home} />
+          <Route path="/tutorial" component={Tutorial} />
+          <Route path="/demo" component={Demo} />
+          <Route path="/donate" component={DonationPage} />
         </>
       ) : (
         <>
