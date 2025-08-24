@@ -29,12 +29,14 @@ export default function Background({
           <img
             src="/attached_assets/hubbagraffwall.png"
             alt="SkateHubba - Urban skateboarding environment with graffiti wall"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-contain object-center"
             loading="eager"
             decoding="sync"
             fetchpriority="high"
             style={{
               filter: 'brightness(1) contrast(1.1)',
+              width: '100%',
+              height: '100%'
             }}
           />
         </picture>

@@ -208,8 +208,9 @@ export default function Donate() {
   return (
     <div className="min-h-screen bg-[#181818]" style={{
       backgroundImage: `url('/attached_assets/graffwallskateboardrack_1754296307132.png')`,
-      backgroundSize: 'cover',
+      backgroundSize: 'contain',
       backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       backgroundAttachment: 'fixed'
     }}>
       <div className="min-h-screen">
