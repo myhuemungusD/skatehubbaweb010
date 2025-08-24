@@ -2,10 +2,10 @@ import {
   users, tutorialSteps, userProgress, subscribers,
   type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
-import * as schema from "@shared/schema";
+import * as schema from "../shared/schema.js";
 
 export interface IStorage {
   // User methods for Replit Auth
@@ -215,7 +215,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Subscriber methods
-  async createSubscriber(data: Omit<Subscriber, 'id' | 'subscribedAt'>): Promise<Subscriber> {
+  async createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt'>): Promise<Subscriber> {
     const [subscriber] = await db
       .insert(subscribers)
       .values(data)

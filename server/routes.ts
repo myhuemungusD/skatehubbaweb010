@@ -10,7 +10,7 @@ import { storage } from "./storage";
 import { 
   insertUserProgressSchema, 
   updateUserProgressSchema
-} from "@shared/schema";
+} from "../shared/schema.js";
 import crypto from "crypto";
 import validator from "validator";
 import { sendSubscriberNotification } from "./email";
@@ -480,7 +480,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create subscriber with Apple-level data structure
       const subscriber = await storage.createSubscriber({
         firstName: sanitizedFirstName,
-        email: normalizedEmail
+        email: normalizedEmail,
+        isActive: true
       });
 
       // Log successful database save
@@ -596,12 +597,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/demo-user", async (req, res) => {
     try {
       const demoUser = await storage.upsertUser({
-        username: "demo_skater_" + Date.now(),
-        password: "demo123"
+        id: "demo_skater_" + Date.now(),
+        firstName: "Demo",
+        lastName: "User"
       });
 
-      // Remove sensitive data
-      const { password, ...safeUser } = demoUser;
+      // Return user data
+      const safeUser = demoUser;
       res.status(201).json(safeUser);
     } catch (error) {
       console.error("Failed to create demo user:", error);
