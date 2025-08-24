@@ -274,26 +274,36 @@ function Signup() {
         ) : (
           <form onSubmit={handleSubmit} className="card max-w-md mx-auto">
             <div className="space-y-4">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setValidationError("");
-                }}
-                required
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${
-                  validationError ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {validationError && (
-                <p className="text-red-500 text-sm -mt-2">{validationError}</p>
-              )}
+              <div className="space-y-2">
+                <label htmlFor="signup-email" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="signup-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setValidationError("");
+                  }}
+                  required
+                  aria-describedby="signup-form-error"
+                  aria-invalid={validationError ? "true" : "false"}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${
+                    validationError ? "border-red-500" : "border-gray-200"
+                  }`}
+                />
+                <div id="signup-form-error" role="alert" aria-live="polite" className="min-h-[1.25rem]">
+                  {validationError && (
+                    <p className="text-red-500 text-sm">{validationError}</p>
+                  )}
+                </div>
+              </div>
               <button
                 type="submit"
                 disabled={isSubmitting || !email.trim()}
-                className="btn btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
               >
                 {isSubmitting ? "Joining..." : "Join the beta"}
               </button>

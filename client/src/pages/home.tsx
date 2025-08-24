@@ -122,20 +122,23 @@ const HeroAccessButton = () => {
                 setValidationError("");
               }}
               required
-              aria-describedby="hero-form-description"
-              className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible ${
+              aria-describedby="hero-form-description hero-form-error"
+              aria-invalid={validationError ? "true" : "false"}
+              className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none ${
                 validationError ? "border-red-500" : ""
               }`}
             />
-            {validationError && (
-              <p className="text-red-400 text-sm mt-1">{validationError}</p>
-            )}
+            <div id="hero-form-error" role="alert" aria-live="polite" className="min-h-[1.25rem]">
+              {validationError && (
+                <p className="text-red-400 text-sm">{validationError}</p>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3"
+              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
             >
               {isSubmitting ? 'Joining...' : 'Join the beta'}
             </Button>
@@ -143,7 +146,8 @@ const HeroAccessButton = () => {
               type="button"
               onClick={() => setShowForm(false)}
               variant="outline"
-              className="px-3 border-[#333] text-[#fafafa] hover:bg-[#333]"
+              className="px-3 border-[#333] text-[#fafafa] hover:bg-[#333] focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
+              aria-label="Close form"
             >
               ×
             </Button>
@@ -519,7 +523,7 @@ export default function Home() {
                     onChange={(e) => setFirstName(e.target.value)}
                     required
                     aria-describedby="join-form-description"
-                    className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible"
+                    className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
                     data-testid="input-firstname"
                   />
                 </div>
@@ -537,21 +541,17 @@ export default function Home() {
                       setValidationError("");
                     }}
                     required
-                    aria-describedby="join-form-description"
-                    className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible ${
+                    aria-describedby="join-form-description join-form-error"
+                    aria-invalid={validationError ? "true" : "false"}
+                    className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none ${
                       validationError ? "border-red-500" : ""
                     }`}
                     data-testid="input-email"
                   />
-                  {validationError && (
-                    <div className="col-span-full">
-                      <p className="text-red-400 text-sm mt-1">{validationError}</p>
-                    </div>
-                  )}
                 </div>
                 <Button
                   type="submit"
-                  className="bg-orange-500 hover:bg-orange-600 text-white focus-visible"
+                  className="bg-orange-500 hover:bg-orange-600 text-white focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
                   data-testid="button-subscribe"
                   disabled={isSubmitting}
                   aria-describedby="join-form-description"
@@ -559,6 +559,11 @@ export default function Home() {
                   {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </Button>
               </form>
+              <div id="join-form-error" role="alert" aria-live="polite" className="min-h-[1.25rem] mt-4">
+                {validationError && (
+                  <p className="text-red-400 text-sm">{validationError}</p>
+                )}
+              </div>
             </article>
           </div>
         </section>
