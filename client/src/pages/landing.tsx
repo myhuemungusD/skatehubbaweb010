@@ -1,6 +1,6 @@
 import { Button } from "../components/ui/button";
 import Background from "../components/BackgroundCarousel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
 import { analytics } from "../lib/analytics";
 import { z } from "zod";
@@ -41,6 +41,11 @@ export default function Landing() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState("");
   const { toast } = useToast();
+
+  useEffect(() => {
+    const donate = document.getElementById('donate');
+    if (donate) document.body.appendChild(donate);
+  }, []);
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,27 +195,24 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section id="join" className="py-20 px-6">
+        {/* Donate Section - will be moved to bottom via useEffect */}
+        <section id="donate" className="py-20 px-6 bg-black/60">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-6" data-testid="text-join-title">
-              Ready to Join?
+            <h2 className="text-3xl font-bold mb-6 text-white">
+              Support SkateHubba Development
             </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto" data-testid="text-join-description">
-              Be among the first to experience the next generation of skateboarding social connection
+            <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+              Help us build the future of skateboarding social connection
             </p>
             <div className="flex justify-center">
               <Button 
-                onClick={() => window.location.href = '/new#signup'}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-12 py-4 text-xl font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                data-testid="button-join-signup"
+                onClick={() => window.location.href = '/donate'}
+                className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                data-testid="button-donate-cta"
               >
-                Sign Up
+                Support Project
               </Button>
             </div>
-            <p className="text-sm text-gray-400 mt-4">
-              100% Free Beta • No Credit Card Required
-            </p>
           </div>
         </section>
 
