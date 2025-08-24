@@ -31,7 +31,7 @@ const HeroAccessButton = () => {
     try {
       const validatedData = subscribeSchema.parse({ email, firstName });
       setIsSubmitting(true);
-      analytics.subscribeSubmitted();
+      analytics.subscribeSubmitted(validatedData.email);
 
       const response = await fetch('/api/subscribe', {
         method: 'POST',
@@ -189,7 +189,7 @@ export default function Home() {
     try {
       const validatedData = subscribeSchema.parse({ email, firstName });
       setIsSubmitting(true);
-      analytics.subscribeSubmitted();
+      analytics.subscribeSubmitted(validatedData.email);
 
       const response = await fetch('/api/subscribe', {
         method: 'POST',

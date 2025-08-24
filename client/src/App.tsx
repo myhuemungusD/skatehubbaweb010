@@ -7,6 +7,7 @@ import { useAuth } from "./hooks/useAuth";
 import Landing from "./pages/landing";
 import NewLanding from "./pages/new-landing";
 import Home from "./pages/home";
+import UnifiedLanding from "./pages/unified-landing";
 import NotFound from "./pages/not-found";
 import Tutorial from "./pages/tutorial";
 import Demo from "./pages/demo";
@@ -34,7 +35,8 @@ function Router() {
     <Switch>
       {!isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
+          <Route path="/" component={UnifiedLanding} />
+          <Route path="/old" component={Landing} />
           <Route path="/new" component={NewLanding} />
           <Route path="/home" component={Home} />
           <Route path="/tutorial" component={Tutorial} />
@@ -45,12 +47,10 @@ function Router() {
         <>
           <Route path="/" component={Home} />
           <Route path="/donate" component={DonationPage} />
-          <Route path="/tutorial">
-            {() => {
-              const { user } = useAuth();
-              return user ? <Tutorial userId={user.id} /> : <NotFound />;
-            }}
-          </Route>
+          <Route path="/tutorial" component={() => {
+            const { user } = useAuth();
+            return user ? <Tutorial userId={user.id} /> : <NotFound />;
+          }} />
           <Route component={NotFound} />
         </>
       )}

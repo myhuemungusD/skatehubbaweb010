@@ -43,7 +43,9 @@ export const sessions = pgTable(
     sess: json("sess").notNull(),
     expire: timestamp("expire").notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => ({
+    expireIdx: index("IDX_session_expire").on(table.expire),
+  }),
 );
 
 // User storage table for Replit Auth

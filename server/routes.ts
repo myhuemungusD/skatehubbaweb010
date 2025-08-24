@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { subscribeLimit } from "./index";
@@ -70,7 +70,7 @@ const createUserRateLimit = (userId: string, maxRequests: number, windowMs: numb
 };
 
 // Admin API key middleware with timing attack protection
-const requireApiKey = (req: any, res: any, next: any) => {
+const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
   const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
 
   if (!process.env.ADMIN_API_KEY) {
@@ -93,7 +93,7 @@ const requireApiKey = (req: any, res: any, next: any) => {
 };
 
 // Enhanced user validation middleware
-const validateUserAccess = (req: any, res: any, next: any) => {
+const validateUserAccess = (req: Request & { user?: any }, res: Response, next: NextFunction) => {
   const { userId } = req.params;
   const authenticatedUserId = req.user?.claims?.sub;
 
@@ -121,7 +121,7 @@ const validateUserAccess = (req: any, res: any, next: any) => {
 // Remove old authentication - now using Replit Auth
 
 // Request validation middleware
-const validateRequest = (schema: z.ZodSchema) => (req: any, res: any, next: any) => {
+const validateRequest = (schema: z.ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = schema.safeParse(req.body);
     if (!result.success) {
@@ -145,7 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req: Request & { user?: any }, res: Response) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -157,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Tutorial Steps Routes
-  app.get("/api/tutorial/steps", async (req, res) => {
+  app.get("/api/tutorial/steps", async (req: Request, res: Response) => {
     try {
       const steps = await storage.getAllTutorialSteps();
       res.json(steps);
@@ -167,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/tutorial/steps/:id", async (req, res) => {
+  app.get("/api/tutorial/steps/:id", async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       if (!validateId(id)) {
@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Progress Routes
-  app.get("/api/users/:userId/progress", isAuthenticated, validateUserAccess, async (req, res) => {
+  app.get("/api/users/:userId/progress", isAuthenticated, validateUserAccess, async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
       const progress = await storage.getUserProgress(userId);
@@ -304,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stripe payment routes with enhanced security
-  app.post("/api/create-payment-intent", async (req, res) => {
+  app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
       const clientIP = req.ip || req.connection.remoteAddress;
       const userAgent = req.get('User-Agent');
