@@ -46,9 +46,9 @@ export default function Landing() {
                   window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
                 }}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2 rounded-lg font-semibold"
-                data-testid="button-login"
+                data-testid="button-demo-nav"
               >
-                Get Started
+                Try Demo
               </Button>
             </div>
           </div>
@@ -71,24 +71,24 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 onClick={() => {
-                  // Go directly to the app demo
-                  window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
+                  // Go to email signup
+                  window.location.href = '/new#signup';
                 }}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                data-testid="button-hero-login"
+                data-testid="button-hero-signup"
               >
                 Join Beta Now
               </Button>
               <Button 
                 onClick={() => {
-                  const element = document.getElementById('features');
-                  element?.scrollIntoView({ behavior: 'smooth' });
+                  // Go directly to the app demo
+                  window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
                 }}
                 variant="outline" 
                 className="border-2 border-white/30 text-white hover:bg-white hover:text-black px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
-                data-testid="button-hero-learn-more"
+                data-testid="button-hero-demo"
               >
-                Learn More
+                Try Live Demo
               </Button>
             </div>
             <p className="text-gray-400 mt-6">Coming Soon • Free Beta</p>
@@ -141,13 +141,23 @@ export default function Landing() {
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto" data-testid="text-join-description">
               Be among the first to experience the next generation of skateboarding social connection
             </p>
-            <Button 
-              onClick={() => window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app'}
-              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-12 py-4 text-xl font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-              data-testid="button-join-cta"
-            >
-              Get Early Access
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                onClick={() => window.location.href = '/new#signup'}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-12 py-4 text-xl font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                data-testid="button-join-signup"
+              >
+                Join Beta List
+              </Button>
+              <Button 
+                onClick={() => window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app'}
+                variant="outline"
+                className="border-2 border-white/30 text-white hover:bg-white hover:text-black px-12 py-4 text-xl font-bold rounded-xl transition-all duration-200"
+                data-testid="button-try-demo"
+              >
+                Try Live Demo
+              </Button>
+            </div>
             <p className="text-sm text-gray-400 mt-4">
               100% Free Beta • No Credit Card Required
             </p>
