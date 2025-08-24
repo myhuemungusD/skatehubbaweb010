@@ -291,8 +291,7 @@ export default function Home() {
                       SkateHubba
                     </h1>
                     <p className="text-lg md:text-xl lg:text-2xl text-gray-300 leading-relaxed">
-                      Turn tricks into collectibles.<br className="hidden sm:block" />
-                      Battle for every spot.
+                      Own your tricks. Play SKATE anywhere.
                     </p>
 
                     {/* Trust & Proof Row */}

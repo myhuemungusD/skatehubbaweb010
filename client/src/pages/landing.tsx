@@ -60,10 +60,10 @@ export default function Landing() {
               <SkateHubbaLogo />
             </div>
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight" data-testid="text-hero-title">
-              Stream. Connect. Skate.
+              SkateHubba
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto" data-testid="text-hero-subtitle">
-              Your Skateboarding Social Universe
+              Own your tricks. Play SKATE anywhere.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
