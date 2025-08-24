@@ -42,10 +42,8 @@ export default function Landing() {
               <a href="#join" className="text-gray-300 hover:text-orange-500 transition-colors">Join</a>
               <Button 
                 onClick={() => {
-                  const signupSection = document.getElementById('join');
-                  if (signupSection) {
-                    signupSection.scrollIntoView({ behavior: 'smooth' });
-                  }
+                  // Go to the new landing page with working signup system
+                  window.location.href = '/new#signup';
                 }}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2 rounded-lg font-semibold"
                 data-testid="button-login"
@@ -73,10 +71,8 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 onClick={() => {
-                  const signupSection = document.getElementById('join');
-                  if (signupSection) {
-                    signupSection.scrollIntoView({ behavior: 'smooth' });
-                  }
+                  // Go to the new landing page with working signup system
+                  window.location.href = '/new#signup';
                 }}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                 data-testid="button-hero-login"
