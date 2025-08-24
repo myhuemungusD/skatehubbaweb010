@@ -3,6 +3,7 @@ import {
   type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
 } from "../shared/schema.js";
+import { CreateSubscriber } from "./storage/types.js";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
 import * as schema from "../shared/schema.js";
@@ -25,7 +26,7 @@ export interface IStorage {
   updateUserProgress(userId: string, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined>;
 
   // Subscriber methods
-  createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt'>): Promise<Subscriber>;
+  createSubscriber(data: CreateSubscriber): Promise<Subscriber>;
   getSubscribers(): Promise<Subscriber[]>;
   getSubscriber(email: string): Promise<Subscriber | undefined>;
 
@@ -215,10 +216,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Subscriber methods
-  async createSubscriber(data: Omit<Subscriber, 'id' | 'createdAt'>): Promise<Subscriber> {
+  async createSubscriber(data: CreateSubscriber): Promise<Subscriber> {
+    const now = new Date();
     const [subscriber] = await db
       .insert(subscribers)
-      .values(data)
+      .values({
+        email: data.email,
+        firstName: data.firstName,
+        isActive: data.isActive ?? true,
+        createdAt: now,
+      })
       .returning();
     return subscriber;
   }

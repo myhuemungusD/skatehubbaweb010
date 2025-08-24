@@ -3,10 +3,8 @@ import { z } from "zod";
 export const NewSubscriberInput = z.object({
   firstName: z
     .string()
-    .trim()
-    .min(1, "First name required")
-    .max(50)
-    .optional(),
+    .optional()
+    .transform(v => v?.trim() || null),
   email: z.string().email().transform(v => v.trim().toLowerCase()),
   isActive: z.boolean().optional(), // default true in service/repo
 });
@@ -106,7 +104,7 @@ export const userProgress = pgTable("user_progress", {
 
 export const subscribers = pgTable("subscribers", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-  firstName: text("first_name").notNull(),
+  firstName: text("first_name"),
   email: text("email").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow(),
   isActive: boolean("is_active").default(true),

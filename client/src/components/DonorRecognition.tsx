@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 
 interface Donor {
-  firstName: string;
+  firstName: string | null;
   createdAt: string;
 }
 
@@ -48,7 +48,7 @@ export function DonorRecognition() {
                 className="inline-flex items-center gap-1"
               >
                 <span className="bg-orange-400/20 px-2 py-1 rounded text-orange-200 font-medium">
-                  {donor.firstName}
+                  {donor.firstName?.trim() || "Skater"}
                 </span>
                 {index < Math.min(donors.length - 1, 9) && (
                   <span className="text-gray-400">•</span>
