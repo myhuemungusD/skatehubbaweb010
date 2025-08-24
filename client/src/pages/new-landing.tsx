@@ -32,7 +32,7 @@ function Header() {
         </a>
         <div className="hidden sm:flex items-center gap-2">
           <a href="#features" className="btn btn-ghost">Features</a>
-          <a href="#donate" className="btn btn-ghost">Donate</a>
+          <a href="/donate" className="btn btn-ghost">Donate</a>
           <a href="#signup" className="btn btn-primary">Join the beta</a>
         </div>
       </nav>
@@ -55,7 +55,7 @@ function Hero() {
             Remote SKATE battles. Legendary spot check-ins. Live lobbies. Built for core skaters.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a href="#donate" className="btn btn-primary">Donate</a>
+            <a href="/donate" className="btn btn-primary">Donate</a>
             <a href="#signup" className="btn">Get beta access</a>
           </div>
           <ul className="mt-6 text-sm text-gray-500">
