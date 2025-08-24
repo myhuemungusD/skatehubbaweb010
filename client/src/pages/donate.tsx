@@ -233,13 +233,13 @@ export default function Donate() {
 
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Mission Card */}
-            <Card className="bg-white/90 border-gray-300 backdrop-blur-sm">
+            <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-gray-900 text-2xl flex items-center gap-3">
+                <CardTitle className="text-white text-2xl flex items-center gap-3">
                   <Heart className="w-6 h-6 text-orange-400" />
                   Support Our Mission
                 </CardTitle>
-                <CardDescription className="text-gray-700 text-lg">
+                <CardDescription className="text-gray-200 text-lg">
                   Help us create the ultimate skateboarding platform that connects skaters worldwide
                 </CardDescription>
               </CardHeader>
@@ -249,32 +249,32 @@ export default function Donate() {
                     <div className="p-3 bg-orange-400/20 rounded-lg inline-flex items-center justify-center mb-2">
                       <Users className="w-6 h-6 text-orange-400" />
                     </div>
-                    <h4 className="text-gray-900 font-semibold">Community</h4>
-                    <p className="text-sm text-gray-700">Build connections between skaters globally</p>
+                    <h4 className="text-white font-semibold">Community</h4>
+                    <p className="text-sm text-gray-200">Build connections between skaters globally</p>
                   </div>
                   <div className="text-center">
                     <div className="p-3 bg-orange-400/20 rounded-lg inline-flex items-center justify-center mb-2">
                       <Zap className="w-6 h-6 text-orange-400" />
                     </div>
-                    <h4 className="text-gray-900 font-semibold">Innovation</h4>
-                    <p className="text-sm text-gray-700">Cutting-edge features and technology</p>
+                    <h4 className="text-white font-semibold">Innovation</h4>
+                    <p className="text-sm text-gray-200">Cutting-edge features and technology</p>
                   </div>
                   <div className="text-center">
                     <div className="p-3 bg-orange-400/20 rounded-lg inline-flex items-center justify-center mb-2">
                       <DollarSign className="w-6 h-6 text-orange-400" />
                     </div>
-                    <h4 className="text-gray-900 font-semibold">Sustainability</h4>
-                    <p className="text-sm text-gray-700">Keep the platform free and accessible</p>
+                    <h4 className="text-white font-semibold">Sustainability</h4>
+                    <p className="text-sm text-gray-200">Keep the platform free and accessible</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Donation Form */}
-            <Card className="bg-white/90 border-gray-300 backdrop-blur-sm">
+            <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-gray-900">Choose Your Support Level</CardTitle>
-                <CardDescription className="text-gray-700">
+                <CardTitle className="text-white">Choose Your Support Level</CardTitle>
+                <CardDescription className="text-gray-200">
                   Every contribution helps us build amazing features for the skate community
                 </CardDescription>
               </CardHeader>
@@ -283,7 +283,7 @@ export default function Donate() {
                   <>
                     {/* Amount Selection */}
                     <div className="space-y-3">
-                      <Label className="text-gray-900 text-base">Select Amount</Label>
+                      <Label className="text-white text-base">Select Amount</Label>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {donationAmounts.map((amount) => (
                           <Button
@@ -293,7 +293,7 @@ export default function Donate() {
                             className={`h-14 text-lg font-semibold rounded-lg transition-all ${
                               selectedAmount === amount
                                 ? "bg-orange-500 text-white hover:bg-orange-600 ring-2 ring-orange-300"
-                                : "bg-gray-200 border-gray-400 text-gray-900 hover:bg-gray-300 hover:border-orange-400"
+                                : "bg-white/20 border-orange-400/50 text-white hover:bg-white/30 hover:border-orange-400"
                             }`}
                             data-testid={`button-amount-${amount}`}
                           >
@@ -305,7 +305,7 @@ export default function Donate() {
 
                     {/* Custom Amount */}
                     <div className="space-y-2">
-                      <Label htmlFor="custom-amount" className="text-gray-900 text-base">
+                      <Label htmlFor="custom-amount" className="text-white text-base">
                         Or Enter Custom Amount
                       </Label>
                       <div className="relative">
@@ -318,7 +318,7 @@ export default function Donate() {
                           placeholder="25.00"
                           value={customAmount}
                           onChange={(e) => handleCustomAmountChange(e.target.value)}
-                          className="pl-10 bg-white border-gray-400 text-gray-900 placeholder-gray-500 h-12 text-lg"
+                          className="pl-10 bg-white/20 border-orange-400/50 text-white placeholder-gray-300 h-12 text-lg"
                           data-testid="input-custom-amount"
                         />
                       </div>
@@ -390,7 +390,7 @@ export default function Donate() {
             </Card>
 
             {/* Security Info */}
-            <Card className="bg-white/90 border-gray-300 backdrop-blur-sm">
+            <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-green-400">
