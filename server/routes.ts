@@ -465,14 +465,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const normalizedEmail = email.toLowerCase().trim();
-      const sanitizedFirstName = firstName ? sanitizeString(firstName) : "Skater";
+      const sanitizedFirstName = firstName ? sanitizeString(firstName) : null;
       
       // Enhanced duplicate check with better messaging
       const existingSubscriber = await storage.getSubscriber(normalizedEmail);
       if (existingSubscriber) {
+        const displayName = existingSubscriber.firstName || "Skater";
         return res.status(200).json({ 
           ok: true,
-          msg: `Welcome back, ${existingSubscriber.firstName}! You're already signed up. We'll keep you posted on all the latest.`
+          msg: `Welcome back, ${displayName}! You're already signed up. We'll keep you posted on all the latest.`
         });
       }
 
@@ -496,7 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               subject: 'Welcome to SkateHubba! 🛹',
               html: `
                 <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-                  <h1 style="color: #f97316;">Welcome to SkateHubba, ${subscriber.firstName}!</h1>
+                  <h1 style="color: #f97316;">Welcome to SkateHubba, ${subscriber.firstName || "Skater"}!</h1>
                   <p>You're officially part of the crew. 🛹</p>
                   <p>We'll hit you up when the beta drops.</p>
                   <p style="font-weight: bold;">Own your tricks. Play SKATE anywhere.</p>
@@ -518,12 +519,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Apple-level success response
+      const displayName = subscriber.firstName || "Skater";
       res.status(200).json({ 
         ok: true,
-        msg: `Welcome to SkateHubba, ${sanitizedFirstName}! 🛹 You're officially in the crew. We'll drop you a line when the beta drops.`,
+        msg: `Welcome to SkateHubba, ${displayName}! 🛹 You're officially in the crew. We'll drop you a line when the beta drops.`,
         data: {
           email: normalizedEmail,
-          firstName: sanitizedFirstName,
+          firstName: subscriber.firstName,
           id: subscriber.id
         }
       });

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
 import { z } from "zod";
-import { NewSubscriberInput } from "@shared/schema";
+import { NewSubscriberInput } from "../../../shared/schema";
 
 const DONATE_STRIPE = import.meta.env.VITE_DONATE_STRIPE_URL || "#";
 const DONATE_PAYPAL = import.meta.env.VITE_DONATE_PAYPAL_URL || "#";
@@ -271,11 +271,29 @@ function Signup() {
           <form onSubmit={handleSubmit} className="card max-w-md mx-auto">
             <div className="space-y-4">
               <div className="space-y-2">
+                <label htmlFor="signup-firstName" className="sr-only">
+                  First Name
+                </label>
+                <input
+                  id="signup-firstName"
+                  name="firstName"
+                  type="text"
+                  placeholder="Your name"
+                  value={firstName}
+                  onChange={(e) => {
+                    setFirstName(e.target.value);
+                    setValidationError("");
+                  }}
+                  className="w-full px-4 py-3 border rounded-xl transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 focus:border-transparent border-gray-200"
+                />
+              </div>
+              <div className="space-y-2">
                 <label htmlFor="signup-email" className="sr-only">
                   Email address
                 </label>
                 <input
                   id="signup-email"
+                  name="email"
                   type="email"
                   placeholder="Enter your email"
                   value={email}
