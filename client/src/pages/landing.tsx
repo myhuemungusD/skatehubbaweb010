@@ -136,10 +136,10 @@ export default function Landing() {
             {/* Beta Signup Form */}
             <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-orange-400/30 max-w-md mx-auto">
               <h3 className="text-2xl font-bold text-white mb-4 text-center">
-                Join the beta
+                Sign up
               </h3>
               <p className="text-gray-300 mb-6 text-center">
-                Be the first to experience the future of skateboarding. Get exclusive early access.
+                Sign up to get early access to beta and dev updates
               </p>
               <form onSubmit={handleJoinSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -171,7 +171,7 @@ export default function Landing() {
                   className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 text-white font-bold py-3 rounded-lg transition-colors"
                   data-testid="button-hero-join"
                 >
-                  {isSubmitting ? 'Joining...' : 'Join the beta'}
+                  {isSubmitting ? 'Signing up...' : 'Sign up'}
                 </button>
               </form>
             </div>
