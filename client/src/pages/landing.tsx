@@ -40,6 +40,7 @@ export default function Landing() {
   const [firstName, setFirstName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [signupSuccess, setSignupSuccess] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,12 +73,15 @@ export default function Landing() {
 
       if (data.ok) {
         analytics.subscribeSuccess();
+        setSignupSuccess(true);
         toast({
           title: "Welcome to SkateHubba! 🎉",
           description: data.msg || "You're now on the beta list!",
         });
         setEmail("");
         setFirstName("");
+        // Hide success message after 8 seconds
+        setTimeout(() => setSignupSuccess(false), 8000);
       } else {
         toast({
           title: "Signup failed",
@@ -140,45 +144,66 @@ export default function Landing() {
             
             {/* Beta Signup Form */}
             <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-orange-400/30 max-w-md mx-auto">
-              <h3 className="text-2xl font-bold text-white mb-4 text-center">
-                Sign up
-              </h3>
-              <p className="text-gray-300 mb-6 text-center">
-                Sign up to get early access to beta and dev updates
-              </p>
-              <form onSubmit={handleJoinSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    placeholder="First name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
-                    required
-                    data-testid="input-hero-firstname"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
-                    required
-                    data-testid="input-hero-email"
-                  />
+              {signupSuccess ? (
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4">
+                    You're In! 🛹
+                  </h3>
+                  <p className="text-green-400 mb-4 font-semibold">
+                    Welcome to the crew! Check your email for confirmation.
+                  </p>
+                  <p className="text-gray-300 text-sm">
+                    We'll notify you as soon as the beta drops. Get ready to own your tricks!
+                  </p>
                 </div>
-                {validationError && (
-                  <p className="text-red-400 text-sm text-center">{validationError}</p>
-                )}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 text-white font-bold py-3 rounded-lg transition-colors"
-                  data-testid="button-hero-join"
-                >
-                  {isSubmitting ? 'Signing up...' : 'Sign up'}
-                </button>
-              </form>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-bold text-white mb-4 text-center">
+                    Sign up
+                  </h3>
+                  <p className="text-gray-300 mb-6 text-center">
+                    Sign up to get early access to beta and dev updates
+                  </p>
+                  <form onSubmit={handleJoinSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="First name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                        required
+                        data-testid="input-hero-firstname"
+                      />
+                      <input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-4 py-3 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                        required
+                        data-testid="input-hero-email"
+                      />
+                    </div>
+                    {validationError && (
+                      <p className="text-red-400 text-sm text-center">{validationError}</p>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 text-white font-bold py-3 rounded-lg transition-colors"
+                      data-testid="button-hero-join"
+                    >
+                      {isSubmitting ? 'Signing up...' : 'Sign up'}
+                    </button>
+                  </form>
+                </>
+              )}
             </div>
           </div>
         </section>
