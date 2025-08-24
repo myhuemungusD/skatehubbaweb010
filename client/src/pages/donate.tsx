@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
+
 import { useLocation } from "wouter";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Badge } from "../components/ui/badge";
 import { ArrowLeft, DollarSign, Heart, Users, Zap } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { trackDonation, trackButtonClick, trackPageView } from "@/lib/analytics";
+import { useToast } from "../hooks/use-toast";
+import { trackDonation, trackButtonClick, trackPageView } from "../lib/analytics";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
