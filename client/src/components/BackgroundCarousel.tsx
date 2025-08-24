@@ -34,14 +34,12 @@ export default function Background({
             decoding="sync"
             fetchpriority="high"
             style={{
-              filter: 'brightness(0.4) contrast(1.2)',
+              filter: 'brightness(1) contrast(1.1)',
             }}
           />
         </picture>
       </div>
 
-      {/* Professional overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 z-10"></div>
 
       {/* Content */}
       <div className="relative z-30">
