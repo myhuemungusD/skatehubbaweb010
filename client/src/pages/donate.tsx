@@ -396,6 +396,28 @@ export default function Donate() {
               </CardContent>
             </Card>
 
+            {/* Quick Donate Option */}
+            <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white text-center">Quick Donate</CardTitle>
+                <CardDescription className="text-gray-200 text-center">
+                  Skip the form and donate any amount instantly
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <a 
+                  href="https://buy.stripe.com/9B63cu9AngM80LV4ntfMA01" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => trackButtonClick('quick_donate_stripe', 'donation_page')}
+                  className="inline-block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg shadow-lg transition-all transform hover:scale-105"
+                  data-testid="button-quick-donate"
+                >
+                  💚 Donate Any Amount
+                </a>
+              </CardContent>
+            </Card>
+
             {/* Security Info */}
             <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
               <CardContent className="p-4">
