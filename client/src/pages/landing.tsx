@@ -42,7 +42,7 @@ export default function Landing() {
               <a href="#join" className="text-gray-300 hover:text-orange-500 transition-colors">Join</a>
               <Button 
                 onClick={() => {
-                  const signupSection = document.getElementById('join-beta');
+                  const signupSection = document.getElementById('join');
                   if (signupSection) {
                     signupSection.scrollIntoView({ behavior: 'smooth' });
                   }
@@ -73,7 +73,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 onClick={() => {
-                  const signupSection = document.getElementById('join-beta');
+                  const signupSection = document.getElementById('join');
                   if (signupSection) {
                     signupSection.scrollIntoView({ behavior: 'smooth' });
                   }

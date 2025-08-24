@@ -158,7 +158,7 @@ const HeroAccessButton = () => {
     <button
       onClick={() => {
         // Scroll to signup form instead of external link
-        const signupSection = document.getElementById('join-beta');
+        const signupSection = document.getElementById('join');
         if (signupSection) {
           signupSection.scrollIntoView({ behavior: 'smooth' });
         }
@@ -285,7 +285,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     // Scroll to signup form instead of external link
-        const signupSection = document.getElementById('join-beta');
+        const signupSection = document.getElementById('join');
         if (signupSection) {
           signupSection.scrollIntoView({ behavior: 'smooth' });
         }
