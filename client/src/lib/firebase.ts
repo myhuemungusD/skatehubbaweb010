@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -18,6 +19,12 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Add App Check with your site key
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6Lf28bArAAAAAOP3vT4oL63nnC2xUYQ-UwHy2b_a"),
+  isTokenAutoRefreshEnabled: true
+});
 
 // Initialize Analytics only in production when supported
 let analytics: any = null;
