@@ -208,31 +208,36 @@ function Signup() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          ...validatedData,
-          company: "" // honeypot field
-        })
+        body: JSON.stringify(validatedData)
       });
 
       const data = await response.json();
 
-      if (data.ok) {
-        setIsSuccess(true);
-        // Redirect to app demo after successful signup
-        setTimeout(() => {
-          window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
-        }, 2000);
+      if (response.ok) {
+        if (data.status === "exists") {
+          toast({
+            title: "Already subscribed",
+            description: "You're already on our list!",
+          });
+        } else if (data.status === "created") {
+          setIsSuccess(true);
+          // Redirect to app demo after successful signup
+          setTimeout(() => {
+            window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
+          }, 2000);
+          toast({
+            title: "Welcome to SkateHubba! 🛹",
+            description: "You're now on the beta list!",
+            variant: "default"
+          });
+        }
         setEmail("");
         setFirstName("");
-        toast({
-          title: "Welcome to SkateHubba! 🛹",
-          description: data.msg || "You're now on the beta list!",
-          variant: "default"
-        });
       } else {
+        const errorMsg = data.error?.formErrors?.[0] || "Something went wrong. Please try again.";
         toast({
           title: "Signup failed",
-          description: data.msg || "Something went wrong. Please try again.",
+          description: errorMsg,
           variant: "destructive"
         });
       }

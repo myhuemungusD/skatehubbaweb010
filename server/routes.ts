@@ -433,129 +433,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Subscriber routes with improved security
-  const subscribeSchema = NewSubscriberInput.extend({
-    company: z.string().optional() // honeypot field
-  });
+  app.post("/api/subscribe", async (req, res) => {
+    const parsed = NewSubscriberInput.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  app.post("/api/subscribe", subscribeLimit, async (req, res) => {
-    try {
-      // Apple-level validation with detailed error handling
-      const validation = subscribeSchema.safeParse(req.body);
-      if (!validation.success) {
-        const emailError = validation.error.errors.find(e => e.path.includes('email'));
-        if (emailError) {
-          return res.status(400).json({ 
-            ok: false, 
-            msg: emailError.message
-          });
-        }
-        return res.status(400).json({ 
-          ok: false, 
-          msg: 'Please enter a valid email address'
-        });
-      }
+    const { email, firstName } = parsed.data;
 
-      const { email, firstName, company } = validation.data;
-
-      // Advanced honeypot spam protection
-      if (company) {
-        console.log(`🤖 Honeypot triggered from IP: ${req.ip}`);
-        return res.status(200).json({ ok: true, msg: "Thanks for your interest!" });
-      }
-
-      const normalizedEmail = email.toLowerCase().trim();
-      const sanitizedFirstName = firstName ? sanitizeString(firstName) : null;
-      
-      // Enhanced duplicate check with better messaging
-      const existingSubscriber = await storage.getSubscriber(normalizedEmail);
-      if (existingSubscriber) {
-        const displayName = existingSubscriber.firstName || "Skater";
-        return res.status(200).json({ 
-          ok: true,
-          msg: `Welcome back, ${displayName}! You're already signed up. We'll keep you posted on all the latest.`
-        });
-      }
-
-      // Create subscriber with Apple-level data structure
-      const subscriber = await storage.createSubscriber({
-        firstName: sanitizedFirstName,
-        email: normalizedEmail,
-        isActive: true
-      });
-
-      // Log successful database save
-      console.log(`✅ New subscriber saved: ${normalizedEmail} (ID: ${subscriber.id})`);
-
-      // Send welcome email (non-blocking, Apple-style)
-      setImmediate(async () => {
-        try {
-          if (resend) {
-            await resend.emails.send({
-              from: 'SkateHubba <hello@skatehubba.com>',
-              to: subscriber.email,
-              subject: 'Welcome to SkateHubba! 🛹',
-              html: `
-                <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-                  <h1 style="color: #f97316;">Welcome to SkateHubba, ${subscriber.firstName || "Skater"}!</h1>
-                  <p>You're officially part of the crew. 🛹</p>
-                  <p>We'll hit you up when the beta drops.</p>
-                  <p style="font-weight: bold;">Own your tricks. Play SKATE anywhere.</p>
-                  <p style="color: #666;">- The SkateHubba Team</p>
-                </div>
-              `
-            });
-            console.log(`📧 Welcome email sent to ${normalizedEmail}`);
-          } else {
-            await sendSubscriberNotification({
-              firstName: subscriber.firstName,
-              email: subscriber.email
-            });
-            console.log(`📧 Fallback email sent to ${normalizedEmail}`);
-          }
-        } catch (emailError) {
-          console.error(`📧 Email sending failed (non-critical):`, emailError);
-        }
-      });
-
-      // Apple-level success response
-      const displayName = subscriber.firstName || "Skater";
-      res.status(200).json({ 
-        ok: true,
-        msg: `Welcome to SkateHubba, ${displayName}! 🛹 You're officially in the crew. We'll drop you a line when the beta drops.`,
-        data: {
-          email: normalizedEmail,
-          firstName: subscriber.firstName,
-          id: subscriber.id
-        }
-      });
-      
-    } catch (error) {
-      console.error("❌ Subscription error:", error);
-      
-      // Enhanced error handling with specific error types
-      if (error instanceof Error) {
-        if (error.message.includes('unique constraint') || error.message.includes('duplicate key')) {
-          return res.status(200).json({ 
-            ok: true,
-            msg: "You're already part of the crew! We'll keep you updated on all the latest drops."
-          });
-        }
-        
-        if (error.message.includes('invalid email')) {
-          return res.status(400).json({ 
-            ok: false,
-            msg: "Please enter a valid email address"
-          });
-        }
-      }
-      
-      // Generic error with Apple-level UX
-      res.status(500).json({ 
-        ok: false,
-        msg: "Something went wrong. Please try again in a moment."
-      });
+    const existing = await storage.getSubscriber(email);
+    if (existing) {
+      // idempotent response for existing
+      return res.status(200).json({ status: "exists", message: "Email already subscribed." });
     }
+
+    const created = await storage.createSubscriber({
+      email,
+      firstName: firstName ?? null,
+      isActive: true, // service-level default
+    });
+
+    return res.status(201).json({ status: "created", id: created.id });
   });
 
   // Get all subscribers (admin only - requires API key)
