@@ -1,7 +1,7 @@
+import React, { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import Background from "../components/BackgroundCarousel";
-import { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
 import { analytics } from "../lib/analytics";
 import { z } from "zod";
