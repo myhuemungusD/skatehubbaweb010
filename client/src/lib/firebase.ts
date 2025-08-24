@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -19,14 +19,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Analytics only on client side and when supported
+// Initialize Analytics only in production when supported
 let analytics: any = null;
-if (typeof window !== 'undefined') {
-  try {
-    analytics = getAnalytics(app);
-  } catch (error) {
-    console.warn('Analytics not available:', error);
-  }
+if (import.meta.env.PROD && typeof window !== 'undefined') {
+  isSupported().then((ok) => ok && (analytics = getAnalytics(app))).catch(() => {});
 }
 
 export { app, analytics };

@@ -79,7 +79,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://skatehubba.com', 'https://www.skatehubba.com']
-    : ['http://localhost:5000', 'http://0.0.0.0:5000'],
+    : ['http://localhost:5173', 'http://0.0.0.0:5173', 'http://localhost:5000', 'http://0.0.0.0:5000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
