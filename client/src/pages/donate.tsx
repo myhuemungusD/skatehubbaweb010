@@ -213,9 +213,9 @@ export default function Donate() {
       backgroundAttachment: 'fixed'
     }}>
       <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-8 bg-transparent">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 bg-transparent">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
             <Button
               variant="ghost"
               onClick={() => setLocation('/')}
@@ -226,12 +226,12 @@ export default function Donate() {
               Back to Home
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-white">Support SkateHubba</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Support SkateHubba</h1>
               <p className="text-gray-200">Help us build the future of skateboarding</p>
             </div>
           </div>
 
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
             {/* Mission Card */}
             <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
               <CardHeader>
@@ -244,7 +244,7 @@ export default function Donate() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div className="text-center">
                     <div className="p-3 bg-orange-400/20 rounded-lg inline-flex items-center justify-center mb-2">
                       <Users className="w-6 h-6 text-orange-400" />
@@ -284,13 +284,13 @@ export default function Donate() {
                     {/* Amount Selection */}
                     <div className="space-y-3">
                       <Label className="text-white text-base">Select Amount</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                         {donationAmounts.map((amount) => (
                           <Button
                             key={amount}
                             variant={selectedAmount === amount ? "default" : "outline"}
                             onClick={() => handleAmountSelect(amount)}
-                            className={`h-14 text-lg font-semibold rounded-lg transition-all ${
+                            className={`h-12 sm:h-14 text-base sm:text-lg font-semibold rounded-lg transition-all ${
                               selectedAmount === amount
                                 ? "bg-orange-500 text-white hover:bg-orange-600 ring-2 ring-orange-300"
                                 : "bg-white/20 border-orange-400/50 text-white hover:bg-white/30 hover:border-orange-400"
@@ -318,7 +318,7 @@ export default function Donate() {
                           placeholder="25.00"
                           value={customAmount}
                           onChange={(e) => handleCustomAmountChange(e.target.value)}
-                          className="pl-10 bg-white/20 border-orange-400/50 text-white placeholder-gray-300 h-12 text-lg"
+                          className="pl-8 sm:pl-10 bg-white/20 border-orange-400/50 text-white placeholder-gray-300 h-10 sm:h-12 text-base sm:text-lg"
                           data-testid="input-custom-amount"
                         />
                       </div>
@@ -329,7 +329,7 @@ export default function Donate() {
                       <Button
                         onClick={createPaymentIntent}
                         disabled={isCreatingPayment || selectedAmount < 1}
-                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 text-lg rounded-lg shadow-lg transition-all transform hover:scale-105"
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg shadow-lg transition-all transform hover:scale-105"
                         data-testid="button-proceed-to-payment"
                       >
                         {isCreatingPayment ? (
@@ -351,7 +351,7 @@ export default function Donate() {
                           href="https://gofund.me/4d6b7234"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                          className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
                         >
                           🎯 GoFundMe
                         </a>
