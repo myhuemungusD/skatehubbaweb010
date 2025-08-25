@@ -90,6 +90,98 @@ router.get('/me', requireSession, async (req, res) => {
   }
 });
 
+// Registration endpoint - Firebase + custom user creation
+router.post('/register', async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, firebaseUid } = req.body;
+    const authHeader = req.headers.authorization || '';
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+
+    if (idToken) {
+      // Firebase registration flow
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+
+      // Create session JWT
+      const appJwt = jwt.sign(
+        { uid: uid }, 
+        process.env.APP_JWT_SECRET || 'your-secret-key', 
+        { expiresIn: '2h' }
+      );
+
+      // Set HttpOnly cookie
+      res.cookie('session', appJwt, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 2 * 60 * 60 * 1000,
+      });
+
+      return res.json({
+        ok: true,
+        user: {
+          uid: uid,
+          email: decodedToken.email,
+          displayName: decodedToken.name,
+        },
+        tokens: { sessionJwt: appJwt },
+        strategy: 'firebase'
+      });
+    }
+
+    return res.status(400).json({ error: 'Registration method not supported' });
+  } catch (error) {
+    console.error('Registration error:', error);
+    return res.status(400).json({ error: 'Registration failed' });
+  }
+});
+
+// Login endpoint - Firebase + custom password fallback
+router.post('/login', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+
+    if (idToken) {
+      // Firebase login flow
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+
+      // Create session JWT
+      const appJwt = jwt.sign(
+        { uid: uid }, 
+        process.env.APP_JWT_SECRET || 'your-secret-key', 
+        { expiresIn: '2h' }
+      );
+
+      // Set HttpOnly cookie
+      res.cookie('session', appJwt, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 2 * 60 * 60 * 1000,
+      });
+
+      return res.json({
+        ok: true,
+        user: {
+          uid: uid,
+          email: decodedToken.email,
+          displayName: decodedToken.name,
+        },
+        tokens: { sessionJwt: appJwt },
+        strategy: 'firebase'
+      });
+    }
+
+    // Custom password login fallback would go here
+    return res.status(400).json({ error: 'Login method not supported' });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(401).json({ error: 'Login failed' });
+  }
+});
+
 // Logout endpoint
 router.post('/logout', (req, res) => {
   res.clearCookie('session', {
