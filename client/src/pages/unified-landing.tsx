@@ -246,103 +246,15 @@ export default function UnifiedLanding() {
             </div>
           </div>
 
-          {/* Enhanced Signup Form */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-orange-400/30 max-w-md mx-auto">
-            {signupSuccess ? (
-              <div className="text-center fade-in-section">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle className="h-8 w-8 text-green-500" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  You're In! 🛹
-                </h3>
-                <p className="text-green-400 mb-4 font-semibold">
-                  Welcome to the crew! Check your email for confirmation.
-                </p>
-                <p className="text-gray-300 text-sm mb-6">
-                  We'll notify you as soon as the beta drops. Get ready to own your tricks!
-                </p>
-                <Button
-                  onClick={() => setSignupSuccess(false)}
-                  variant="outline"
-                  className="text-sm border-gray-600 text-gray-300 hover:bg-gray-700"
-                >
-                  Sign up another email →
-                </Button>
-              </div>
-            ) : (
-              <>
-                <h3 className="text-2xl font-bold text-white mb-4 text-center">
-                  Join the Beta
-                </h3>
-                <p className="text-gray-300 mb-6 text-center">
-                  Be the first to experience the future of skateboarding
-                </p>
-                <form onSubmit={handleJoinSubmit} className="space-y-4" autoComplete="on" noValidate>
-                  <div className="grid grid-cols-1 gap-3">
-                    <input
-                      type="text"
-                      name="firstName"
-                      placeholder="First name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full h-12 px-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-base"
-                      required
-                      autoComplete="given-name"
-                      data-testid="input-hero-firstname"
-                      style={{
-                        fontSize: '16px',
-                        WebkitAppearance: 'none',
-                        WebkitTapHighlightColor: 'transparent'
-                      }}
-                    />
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-12 px-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-base"
-                      required
-                      autoComplete="email"
-                      inputMode="email"
-                      data-testid="input-hero-email"
-                      style={{
-                        fontSize: '16px',
-                        WebkitAppearance: 'none',
-                        WebkitTapHighlightColor: 'transparent'
-                      }}
-                    />
-                  </div>
-                  {validationError && (
-                    <p className="text-red-400 text-sm text-center" role="alert">
-                      {validationError}
-                    </p>
-                  )}
-                  <LoadingButton
-                    type="submit"
-                    isLoading={isSubmitting}
-                    className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-all duration-200 hover:scale-105"
-                    data-testid="button-hero-join"
-                  >
-                    {isSubmitting ? 'Joining...' : 'Join the Beta'}
-                  </LoadingButton>
-                </form>
-              </>
-            )}
-          </div>
-
-          {/* Alternative Sign In */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm mb-3">Already have an account?</p>
+          {/* Primary Auth Button */}
+          <div className="text-center">
             <Link to="/auth">
-              <Button 
-                variant="outline"
-                className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
-                data-testid="button-signin-hero"
+              <button 
+                className="auth-button"
+                data-testid="button-auth-primary"
               >
-                Sign In / Create Account
-              </Button>
+                Create Account / Sign In
+              </button>
             </Link>
           </div>
 
