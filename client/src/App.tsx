@@ -1,4 +1,5 @@
-import { Router, Route, useLocation } from "wouter";
+
+import { Router, Route, Switch } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
@@ -17,10 +18,8 @@ import VerifyEmailPage from "./pages/verify-email";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { useEffect } from "react";
 
-
-function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
+function AppRoutes() {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -52,7 +51,6 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/donate" component={DonationPage} />
           <Route path="/tutorial" component={() => {
-            const { user } = useAuth();
             return user ? <Tutorial userId={user.id} /> : <NotFound />;
           }} />
           <Route path="/auth" component={AuthPage} />
@@ -64,7 +62,7 @@ function Router() {
   );
 }
 
-function App() {
+export default function App() {
   useEffect(() => {
     // Initialize Firebase Analytics on app start
     if (firebaseAnalytics) {
@@ -75,11 +73,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
         <Toaster />
-        <Router />
       </TooltipProvider>
     </QueryClientProvider>
   );
 }
-
-export default App;
