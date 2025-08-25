@@ -101,3 +101,20 @@ export const requireEmailVerification = (req: Request, res: Response, next: Next
 
   next();
 };
+
+// Simple session middleware for JWT cookies
+export function requireSession(req: Request, res: Response, next: NextFunction) {
+  const token = (req as any).cookies?.session;
+  if (!token) {
+    return res.status(401).json({ error: "No session token" });
+  }
+  
+  try {
+    const jwt = require('jsonwebtoken');
+    const payload = jwt.verify(token, process.env.APP_JWT_SECRET || 'your-secret-key');
+    (req as any).uid = (payload as any).uid;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Invalid session token" });
+  }
+}
