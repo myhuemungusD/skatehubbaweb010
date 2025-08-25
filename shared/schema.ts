@@ -169,7 +169,7 @@ export const insertSubscriberSchema = createInsertSchema(subscribers).omit({
 
 export const insertDonationSchema = createInsertSchema(donations);
 
-// Custom auth schemas
+// Auth validation schemas
 export const registerSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: passwordSchema,
@@ -184,6 +184,15 @@ export const loginSchema = z.object({
 
 export const verifyEmailSchema = z.object({
   token: z.string().min(1, "Verification token is required"),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Reset token is required"),
+  password: passwordSchema,
 });
 
 export const forgotPasswordSchema = z.object({

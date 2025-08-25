@@ -1,30 +1,17 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCurrentUser, logout } from '../lib/login';
+// This file is deprecated - use useCustomAuth instead
+// Keeping for backwards compatibility during migration
+
+import { useCustomAuth } from './useCustomAuth';
 
 export function useAuth() {
-  const queryClient = useQueryClient();
-
-  const { data: user, isLoading, error } = useQuery({
-    queryKey: ['auth', 'user'],
-    queryFn: getCurrentUser,
-    retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  const logoutMutation = useMutation({
-    mutationFn: logout,
-    onSuccess: () => {
-      queryClient.setQueryData(['auth', 'user'], null);
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-    },
-  });
-
+  const auth = useCustomAuth();
+  
   return {
-    user,
-    isAuthenticated: !!user && !error,
-    isLoading,
-    logout: logoutMutation.mutate,
-    isLoggingOut: logoutMutation.isPending,
+    user: auth.user,
+    isAuthenticated: auth.isAuthenticated,
+    isLoading: auth.isLoading,
+    logout: auth.logout,
+    isLoggingOut: auth.isLoggingOut,
   };
 }

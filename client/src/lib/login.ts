@@ -1,4 +1,5 @@
 
+
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export async function loginWithFirebase(email: string, password: string) {
@@ -48,3 +49,4 @@ export async function getCurrentUser() {
   
   return response.json();
 }
+
