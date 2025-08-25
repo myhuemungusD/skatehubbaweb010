@@ -1,4 +1,4 @@
-import type { Application, Request, Response, NextFunction } from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { subscribeLimit } from "./index";
@@ -139,7 +139,7 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request, res: Response, n
   }
 };
 
-export async function registerRoutes(app: Application): Promise<Server> {
+export async function registerRoutes(app: express.Application): Promise<Server> {
   // Initialize database on startup
   await initializeDatabase();
 
@@ -439,23 +439,42 @@ export async function registerRoutes(app: Application): Promise<Server> {
 
   app.post("/api/subscribe", async (req, res) => {
     const parsed = NewSubscriberInput.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    if (!parsed.success) return res.status(400).json({ ok: false, error: parsed.error.flatten() });
 
     const { email, firstName } = parsed.data;
 
-    const existing = await storage.getSubscriber(email);
-    if (existing) {
-      // idempotent response for existing
-      return res.status(200).json({ status: "exists", message: "Email already subscribed." });
+    try {
+      const existing = await storage.getSubscriber(email);
+      if (existing) {
+        // idempotent response for existing
+        return res.status(200).json({ 
+          ok: true, 
+          status: "exists", 
+          msg: "You're already on the beta list! We'll notify you when it's ready." 
+        });
+      }
+
+      const created = await storage.createSubscriber({
+        email,
+        firstName: firstName ?? null,
+        isActive: true, // service-level default
+      });
+      
+      await sendSubscriberNotification(email, firstName || "");
+
+      return res.status(201).json({ 
+        ok: true, 
+        status: "created", 
+        id: created.id,
+        msg: "Welcome to the beta list! Check your email for confirmation." 
+      });
+    } catch (error) {
+      console.error("Subscription error:", error);
+      return res.status(500).json({ 
+        ok: false, 
+        error: "Failed to process subscription. Please try again." 
+      });
     }
-
-    const created = await storage.createSubscriber({
-      email,
-      firstName: firstName ?? null,
-      isActive: true, // service-level default
-    });
-
-    return res.status(201).json({ status: "created", id: created.id });
   });
 
   // Get all subscribers (admin only - requires API key)
