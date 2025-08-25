@@ -12,8 +12,8 @@ const dist = path.resolve(process.cwd(), "dist");
 app.disable("x-powered-by");
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy",
-    "default-src 'self'; img-src 'self' data:; script-src 'self' https://plausible.io; " +
-    "connect-src 'self' https://plausible.io; style-src 'self' 'unsafe-inline'; " +
+    "default-src 'self'; img-src 'self' data:; script-src 'self'; " +
+    "connect-src 'self'; style-src 'self' 'unsafe-inline'; " +
     "frame-src https://js.stripe.com https://hooks.stripe.com");
   next();
 });

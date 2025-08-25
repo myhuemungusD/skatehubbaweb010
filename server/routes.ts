@@ -1,4 +1,4 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import type { Application, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { subscribeLimit } from "./index";
@@ -139,7 +139,7 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request, res: Response, n
   }
 };
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Application): Promise<Server> {
   // Initialize database on startup
   await initializeDatabase();
 
@@ -512,23 +512,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Web Vitals endpoint for performance monitoring
-  app.post("/api/vitals", async (req, res) => {
-    try {
-      const { name, value, id } = req.body;
-      
-      // Log Web Vitals metrics
-      console.log(`Web Vital - ${name}: ${value}ms (ID: ${id})`);
-      
-      // In production, you might want to send these to analytics
-      // analytics.track('web_vital', { metric: name, value, id });
-      
-      res.status(200).json({ ok: true });
-    } catch (error) {
-      console.error("Failed to record Web Vital:", error);
-      res.status(500).json({ ok: false, msg: "Failed to record metric" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
