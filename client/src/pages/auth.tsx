@@ -11,8 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../co
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
-import { registerSchema, loginSchema } from "@shared/schema";
-import type { RegisterInput, LoginInput } from "@shared/schema";
+import { registerSchema, loginSchema } from "../../../shared/schema";
+import type { RegisterInput, LoginInput } from "../../../shared/schema";
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
@@ -43,10 +43,18 @@ export default function AuthPage() {
   // Registration mutation
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterInput) => {
-      return apiRequest('/api/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Registration failed');
+      }
+      
+      return response.json();
     },
     onSuccess: (response: any) => {
       toast({
@@ -68,10 +76,18 @@ export default function AuthPage() {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (data: LoginInput) => {
-      return apiRequest('/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+      
+      return response.json();
     },
     onSuccess: (response: any) => {
       if (response.token) {
