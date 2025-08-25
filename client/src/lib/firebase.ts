@@ -1,8 +1,13 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+
+// Prevent Replit DevTools from interfering with fetch
+if (typeof window !== 'undefined') {
+  window.fetch = window.fetch.bind(window);
+}
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,8 +26,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth
+// Initialize Firebase Auth with explicit persistence
 const auth = getAuth(app);
+
+// Set explicit persistence to avoid Safari/iframe issues
+if (typeof window !== 'undefined') {
+  setPersistence(auth, browserLocalPersistence).catch(console.warn);
+}
 
 // Add App Check with your site key (only in production)
 let appCheck: any = null;

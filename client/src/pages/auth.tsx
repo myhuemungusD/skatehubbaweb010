@@ -83,6 +83,10 @@ export default function AuthPage() {
       
       return await response.json();
     },
+    onError: (error: any) => {
+      // Log registration errors for debugging
+      console.log('Registration error:', error.code, error.message, error.customData);
+    },
     onSuccess: (response: any) => {
       toast({
         title: "Account Created! 🎉",
@@ -139,6 +143,9 @@ export default function AuthPage() {
         
         return result;
       } catch (firebaseError: any) {
+        // Log the real Firebase error for debugging
+        console.log('Firebase auth error:', firebaseError.code, firebaseError.message, firebaseError.customData);
+        
         // If Firebase fails, try custom authentication
         if (firebaseError.code === 'auth/user-not-found' || 
             firebaseError.code === 'auth/wrong-password' ||
