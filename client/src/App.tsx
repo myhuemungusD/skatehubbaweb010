@@ -12,6 +12,8 @@ import NotFound from "./pages/not-found";
 import Tutorial from "./pages/tutorial";
 import Demo from "./pages/demo";
 import DonationPage from "./pages/donate";
+import AuthPage from "./pages/auth";
+import VerifyEmailPage from "./pages/verify-email";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { useEffect } from "react";
 
@@ -42,6 +44,8 @@ function Router() {
           <Route path="/tutorial" component={Tutorial} />
           <Route path="/demo" component={Demo} />
           <Route path="/donate" component={DonationPage} />
+          <Route path="/auth" component={AuthPage} />
+          <Route path="/verify-email" component={VerifyEmailPage} />
         </>
       ) : (
         <>
@@ -51,6 +55,8 @@ function Router() {
             const { user } = useAuth();
             return user ? <Tutorial userId={user.id} /> : <NotFound />;
           }} />
+          <Route path="/auth" component={AuthPage} />
+          <Route path="/verify-email" component={VerifyEmailPage} />
           <Route component={NotFound} />
         </>
       )}

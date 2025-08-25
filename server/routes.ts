@@ -16,6 +16,7 @@ import crypto from "crypto";
 import validator from "validator";
 import { sendSubscriberNotification } from "./email";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuthRoutes } from "./auth/routes.js";
 import OpenAI from "openai";
 import { initializeDatabase } from "./db";
 
@@ -142,8 +143,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize database on startup
   await initializeDatabase();
 
-  // Auth middleware
+  // Auth middleware - Replit Auth
   await setupAuth(app);
+  
+  // Custom Authentication Routes
+  setupAuthRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: Request & { user?: any }, res: Response) => {

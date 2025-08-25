@@ -1,6 +1,7 @@
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import Background from "../components/BackgroundCarousel";
+import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
 import { analytics } from "../lib/analytics";
@@ -329,6 +330,20 @@ export default function UnifiedLanding() {
                 </form>
               </>
             )}
+          </div>
+
+          {/* Alternative Sign In */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-400 text-sm mb-3">Already have an account?</p>
+            <Link to="/auth">
+              <Button 
+                variant="outline"
+                className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                data-testid="button-signin-hero"
+              >
+                Sign In / Create Account
+              </Button>
+            </Link>
           </div>
 
           {/* Feature Preview Cards */}
