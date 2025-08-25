@@ -37,9 +37,11 @@ if (import.meta.env.PROD && typeof window !== 'undefined') {
   }
 }
 
-// Initialize Analytics only when supported
+// Only enable Analytics on HTTPS production hosts
 let analytics: any = null;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && 
+    window.location.protocol === "https:" && 
+    !import.meta.env.DEV) {
   isSupported().then((ok) => {
     if (ok) {
       analytics = getAnalytics(app);

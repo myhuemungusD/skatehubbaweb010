@@ -3,6 +3,12 @@ import { analytics as firebaseAnalytics } from "./firebase";
 
 // Analytics helper functions
 export const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+  // Skip analytics in development
+  if (import.meta.env.DEV) {
+    console.log(`[Analytics] ${eventName}`, parameters);
+    return;
+  }
+  
   if (firebaseAnalytics) {
     try {
       logEvent(firebaseAnalytics, eventName, parameters);
