@@ -1,201 +1,111 @@
 import type { Express } from 'express';
-import { Router } from 'express';
-import jwt from 'jsonwebtoken';
-import { admin } from '../admin.js';
-import { requireSession } from './middleware.js';
-
-const router = Router();
-
-// Session creation endpoint - Firebase ID token to HttpOnly cookie
-router.post('/session', async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization || '';
-    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-
-    if (!idToken) {
-      return res.status(400).json({ error: 'No Firebase ID token provided' });
-    }
-
-    // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const uid = decodedToken.uid;
-
-    // Upsert user in Firestore (or your database)
-    const userRef = admin.firestore().collection('users').doc(uid);
-    await userRef.set({
-      uid: uid,
-      email: decodedToken.email || null,
-      displayName: decodedToken.name || null,
-      photoURL: decodedToken.picture || null,
-      provider: decodedToken.firebase?.sign_in_provider || null,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
-
-    // Create app session JWT (short TTL)
-    const appJwt = jwt.sign(
-      { uid: uid }, 
-      process.env.APP_JWT_SECRET || 'your-secret-key', 
-      { expiresIn: '2h' }
-    );
-
-    // Set HttpOnly cookie
-    res.cookie('session', appJwt, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 2 * 60 * 60 * 1000, // 2 hours
-    });
-
-    return res.json({ 
-      ok: true,
-      user: {
-        uid: uid,
-        email: decodedToken.email,
-        displayName: decodedToken.name,
-        photoURL: decodedToken.picture,
-      }
-    });
-
-  } catch (error) {
-    console.error('Session creation error:', error);
-    return res.status(401).json({ error: 'Invalid Firebase token' });
-  }
-});
-
-// Get current user
-router.get('/me', requireSession, async (req, res) => {
-  try {
-    const uid = (req as any).uid;
-
-    // Get user from Firestore
-    const userDoc = await admin.firestore().collection('users').doc(uid).get();
-
-    if (!userDoc.exists) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userData = userDoc.data();
-    return res.json({
-      uid: uid,
-      email: userData?.email,
-      displayName: userData?.displayName,
-      photoURL: userData?.photoURL,
-      provider: userData?.provider,
-    });
-
-  } catch (error) {
-    console.error('Get user error:', error);
-    return res.status(500).json({ error: 'Failed to get user information' });
-  }
-});
-
-// Registration endpoint - Firebase + custom user creation
-router.post('/register', async (req, res) => {
-  try {
-    const { email, password, firstName, lastName, firebaseUid } = req.body;
-    const authHeader = req.headers.authorization || '';
-    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-
-    if (idToken) {
-      // Firebase registration flow
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
-      const uid = decodedToken.uid;
-
-      // Create session JWT
-      const appJwt = jwt.sign(
-        { uid: uid }, 
-        process.env.APP_JWT_SECRET || 'your-secret-key', 
-        { expiresIn: '2h' }
-      );
-
-      // Set HttpOnly cookie
-      res.cookie('session', appJwt, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 2 * 60 * 60 * 1000,
-      });
-
-      return res.json({
-        ok: true,
-        user: {
-          uid: uid,
-          email: decodedToken.email,
-          displayName: decodedToken.name,
-        },
-        tokens: { sessionJwt: appJwt },
-        strategy: 'firebase'
-      });
-    }
-
-    return res.status(400).json({ error: 'Registration method not supported' });
-  } catch (error) {
-    console.error('Registration error:', error);
-    return res.status(400).json({ error: 'Registration failed' });
-  }
-});
-
-// Login endpoint - Firebase + custom password fallback
-router.post('/login', async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization || '';
-    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-
-    if (idToken) {
-      // Firebase login flow
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
-      const uid = decodedToken.uid;
-
-      // Create session JWT
-      const appJwt = jwt.sign(
-        { uid: uid }, 
-        process.env.APP_JWT_SECRET || 'your-secret-key', 
-        { expiresIn: '2h' }
-      );
-
-      // Set HttpOnly cookie
-      res.cookie('session', appJwt, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 2 * 60 * 60 * 1000,
-      });
-
-      return res.json({
-        ok: true,
-        user: {
-          uid: uid,
-          email: decodedToken.email,
-          displayName: decodedToken.name,
-        },
-        tokens: { sessionJwt: appJwt },
-        strategy: 'firebase'
-      });
-    }
-
-    // Custom password login fallback would go here
-    return res.status(400).json({ error: 'Login method not supported' });
-  } catch (error) {
-    console.error('Login error:', error);
-    return res.status(401).json({ error: 'Login failed' });
-  }
-});
-
-// Logout endpoint
-router.post('/logout', (req, res) => {
-  res.clearCookie('session', {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-  });
-
-  return res.json({ 
-    ok: true,
-    message: 'Logged out successfully' 
-  });
-});
+import { AuthService } from './service.js';
+import { authenticateUser } from './middleware.js';
+import admin from 'firebase-admin';
 
 export function setupAuthRoutes(app: Express) {
-  app.use('/api/auth', router);
+  // Single login/register endpoint - Firebase ID token only
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization ?? '';
+
+      if (!authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Firebase ID token required' });
+      }
+
+      const idToken = authHeader.slice('Bearer '.length).trim();
+
+      try {
+        // Verify Firebase ID token
+        const decoded = await admin.auth().verifyIdToken(idToken, true);
+        const uid = decoded.uid;
+        const { firstName, lastName, isRegistration } = req.body;
+
+        // Find or create user record
+        let user = await AuthService.findUserByFirebaseUid(uid);
+
+        if (!user) {
+          // Create new user from Firebase token data
+          const { user: newUser } = await AuthService.createUser({
+            email: decoded.email || `user${uid.slice(0,8)}@firebase.local`,
+            password: 'firebase-auth-user', // Placeholder
+            firstName: firstName || decoded.name?.split(' ')[0] || 'User',
+            lastName: lastName || decoded.name?.split(' ').slice(1).join(' ') || '',
+            firebaseUid: uid,
+          });
+          user = newUser;
+        }
+
+        // Create session token for API access
+        const { token: sessionJwt } = await AuthService.createSession(user.id);
+
+        // Update last login
+        await AuthService.updateLastLogin(user.id);
+
+        return res.status(200).json({
+          user: {
+            id: user.id,
+            email: user.email,
+            displayName: `${user.firstName} ${user.lastName}`.trim(),
+            photoUrl: decoded.picture || null,
+            roles: [],
+            createdAt: user.createdAt,
+            provider: 'firebase',
+          },
+          tokens: { sessionJwt },
+          strategy: 'firebase',
+        });
+      } catch (firebaseError) {
+        console.error('Firebase ID token verification failed:', firebaseError);
+        return res.status(401).json({ error: 'Invalid Firebase token' });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  // Get current user endpoint
+  app.get('/api/auth/me', authenticateUser, async (req, res) => {
+    try {
+      const user = req.currentUser!;
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isEmailVerified: user.isEmailVerified,
+          lastLoginAt: user.lastLoginAt,
+          createdAt: user.createdAt,
+        },
+      });
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({
+        error: 'Failed to get user information',
+      });
+    }
+  });
+
+  // Logout endpoint
+  app.post('/api/auth/logout', authenticateUser, async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        await AuthService.deleteSession(token);
+      }
+
+      res.json({
+        success: true,
+        message: 'Logged out successfully',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({
+        error: 'Logout failed',
+      });
+    }
+  });
 }

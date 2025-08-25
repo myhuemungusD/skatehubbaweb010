@@ -13,7 +13,6 @@ import { Label } from "../components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useToast } from "../hooks/use-toast";
-import { apiRequest } from "../lib/queryClient";
 import { registerSchema, loginSchema } from "../../../shared/schema";
 import type { RegisterInput, LoginInput } from "../../../shared/schema";
 
@@ -43,58 +42,49 @@ export default function AuthPage() {
     },
   });
 
-  // Registration mutation with Firebase Auth
+  // Registration mutation - Firebase-first approach
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterInput) => {
-      // Create Firebase user
+      // 1. Create Firebase user
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const firebaseUser = userCredential.user;
-      
-      // Update Firebase profile
+
+      // 2. Update Firebase profile
       await updateProfile(firebaseUser, {
         displayName: `${data.firstName} ${data.lastName}`.trim()
       });
-      
-      // Get ID token and register with backend
+
+      // 3. Get ID token and register with backend
       const idToken = await firebaseUser.getIdToken();
-      
-      const response = await fetch('/api/auth/register', {
+
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
-          email: data.email,
-          password: data.password,
           firstName: data.firstName,
           lastName: data.lastName,
-          firebaseUid: firebaseUser.uid, // Still need this for registration
+          isRegistration: true
         }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Registration failed');
       }
-      
-      // Track signup analytics
+
       trackEvent('sign_up', { method: 'firebase' });
-      
       return await response.json();
     },
-    onError: (error: any) => {
-      // Log registration errors for debugging
-      console.log('Registration error:', error.code, error.message, error.customData);
-    },
-    onSuccess: (response: any) => {
+    onSuccess: () => {
       toast({
         title: "Account Created! 🎉",
         description: "Your account has been created successfully! Welcome to SkateHubba.",
         variant: "default",
       });
       registerForm.reset();
-      // Redirect to home since they're now authenticated
       setLocation('/');
     },
     onError: (error: any) => {
@@ -106,84 +96,37 @@ export default function AuthPage() {
     },
   });
 
-  // Login mutation - Clean separation of Firebase and custom auth
+  // Login mutation - Firebase-only approach
   const loginMutation = useMutation({
     mutationFn: async (data: LoginInput) => {
-      try {
-        // First try Firebase authentication
-        const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-        const firebaseUser = userCredential.user;
-        
-        // Get ID token and authenticate with backend
-        const idToken = await firebaseUser.getIdToken();
-        
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({}), // Empty body for Firebase auth
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Firebase login failed');
-        }
-        
-        const result = await response.json();
-        
-        // Store session token
-        if (result.tokens?.sessionJwt) {
-          localStorage.setItem('auth_token', result.tokens.sessionJwt);
-        }
-        
-        // Track login analytics
-        trackEvent('login', { method: 'firebase' });
-        
-        return result;
-      } catch (firebaseError: any) {
-        // Log the real Firebase error for debugging
-        console.log('Firebase auth error:', firebaseError.code, firebaseError.message, firebaseError.customData);
-        
-        // If Firebase fails, try custom authentication
-        if (firebaseError.code === 'auth/user-not-found' || 
-            firebaseError.code === 'auth/wrong-password' ||
-            firebaseError.code === 'auth/invalid-credential') {
-          
-          // Fallback to custom password auth
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data), // { email, password }
-          });
-          
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Login failed');
-          }
-          
-          const result = await response.json();
-          
-          // Store session token
-          if (result.tokens?.sessionJwt) {
-            localStorage.setItem('auth_token', result.tokens.sessionJwt);
-          }
-          
-          // Track login analytics
-          trackEvent('login', { method: 'password' });
-          
-          return result;
-        } else {
-          // Re-throw other Firebase errors
-          throw firebaseError;
-        }
+      // 1. Authenticate with Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const firebaseUser = userCredential.user;
+
+      // 2. Get ID token and authenticate with backend
+      const idToken = await firebaseUser.getIdToken();
+
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
       }
+
+      trackEvent('login', { method: 'firebase' });
+      return await response.json();
     },
-    onSuccess: (response: any) => {
+    onSuccess: () => {
       toast({
         title: "Welcome back! 🛹",
-        description: `You've successfully signed in via ${response.strategy}.`,
+        description: "You've successfully signed in.",
         variant: "default",
       });
       setLocation('/');

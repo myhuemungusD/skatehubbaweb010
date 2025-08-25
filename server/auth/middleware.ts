@@ -1,3 +1,4 @@
+
 import type { Request, Response, NextFunction } from 'express';
 import { AuthService } from './service.js';
 import type { CustomUser } from '../../shared/schema.js';
@@ -24,44 +25,35 @@ declare global {
   }
 }
 
-// Middleware to authenticate requests - handles both Firebase and session tokens
+// Middleware to authenticate requests - Firebase ID token only
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No token provided' });
+      return res.status(401).json({ error: 'Firebase ID token required' });
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     
     try {
-      // First try Firebase ID token verification
-      if (admin.apps.length > 0) {
-        const decoded = await admin.auth().verifyIdToken(token, true);
-        const user = await AuthService.findUserByFirebaseUid(decoded.uid);
-        
-        if (user && user.isActive) {
-          req.currentUser = user;
-          return next();
-        }
+      // Verify Firebase ID token
+      const decoded = await admin.auth().verifyIdToken(token, true);
+      const user = await AuthService.findUserByFirebaseUid(decoded.uid);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
       }
+
+      if (!user.isActive) {
+        return res.status(401).json({ error: 'Account is deactivated' });
+      }
+
+      req.currentUser = user;
+      next();
     } catch (firebaseError) {
-      // If Firebase token fails, try session token
+      console.error('Firebase token verification failed:', firebaseError);
+      return res.status(401).json({ error: 'Invalid Firebase token' });
     }
-
-    // Fallback to session token validation
-    const user = await AuthService.validateSession(token);
-
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-
-    if (!user.isActive) {
-      return res.status(401).json({ error: 'Account is deactivated' });
-    }
-
-    req.currentUser = user;
-    next();
   } catch (error) {
     console.error('Authentication error:', error);
     res.status(500).json({ error: 'Authentication failed' });
@@ -74,9 +66,14 @@ export const optionalAuthentication = async (req: Request, res: Response, next: 
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      const user = await AuthService.validateSession(token);
-      if (user && user.isActive) {
-        req.currentUser = user;
+      try {
+        const decoded = await admin.auth().verifyIdToken(token, true);
+        const user = await AuthService.findUserByFirebaseUid(decoded.uid);
+        if (user && user.isActive) {
+          req.currentUser = user;
+        }
+      } catch {
+        // Ignore authentication errors in optional mode
       }
     }
     next();
@@ -101,20 +98,3 @@ export const requireEmailVerification = (req: Request, res: Response, next: Next
 
   next();
 };
-
-// Simple session middleware for JWT cookies
-export function requireSession(req: Request, res: Response, next: NextFunction) {
-  const token = (req as any).cookies?.session;
-  if (!token) {
-    return res.status(401).json({ error: "No session token" });
-  }
-  
-  try {
-    const jwt = require('jsonwebtoken');
-    const payload = jwt.verify(token, process.env.APP_JWT_SECRET || 'your-secret-key');
-    (req as any).uid = (payload as any).uid;
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid session token" });
-  }
-}
