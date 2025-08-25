@@ -52,6 +52,7 @@ export class AuthService {
     password: string;
     firstName: string;
     lastName: string;
+    firebaseUid?: string;
   }): Promise<{ user: CustomUser; emailToken: string }> {
     const passwordHash = await this.hashPassword(userData.password);
     const emailToken = this.generateSecureToken();
@@ -64,9 +65,10 @@ export class AuthService {
         passwordHash,
         firstName: userData.firstName.trim(),
         lastName: userData.lastName.trim(),
+        firebaseUid: userData.firebaseUid || null,
         emailVerificationToken: emailToken,
         emailVerificationExpires: emailTokenExpiry,
-        isEmailVerified: false,
+        isEmailVerified: !!userData.firebaseUid, // Firebase users are auto-verified
         isActive: true,
       })
       .returning();
@@ -90,6 +92,16 @@ export class AuthService {
       .select()
       .from(customUsers)
       .where(eq(customUsers.id, id));
+    
+    return user || null;
+  }
+
+  // Find user by Firebase UID
+  static async findUserByFirebaseUid(firebaseUid: string): Promise<CustomUser | null> {
+    const [user] = await db
+      .select()
+      .from(customUsers)
+      .where(eq(customUsers.firebaseUid, firebaseUid));
     
     return user || null;
   }
@@ -118,6 +130,22 @@ export class AuthService {
         updatedAt: new Date(),
       })
       .where(eq(customUsers.id, user.id))
+      .returning();
+
+    return updatedUser;
+  }
+
+  // Verify email by user ID (for Firebase users)
+  static async verifyEmailByUserId(userId: string): Promise<CustomUser | null> {
+    const [updatedUser] = await db
+      .update(customUsers)
+      .set({
+        isEmailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(customUsers.id, userId))
       .returning();
 
     return updatedUser;

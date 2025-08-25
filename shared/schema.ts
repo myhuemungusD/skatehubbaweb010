@@ -127,6 +127,7 @@ export const customUsers = pgTable("custom_users", {
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   firstName: varchar("first_name", { length: 100 }),
   lastName: varchar("last_name", { length: 100 }),
+  firebaseUid: varchar("firebase_uid", { length: 128 }).unique(),
   isEmailVerified: boolean("is_email_verified").default(false),
   emailVerificationToken: varchar("email_verification_token", { length: 255 }),
   emailVerificationExpires: timestamp("email_verification_expires"),

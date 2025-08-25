@@ -4,6 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../lib/firebase";
+import { trackEvent } from "../lib/analytics";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -40,13 +43,26 @@ export default function AuthPage() {
     },
   });
 
-  // Registration mutation
+  // Registration mutation with Firebase Auth
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterInput) => {
+      // Create Firebase user
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const firebaseUser = userCredential.user;
+      
+      // Update Firebase profile
+      await updateProfile(firebaseUser, {
+        displayName: `${data.firstName} ${data.lastName}`.trim()
+      });
+      
+      // Also create in custom backend for additional data
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          firebaseUid: firebaseUser.uid
+        }),
       });
       
       if (!response.ok) {
@@ -54,15 +70,20 @@ export default function AuthPage() {
         throw new Error(errorData.error || 'Registration failed');
       }
       
-      return response.json();
+      // Track signup analytics
+      trackEvent('sign_up', { method: 'email' });
+      
+      return { user: firebaseUser, backend: await response.json() };
     },
     onSuccess: (response: any) => {
       toast({
         title: "Account Created! 🎉",
-        description: response.message || "Please check your email to verify your account.",
+        description: "Your account has been created successfully! Welcome to SkateHubba.",
         variant: "default",
       });
       registerForm.reset();
+      // Redirect to home since they're now authenticated
+      setLocation('/');
     },
     onError: (error: any) => {
       toast({
@@ -73,32 +94,75 @@ export default function AuthPage() {
     },
   });
 
-  // Login mutation
+  // Login mutation with Firebase Auth fallback to custom
   const loginMutation = useMutation({
     mutationFn: async (data: LoginInput) => {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
+      try {
+        // Try Firebase authentication first
+        const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+        const firebaseUser = userCredential.user;
+        
+        // Get ID token for backend authentication
+        const idToken = await firebaseUser.getIdToken();
+        
+        // Authenticate with backend using Firebase token
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify({
+            email: data.email,
+            firebaseUid: firebaseUser.uid
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Login failed');
+        }
+        
+        // Track login analytics
+        trackEvent('login', { method: 'firebase' });
+        
+        return { user: firebaseUser, backend: await response.json() };
+      } catch (firebaseError: any) {
+        // If Firebase fails, try custom authentication
+        if (firebaseError.code === 'auth/user-not-found' || 
+            firebaseError.code === 'auth/wrong-password' ||
+            firebaseError.code === 'auth/invalid-credential') {
+          
+          // Fallback to custom auth
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Login failed');
+          }
+          
+          // Track login analytics
+          trackEvent('login', { method: 'custom' });
+          
+          const result = await response.json();
+          if (result.token) {
+            localStorage.setItem('auth_token', result.token);
+          }
+          return { backend: result };
+        } else {
+          // Re-throw other Firebase errors
+          throw firebaseError;
+        }
       }
-      
-      return response.json();
     },
     onSuccess: (response: any) => {
-      if (response.token) {
-        // Store the token
-        localStorage.setItem('auth_token', response.token);
-        // Update authorization header for future requests
-        window.location.reload(); // Simple way to refresh auth state
-      }
       toast({
         title: "Welcome back! 🛹",
-        description: "You've successfully signed in.",
+        description: "You've successfully signed in to SkateHubba.",
         variant: "default",
       });
       setLocation('/');
@@ -106,7 +170,7 @@ export default function AuthPage() {
     onError: (error: any) => {
       toast({
         title: "Sign In Failed",
-        description: error.message || "Invalid email or password.",
+        description: error.message || "Please check your credentials and try again.",
         variant: "destructive",
       });
     },
