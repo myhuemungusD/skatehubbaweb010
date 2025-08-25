@@ -2,7 +2,7 @@ import type { Express } from 'express';
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { admin } from '../admin.js';
-import { requireSession } from '../middleware/session.js';
+import { requireSession } from './middleware.js';
 
 const router = Router();
 
