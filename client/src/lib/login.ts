@@ -6,46 +6,45 @@ export async function loginWithFirebase(email: string, password: string) {
   const cred = await signInWithEmailAndPassword(auth, email, password);
   const idToken = await cred.user.getIdToken();
   
-  // Use your existing login endpoint that handles Firebase ID tokens
-  const response = await fetch('/api/auth/login', {
+  // Create session using the new endpoint
+  const response = await fetch('/api/auth/session', {
     method: "POST",
     headers: { 
       "Content-Type": "application/json", 
       "Authorization": `Bearer ${idToken}` 
     },
+    credentials: "include", // Important for cookies
   });
   
   if (!response.ok) {
-    throw new Error('Login failed');
+    throw new Error('Session creation failed');
   }
   
   const data = await response.json();
-  
-  // Store session token if provided
-  if (data.tokens?.sessionJwt) {
-    localStorage.setItem('auth_token', data.tokens.sessionJwt);
-  }
-  
   return data;
 }
 
-export async function loginWithEmailPassword(email: string, password: string) {
-  const response = await fetch('/api/auth/login', {
+export async function logout() {
+  const response = await fetch('/api/auth/logout', {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    credentials: "include",
   });
   
   if (!response.ok) {
-    throw new Error('Login failed');
+    throw new Error('Logout failed');
   }
   
-  const data = await response.json();
+  return response.json();
+}
+
+export async function getCurrentUser() {
+  const response = await fetch('/api/auth/me', {
+    credentials: "include",
+  });
   
-  // Store session token
-  if (data.tokens?.sessionJwt) {
-    localStorage.setItem('auth_token', data.tokens.sessionJwt);
+  if (!response.ok) {
+    return null;
   }
   
-  return data;
+  return response.json();
 }

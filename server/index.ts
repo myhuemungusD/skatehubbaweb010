@@ -1,10 +1,11 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
+import cookieParser from 'cookie-parser';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { validateEnvironment } from "./security";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import cors from "cors";
 import compression from "compression";
 import pinoHttp from "pino-http";
 import Sentry from "./sentry.js";
@@ -77,13 +78,14 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
+  origin: process.env.NODE_ENV === 'production'
     ? ['https://skatehubba.com', 'https://www.skatehubba.com']
     : ['http://localhost:5173', 'http://0.0.0.0:5173', 'http://localhost:5000', 'http://0.0.0.0:5000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+app.use(cookieParser());
 
 // Rate limiting
 const limiter = rateLimit({
