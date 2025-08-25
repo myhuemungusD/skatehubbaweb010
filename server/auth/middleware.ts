@@ -1,6 +1,19 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AuthService } from './service.js';
 import type { CustomUser } from '../../shared/schema.js';
+import admin from 'firebase-admin';
+
+// Initialize Firebase Admin SDK
+if (!admin.apps.length) {
+  try {
+    admin.initializeApp({
+      projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+    });
+    console.log('Firebase Admin SDK initialized');
+  } catch (error) {
+    console.warn('Firebase Admin initialization failed:', error);
+  }
+}
 
 // Extend Express Request type to include user
 declare global {
@@ -11,7 +24,7 @@ declare global {
   }
 }
 
-// Middleware to authenticate requests
+// Middleware to authenticate requests - handles both Firebase and session tokens
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
@@ -20,6 +33,23 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    
+    try {
+      // First try Firebase ID token verification
+      if (admin.apps.length > 0) {
+        const decoded = await admin.auth().verifyIdToken(token, true);
+        const user = await AuthService.findUserByFirebaseUid(decoded.uid);
+        
+        if (user && user.isActive) {
+          req.currentUser = user;
+          return next();
+        }
+      }
+    } catch (firebaseError) {
+      // If Firebase token fails, try session token
+    }
+
+    // Fallback to session token validation
     const user = await AuthService.validateSession(token);
 
     if (!user) {

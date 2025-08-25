@@ -54,7 +54,9 @@ export class AuthService {
     lastName: string;
     firebaseUid?: string;
   }): Promise<{ user: CustomUser; emailToken: string }> {
-    const passwordHash = await this.hashPassword(userData.password);
+    const passwordHash = userData.firebaseUid 
+      ? 'firebase-auth-user' // Placeholder for Firebase users
+      : await this.hashPassword(userData.password);
     const emailToken = this.generateSecureToken();
     const emailTokenExpiry = new Date(Date.now() + this.EMAIL_TOKEN_EXPIRY);
 

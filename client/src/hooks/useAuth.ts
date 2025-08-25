@@ -2,33 +2,60 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../lib/firebase";
 import { useEffect, useState } from "react";
-import type { User } from "../../../shared/schema";
 
 export function useAuth() {
   const [firebaseUser, firebaseLoading, firebaseError] = useAuthState(auth);
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Query backend user data when Firebase user is authenticated
-  const { data: backendUser, isLoading: backendLoading } = useQuery<User>({
-    queryKey: ["/api/auth/user", firebaseUser?.uid],
+  // Query backend user data using session token or Firebase ID token
+  const { data: backendUser, isLoading: backendLoading } = useQuery({
+    queryKey: ["/api/auth/me", firebaseUser?.uid],
     queryFn: async () => {
-      if (!firebaseUser) return null;
-      
-      const idToken = await firebaseUser.getIdToken();
-      const response = await fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${idToken}`
+      // First try session token from localStorage
+      const sessionToken = localStorage.getItem('auth_token');
+      if (sessionToken) {
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`
+          }
+        });
+        
+        if (response.ok) {
+          return response.json();
         }
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401) return null;
-        throw new Error('Failed to fetch user data');
+        
+        // If session token is invalid, remove it
+        if (response.status === 401) {
+          localStorage.removeItem('auth_token');
+        }
       }
       
-      return response.json();
+      // If no session token or it's invalid, try Firebase ID token
+      if (firebaseUser) {
+        try {
+          const idToken = await firebaseUser.getIdToken();
+          const response = await fetch('/api/auth/me', {
+            headers: {
+              'Authorization': `Bearer ${idToken}`
+            }
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            // Store session token if provided
+            if (userData.tokens?.sessionJwt) {
+              localStorage.setItem('auth_token', userData.tokens.sessionJwt);
+            }
+            return userData;
+          }
+        } catch (error) {
+          console.warn('Firebase ID token failed:', error);
+        }
+      }
+      
+      return null;
     },
-    enabled: !!firebaseUser && !firebaseLoading,
+    enabled: !firebaseLoading,
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -40,18 +67,13 @@ export function useAuth() {
     }
   }, [firebaseLoading]);
 
-  const isLoading = firebaseLoading || (!isInitialized) || (firebaseUser && backendLoading);
-  const isAuthenticated = !!firebaseUser && !!backendUser;
+  const isLoading = firebaseLoading || (!isInitialized) || backendLoading;
   
-  // Combine Firebase user with backend user data
-  const user = firebaseUser && backendUser ? {
-    ...backendUser,
-    uid: firebaseUser.uid,
-    email: firebaseUser.email || backendUser.email,
-    displayName: firebaseUser.displayName,
-    photoURL: firebaseUser.photoURL,
-    emailVerified: firebaseUser.emailVerified
-  } : null;
+  // User is authenticated if we have backend user data (regardless of Firebase state)
+  const isAuthenticated = !!backendUser?.user;
+  
+  // Return standardized user object
+  const user = backendUser?.user || null;
 
   return {
     user,

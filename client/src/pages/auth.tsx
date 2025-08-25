@@ -55,13 +55,21 @@ export default function AuthPage() {
         displayName: `${data.firstName} ${data.lastName}`.trim()
       });
       
-      // Also create in custom backend for additional data
+      // Get ID token and register with backend
+      const idToken = await firebaseUser.getIdToken();
+      
       const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
         body: JSON.stringify({
-          ...data,
-          firebaseUid: firebaseUser.uid
+          email: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          firebaseUid: firebaseUser.uid, // Still need this for registration
         }),
       });
       
@@ -71,9 +79,9 @@ export default function AuthPage() {
       }
       
       // Track signup analytics
-      trackEvent('sign_up', { method: 'email' });
+      trackEvent('sign_up', { method: 'firebase' });
       
-      return { user: firebaseUser, backend: await response.json() };
+      return await response.json();
     },
     onSuccess: (response: any) => {
       toast({
@@ -94,50 +102,53 @@ export default function AuthPage() {
     },
   });
 
-  // Login mutation with Firebase Auth fallback to custom
+  // Login mutation - Clean separation of Firebase and custom auth
   const loginMutation = useMutation({
     mutationFn: async (data: LoginInput) => {
       try {
-        // Try Firebase authentication first
+        // First try Firebase authentication
         const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
         const firebaseUser = userCredential.user;
         
-        // Get ID token for backend authentication
+        // Get ID token and authenticate with backend
         const idToken = await firebaseUser.getIdToken();
         
-        // Authenticate with backend using Firebase token
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            email: data.email,
-            firebaseUid: firebaseUser.uid
-          }),
+          body: JSON.stringify({}), // Empty body for Firebase auth
         });
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Login failed');
+          throw new Error(errorData.error || 'Firebase login failed');
+        }
+        
+        const result = await response.json();
+        
+        // Store session token
+        if (result.tokens?.sessionJwt) {
+          localStorage.setItem('auth_token', result.tokens.sessionJwt);
         }
         
         // Track login analytics
         trackEvent('login', { method: 'firebase' });
         
-        return { user: firebaseUser, backend: await response.json() };
+        return result;
       } catch (firebaseError: any) {
         // If Firebase fails, try custom authentication
         if (firebaseError.code === 'auth/user-not-found' || 
             firebaseError.code === 'auth/wrong-password' ||
             firebaseError.code === 'auth/invalid-credential') {
           
-          // Fallback to custom auth
+          // Fallback to custom password auth
           const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
+            body: JSON.stringify(data), // { email, password }
           });
           
           if (!response.ok) {
@@ -145,14 +156,17 @@ export default function AuthPage() {
             throw new Error(errorData.error || 'Login failed');
           }
           
-          // Track login analytics
-          trackEvent('login', { method: 'custom' });
-          
           const result = await response.json();
-          if (result.token) {
-            localStorage.setItem('auth_token', result.token);
+          
+          // Store session token
+          if (result.tokens?.sessionJwt) {
+            localStorage.setItem('auth_token', result.tokens.sessionJwt);
           }
-          return { backend: result };
+          
+          // Track login analytics
+          trackEvent('login', { method: 'password' });
+          
+          return result;
         } else {
           // Re-throw other Firebase errors
           throw firebaseError;
@@ -162,7 +176,7 @@ export default function AuthPage() {
     onSuccess: (response: any) => {
       toast({
         title: "Welcome back! 🛹",
-        description: "You've successfully signed in to SkateHubba.",
+        description: `You've successfully signed in via ${response.strategy}.`,
         variant: "default",
       });
       setLocation('/');

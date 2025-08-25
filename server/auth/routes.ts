@@ -9,6 +9,7 @@ import {
   resetPasswordSchema,
 } from '../../shared/schema.js';
 import { sendVerificationEmail, sendPasswordResetEmail } from './email.js';
+import admin from 'firebase-admin';
 
 export function setupAuthRoutes(app: Express) {
   // Register endpoint
@@ -87,109 +88,106 @@ export function setupAuthRoutes(app: Express) {
     }
   });
 
-  // Login endpoint - handles both Firebase and custom auth
+  // Login endpoint - Clean separation of Firebase and custom auth
   app.post('/api/auth/login', async (req, res) => {
     try {
-      // Check for Firebase authentication first
-      const authHeader = req.headers.authorization;
-      const firebaseUid = req.body.firebaseUid;
-      
-      if (authHeader && authHeader.startsWith('Bearer ') && firebaseUid) {
-        // Firebase authentication
+      const authHeader = req.headers.authorization ?? '';
+
+      // Path 1: Firebase login via ID token in Authorization header
+      if (authHeader.startsWith('Bearer ')) {
+        const idToken = authHeader.slice('Bearer '.length).trim();
+        
         try {
-          const user = await AuthService.findUserByFirebaseUid(firebaseUid);
+          // Verify with Firebase Admin SDK
+          const decoded = await admin.auth().verifyIdToken(idToken, true);
+          const uid = decoded.uid;
+
+          // Find or create user record tied to Firebase UID
+          let user = await AuthService.findUserByFirebaseUid(uid);
           if (!user) {
-            return res.status(401).json({
-              error: 'User not found',
+            // Create user from Firebase token data
+            const { user: newUser } = await AuthService.createUser({
+              email: decoded.email || `user${uid.slice(0,8)}@firebase.local`,
+              password: 'firebase-auth-user', // Placeholder, won't be used
+              firstName: decoded.name?.split(' ')[0] || 'Firebase',
+              lastName: decoded.name?.split(' ').slice(1).join(' ') || 'User',
+              firebaseUid: uid,
             });
+            user = newUser;
           }
 
-          if (!user.isActive) {
-            return res.status(401).json({
-              error: 'Account is deactivated',
-            });
-          }
-
+          // Create session
+          const { token: sessionJwt } = await AuthService.createSession(user.id);
+          
           // Update last login
           await AuthService.updateLastLogin(user.id);
 
-          res.json({
-            ok: true,
-            msg: 'Login successful',
+          return res.status(200).json({
             user: {
               id: user.id,
               email: user.email,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              isEmailVerified: user.isEmailVerified,
-              firebaseUid: user.firebaseUid,
+              displayName: `${user.firstName} ${user.lastName}`.trim(),
+              photoUrl: decoded.picture || null,
+              roles: [],
+              createdAt: user.createdAt,
+              provider: 'firebase',
             },
+            tokens: { sessionJwt },
+            strategy: 'firebase',
           });
-          return;
         } catch (firebaseError) {
-          console.error('Firebase login error:', firebaseError);
-          return res.status(401).json({
-            error: 'Firebase authentication failed',
-          });
+          console.error('Firebase ID token verification failed:', firebaseError);
+          return res.status(401).json({ error: 'Invalid Firebase token' });
         }
       }
 
-      // Custom authentication
+      // Path 2: Email/password login (custom auth)
       const validation = loginSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({
-          error: 'Invalid email or password',
-        });
+        return res.status(400).json({ error: 'Invalid credentials payload' });
       }
 
       const { email, password } = validation.data;
-
+      
       // Find user
-      const user = await AuthService.findUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({
-          error: 'Invalid email or password',
-        });
+      const user = await AuthService.findUserByEmail(email.toLowerCase());
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ error: 'Invalid email or password' });
       }
 
       // Check if account is active
       if (!user.isActive) {
-        return res.status(401).json({
-          error: 'Account is deactivated',
-        });
+        return res.status(401).json({ error: 'Account is deactivated' });
       }
 
       // Verify password
       const isValidPassword = await AuthService.verifyPassword(password, user.passwordHash);
       if (!isValidPassword) {
-        return res.status(401).json({
-          error: 'Invalid email or password',
-        });
+        return res.status(401).json({ error: 'Invalid email or password' });
       }
 
       // Create session
-      const { token } = await AuthService.createSession(user.id);
+      const { token: sessionJwt } = await AuthService.createSession(user.id);
       
       // Update last login
       await AuthService.updateLastLogin(user.id);
 
-      res.json({
-        ok: true,
-        msg: 'Login successful',
-        token,
+      return res.status(200).json({
         user: {
           id: user.id,
           email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          isEmailVerified: user.isEmailVerified,
+          displayName: `${user.firstName} ${user.lastName}`.trim(),
+          photoUrl: null,
+          roles: [],
+          createdAt: user.createdAt,
+          provider: 'password',
         },
+        tokens: { sessionJwt },
+        strategy: 'password',
       });
     } catch (error) {
       console.error('Login error:', error);
-      res.status(500).json({
-        error: 'Login failed. Please try again.',
-      });
+      return res.status(500).json({ error: 'Login failed' });
     }
   });
 
