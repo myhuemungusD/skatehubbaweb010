@@ -1,2 +1,1 @@
-
-export { requireSession } from './session.js';
+// Session middleware moved to server/auth/middleware.ts

@@ -195,15 +195,6 @@ export const resetPasswordSchema = z.object({
   password: passwordSchema,
 });
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
-
-export const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Reset token is required"),
-  password: passwordSchema,
-});
-
 export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
 export type TutorialStep = typeof tutorialSteps.$inferSelect;
