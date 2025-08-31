@@ -1,14 +1,7 @@
 import { Button } from "../components/ui/button";
 import Background from "../components/BackgroundCarousel";
-import { useState, useEffect } from "react";
-import { useToast } from "../hooks/use-toast";
-import { analytics } from "../lib/analytics";
-import { z } from "zod";
-
-const subscribeSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  firstName: z.string().min(1, "First name is required"),
-});
+import { useEffect } from "react";
+import EmailSignup from "../components/EmailSignup";
 
 const SkateHubbaLogo = () => (
   <div className="relative">
@@ -36,22 +29,10 @@ const SkateHubbaLogo = () => (
 );
 
 export default function Landing() {
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationError, setValidationError] = useState("");
-  const [signupSuccess, setSignupSuccess] = useState(false);
-  const { toast } = useToast();
-
   useEffect(() => {
     const donate = document.getElementById('donate');
     if (donate) document.body.appendChild(donate);
   }, []);
-
-  const handleJoinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setValidationError("");
 
     // Client-side validation
     try {

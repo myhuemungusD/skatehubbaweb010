@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
 import { z } from "zod";
 import { NewSubscriberInput } from "../../../shared/schema";
+import EmailSignup from "../components/EmailSignup";
 
 const DONATE_STRIPE = import.meta.env.VITE_DONATE_STRIPE_URL || "#";
 const DONATE_PAYPAL = import.meta.env.VITE_DONATE_PAYPAL_URL || "#";
@@ -16,7 +16,7 @@ export default function NewLanding() {
       <SocialProof />
       <Features />
       <Donate />
-      <Signup />
+      <EmailSignup />
       <Footer />
     </div>
   );
@@ -168,13 +168,13 @@ function Donate() {
           Support the build. Keep the beta rolling.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a 
+          <a
             href={DONATE_STRIPE}
             className="btn btn-primary px-8 py-3"
           >
             Donate with Stripe
           </a>
-          <a 
+          <a
             href={DONATE_PAYPAL}
             className="btn px-8 py-3"
           >
@@ -186,156 +186,6 @@ function Donate() {
   );
 }
 
-function Signup() {
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [validationError, setValidationError] = useState("");
-  const { toast } = useToast();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setValidationError("");
-
-    // Client-side validation
-    try {
-      const validatedData = NewSubscriberInput.parse({ email, firstName });
-      setIsSubmitting(true);
-
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(validatedData)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        if (data.status === "exists") {
-          toast({
-            title: "Already subscribed",
-            description: "You're already on our list!",
-          });
-        } else if (data.status === "created") {
-          setIsSuccess(true);
-          // Redirect to app demo after successful signup
-          setTimeout(() => {
-            window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
-          }, 2000);
-          toast({
-            title: "Welcome to SkateHubba! 🛹",
-            description: "You're now on the beta list!",
-            variant: "default"
-          });
-        }
-        setEmail("");
-        setFirstName("");
-      } else {
-        const errorMsg = data.error?.formErrors?.[0] || "Something went wrong. Please try again.";
-        toast({
-          title: "Signup failed",
-          description: errorMsg,
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setValidationError(error.errors[0]?.message || "Please check your email");
-      } else {
-        toast({
-          title: "Network Error",
-          description: "Please check your connection and try again.",
-          variant: "destructive"
-        });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <section id="signup" className="py-20 px-4">
-      <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-          Join the beta
-        </h2>
-        <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-          Be the first to experience the future of skateboarding. Get exclusive early access.
-        </p>
-        
-        {isSuccess ? (
-          <div className="card max-w-md mx-auto">
-            <div className="text-4xl mb-4">🎉</div>
-            <h3 className="text-xl font-bold mb-2">You're in!</h3>
-            <p className="text-gray-600">We'll notify you when the beta launches.</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="card max-w-md mx-auto">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="signup-firstName" className="sr-only">
-                  First Name
-                </label>
-                <input
-                  id="signup-firstName"
-                  name="firstName"
-                  type="text"
-                  placeholder="Your name"
-                  value={firstName}
-                  onChange={(e) => {
-                    setFirstName(e.target.value);
-                    setValidationError("");
-                  }}
-                  className="w-full px-4 py-3 border rounded-xl transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 focus:border-transparent border-gray-200"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="signup-email" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="signup-email"
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setValidationError("");
-                  }}
-                  required
-                  aria-describedby="signup-form-error"
-                  aria-invalid={validationError ? "true" : "false"}
-                  className={`w-full px-4 py-3 border rounded-xl transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 focus:border-transparent ${
-                    validationError ? "border-red-500" : "border-gray-200"
-                  }`}
-                />
-                <div id="signup-form-error" role="alert" aria-live="polite" className="min-h-[1.25rem]">
-                  {validationError && (
-                    <p className="text-red-500 text-sm">{validationError}</p>
-                  )}
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting || !email.trim()}
-                className="btn btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-              >
-                {isSubmitting ? "Submitting..." : "Join the beta"}
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">
-              No spam, ever. Unsubscribe anytime.
-            </p>
-          </form>
-        )}
-      </div>
-    </section>
-  );
-}
 
 function Footer() {
   return (
@@ -350,7 +200,7 @@ function Footer() {
             The ultimate skateboarding platform. Built by skaters, for skaters.
           </p>
         </div>
-        
+
         <div className="border-t border-gray-800 pt-8 text-center">
           <p className="text-gray-500 text-sm">
             © 2025 SkateHubba. All rights reserved.

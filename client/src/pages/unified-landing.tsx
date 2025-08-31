@@ -93,13 +93,7 @@ const SkateHubbaLogo = () => (
 );
 
 export default function UnifiedLanding() {
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationError, setValidationError] = useState("");
-  const [signupSuccess, setSignupSuccess] = useState(false);
   const [showDetailedFeatures, setShowDetailedFeatures] = useState(false);
-  const { toast } = useToast();
   
   // Progressive disclosure with intersection observer
   useEffect(() => {
@@ -123,20 +117,7 @@ export default function UnifiedLanding() {
 
   const springAnimation = useSpringAnimation(true);
 
-  const handleJoinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setValidationError("");
-    
-    // Blur active element to hide mobile keyboard
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-
-    try {
-      const validatedData = subscribeSchema.parse({ email, firstName });
-      setIsSubmitting(true);
-      analytics.subscribeSubmitted(validatedData.email);
+  
 
       const response = await fetch('/api/subscribe', {
         method: 'POST',
