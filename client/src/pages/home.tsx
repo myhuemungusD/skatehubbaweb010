@@ -6,7 +6,7 @@ import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 import BackgroundCarousel from "../components/BackgroundCarousel";
 import { z } from "zod";
 import { NewSubscriberInput } from "../../../shared/schema";
-import EmailSignup from "../components/EmailSignup";
+import UltimateEmailSignup from "../components/UltimateEmailSignup";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
