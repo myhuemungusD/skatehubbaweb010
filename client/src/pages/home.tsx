@@ -60,6 +60,50 @@ const HeroAccessButton = () => {
 
 
 export default function Home() {
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleJoinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setValidationError("");
+
+    try {
+      const parsed = NewSubscriberInput.safeParse({ firstName, email });
+      if (!parsed.success) {
+        setValidationError("Please check your input and try again");
+        return;
+      }
+
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed.data)
+      });
+
+      const result = await response.json();
+      
+      if (result.ok) {
+        toast({
+          title: "Welcome to the beta!",
+          description: result.msg,
+        });
+        setFirstName("");
+        setEmail("");
+        analytics.subscribeSubmitted(email);
+        analytics.subscribeSuccess();
+      } else {
+        setValidationError(result.error || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      setValidationError("Network error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });

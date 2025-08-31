@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   }
 });
 
-const port = process.env.PORT || 5000;
+const port = parseInt(process.env.PORT || '5000', 10);
 
 async function startServer() {
   try {
