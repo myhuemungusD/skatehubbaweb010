@@ -1,0 +1,52 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    // Enhanced signup security with comprehensive validation
+    match /signups/{doc} {
+      allow create: if
+        // Email validation
+        request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() < 254
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        
+        // Source validation - only allow specific sources
+        && request.resource.data.source in ['site', 'app', 'landing']
+        
+        // Timestamp validation - must be recent (within 5 minutes)
+        && request.resource.data.createdAt == request.time
+        
+        // Rate limiting - prevent rapid submissions
+        && (
+          !exists(/databases/$(database)/documents/signups/$(request.auth.uid))
+          || resource.data.createdAt < request.time - duration.value(1, 'm')
+        )
+        
+        // Honeypot validation - company field should not exist or be empty
+        && (!('company' in request.resource.data) || request.resource.data.company == '')
+        
+        // Required fields only
+        && request.resource.data.keys().hasOnly(['email', 'source', 'createdAt', 'userAgent', 'timestamp'])
+        
+        // UserAgent validation (optional but recommended)
+        && (!('userAgent' in request.resource.data) || request.resource.data.userAgent is string)
+        
+        // Timestamp validation (if provided)
+        && (!('timestamp' in request.resource.data) || request.resource.data.timestamp is number);
+        
+      // No reading, updating, or deleting from client
+      allow read, update, delete: if false;
+    }
+
+    // Mail collection - server-only access
+    match /mail/{doc} {
+      allow read, write: if false;
+    }
+
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
