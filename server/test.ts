@@ -1,7 +1,5 @@
 import { storage } from "./storage.js";
 import { validateEnvironment } from "./security.js";
-import { db } from "./firebaseAdmin.js"; // Assuming you have firebaseAdmin.js setup
-import { collection, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 
 async function runPreDeploymentTests() {
   console.log("🚀 Starting pre-deployment tests...");

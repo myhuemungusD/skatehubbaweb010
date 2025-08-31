@@ -183,10 +183,6 @@ app.use((req, res, next) => {
   try {
     const server = await registerRoutes(app);
 
-    // Import and register secure signup routes
-    const { default: secureSignupRoutes } = await import('./routes/secure-signup.js');
-    app.use('/api', secureSignupRoutes);
-
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";

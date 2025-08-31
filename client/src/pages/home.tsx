@@ -199,68 +199,7 @@ const HeroAccessButton = () => {
 
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationError, setValidationError] = useState("");
-  const { toast } = useToast();
-
-  const handleJoinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setValidationError("");
-
-    // Client-side validation
-    try {
-      const validatedData = NewSubscriberInput.parse({ email, firstName });
-      setIsSubmitting(true);
-      analytics.subscribeSubmitted(validatedData.email);
-
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...validatedData,
-          company: "" // honeypot field
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.ok) {
-        analytics.subscribeSuccess();
-        toast({
-          title: "Welcome to SkateHubba! 🎉",
-          description: data.msg || "You're now on the beta list! Redirecting to the app...",
-        });
-        setEmail("");
-        setFirstName("");
-        // Redirect to the app demo after successful signup
-        setTimeout(() => {
-          window.location.href = 'https://skate-hubba-frontend-jayham710.replit.app';
-        }, 2000);
-      } else {
-        toast({
-          title: "Signup failed",
-          description: data.msg || "Something went wrong. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setValidationError(error.errors[0]?.message || "Please check your email");
-      } else {
-        toast({
-          title: "Network Error",
-          description: "Please check your connection and try again.",
-          variant: "destructive"
-        });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const [, setLocation] = useLocation();
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });

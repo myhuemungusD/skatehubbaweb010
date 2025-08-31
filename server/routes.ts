@@ -3,6 +3,18 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import { subscribeLimit } from "./index";
 import { Resend } from "resend";
+import { Request, Response } from "express";
+import { db, eq } from "./db";
+import { users, insertUserSchema, selectUserSchema, tutorialSteps, userProgress } from "../shared/schema";
+import { hashPassword, comparePassword } from "./storage";
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress } from './middleware/security.js';
+import { admin } from './admin.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 import Stripe from "stripe";
@@ -145,7 +157,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
 
   // Auth middleware - Replit Auth
   await setupAuth(app);
-  
+
   // Custom Authentication Routes
   setupAuthRoutes(app);
 
@@ -459,7 +471,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
         firstName: firstName ?? null,
         isActive: true, // service-level default
       });
-      
+
       await sendSubscriberNotification(email, firstName || "");
 
       return res.status(201).json({ 
@@ -531,6 +543,58 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     }
   });
 
+  // Secure email signup endpoint
+  app.post('/api/secure-signup', 
+    emailSignupLimiter,
+    validateHoneypot,
+    validateEmail,
+    validateUserAgent,
+    logIPAddress,
+    async (req: Request, res: Response) => {
+      try {
+        const { email, source = 'landing', userAgent, ipAddress } = req.body;
+        const db = admin.firestore();
+
+        // Check for existing subscription
+        const existingSubscriptions = await db.collection('subscriptions')
+          .where('email', '==', email.toLowerCase())
+          .limit(1)
+          .get();
+
+        if (!existingSubscriptions.empty) {
+          return res.json({ 
+            success: true, 
+            msg: "You're already on the beta list! We'll notify you when it's ready." 
+          });
+        }
+
+        const expireDate = new Date();
+        expireDate.setFullYear(expireDate.getFullYear() + 2);
+
+        await db.collection('subscriptions').add({
+          email: email.toLowerCase(),
+          source,
+          status: 'subscribed',
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          expireAt: admin.firestore.Timestamp.fromDate(expireDate),
+          userAgent,
+          ipAddress,
+          timestamp: Date.now(),
+        });
+
+        res.json({ 
+          success: true, 
+          msg: "Success! You're on the list. We'll notify you when SkateHubba launches!" 
+        });
+      } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ 
+          success: false, 
+          msg: "Something went wrong. Please try again." 
+        });
+      }
+    }
+  );
 
   const httpServer = createServer(app);
   return httpServer;
