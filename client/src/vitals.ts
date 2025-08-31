@@ -1,7 +1,16 @@
 import { onLCP, onCLS, onINP } from "web-vitals";
 import { trackEvent } from "./lib/analytics";
 
-const send = (metric: any) => {
+interface WebVitalMetric {
+  name: string;
+  value: number;
+  rating: string;
+  delta: number;
+  id: string;
+  navigationType?: string;
+}
+
+const send = (metric: WebVitalMetric) => {
   // Skip Web Vitals tracking in development
   if (import.meta.env.DEV) {
     console.log(`[Web Vital] ${metric.name}:`, Math.round(metric.value));

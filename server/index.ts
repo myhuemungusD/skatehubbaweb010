@@ -24,8 +24,6 @@ const port = parseInt(process.env.PORT || "5000", 10);
 
 async function startServer() {
   try {
-    console.log("🔄 Starting SkateHubba server...");
-
     const httpServer = await registerRoutes(app);
 
     if (process.env.NODE_ENV === "development") {
@@ -33,8 +31,10 @@ async function startServer() {
     }
 
     httpServer.listen(port, "0.0.0.0", () => {
-      console.log(`🚀 SkateHubba server running on port ${port}`);
-      console.log(`📱 Preview: http://localhost:${port}`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`🚀 SkateHubba server running on port ${port}`);
+        console.log(`📱 Preview: http://localhost:${port}`);
+      }
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

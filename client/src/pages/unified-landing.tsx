@@ -1,6 +1,7 @@
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import Background from "../components/BackgroundCarousel";
+import SkateHubbaLogo from "../components/SkateHubbaLogo";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
@@ -46,7 +47,15 @@ const useSpringAnimation = (isVisible: boolean) => {
 };
 
 // Mobile-optimized loading button
-const LoadingButton = ({ isLoading, children, className, ...props }: any) => (
+interface LoadingButtonProps {
+  isLoading: boolean;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+}
+
+const LoadingButton = ({ isLoading, children, className = "", ...props }: LoadingButtonProps) => (
   <button
     {...props}
     disabled={isLoading}
@@ -72,58 +81,15 @@ const LoadingButton = ({ isLoading, children, className, ...props }: any) => (
 );
 
 // Systematic component spacing
-const Section = ({ children, className = "", ...props }: any) => (
+interface SectionProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+const Section = ({ children, className = "", ...props }: SectionProps) => (
   <section className={`py-16 md:py-24 ${className}`} {...props}>
     <div className="max-w-6xl mx-auto px-6">{children}</div>
   </section>
-);
-
-const SkateHubbaLogo = () => (
-  <div className="relative">
-    <svg
-      width="60"
-      height="60"
-      viewBox="0 0 100 100"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="text-orange-500 transition-transform duration-300 hover:scale-105"
-    >
-      <path
-        d="M20 45 L80 45 Q85 45 85 50 L85 55 Q85 60 80 60 L20 60 Q15 60 15 55 L15 50 Q15 45 20 45 Z"
-        fill="currentColor"
-        stroke="#fafafa"
-        strokeWidth="2"
-      />
-      <circle
-        cx="25"
-        cy="52.5"
-        r="8"
-        fill="#181818"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <circle
-        cx="75"
-        cy="52.5"
-        r="8"
-        fill="#181818"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <rect x="22" y="48" width="6" height="9" fill="#666" rx="1" />
-      <rect x="72" y="48" width="6" height="9" fill="#666" rx="1" />
-      <text
-        x="50"
-        y="55"
-        textAnchor="middle"
-        fontSize="8"
-        fill="#fafafa"
-        fontWeight="bold"
-      >
-        SH
-      </text>
-    </svg>
-  </div>
 );
 
 export default function UnifiedLanding() {

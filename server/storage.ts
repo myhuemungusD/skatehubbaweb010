@@ -80,11 +80,8 @@ export class DatabaseStorage implements IStorage {
 
       // Check if tutorial steps already exist
       if (testQuery.length > 0) {
-        console.log("Tutorial steps already initialized");
         return;
       }
-
-      console.log("Initializing default tutorial steps...");
 
       // Initialize with default steps
       const defaultSteps: InsertTutorialStep[] = [
@@ -134,8 +131,6 @@ export class DatabaseStorage implements IStorage {
       for (const step of defaultSteps) {
         await this.createTutorialStep(step);
       }
-
-      console.log("Successfully initialized tutorial steps");
     } catch (error) {
       console.error(
         "Database initialization failed - continuing without default tutorial steps:",
@@ -203,7 +198,7 @@ export class DatabaseStorage implements IStorage {
   async createTutorialStep(step: InsertTutorialStep): Promise<TutorialStep> {
     const [createdStep] = await db
       .insert(tutorialSteps)
-      .values(step as any)
+      .values(step)
       .returning();
     return createdStep;
   }
@@ -235,7 +230,7 @@ export class DatabaseStorage implements IStorage {
   ): Promise<UserProgress> {
     const [createdProgress] = await db
       .insert(userProgress)
-      .values(progress as any)
+      .values(progress)
       .returning();
     return createdProgress;
   }

@@ -65,7 +65,7 @@ if (
     .then((ok) => {
       if (ok) {
         analytics = getAnalytics(app);
-        console.log("Firebase Analytics initialized");
+        if (import.meta.env.DEV) console.log("Firebase Analytics initialized");
       }
     })
     .catch(() => {});

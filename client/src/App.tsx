@@ -4,8 +4,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { useAuth } from "./hooks/useAuth";
-import Landing from "./pages/landing";
-import NewLanding from "./pages/new-landing";
 import Home from "./pages/home";
 import UnifiedLanding from "./pages/unified-landing";
 import NotFound from "./pages/not-found";
@@ -36,8 +34,6 @@ function AppRoutes() {
       {!isAuthenticated ? (
         <>
           <Route path="/" component={UnifiedLanding} />
-          <Route path="/old" component={Landing} />
-          <Route path="/new" component={NewLanding} />
           <Route path="/home" component={Home} />
           <Route path="/tutorial" component={Tutorial} />
           <Route path="/demo" component={Demo} />
@@ -67,7 +63,7 @@ function AppRoutes() {
 export default function App() {
   useEffect(() => {
     // Initialize Firebase Analytics on app start
-    if (firebaseAnalytics) {
+    if (firebaseAnalytics && process.env.NODE_ENV === "development") {
       console.log("Firebase Analytics initialized successfully");
     }
   }, []);

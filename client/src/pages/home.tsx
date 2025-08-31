@@ -18,7 +18,7 @@ import { DonorRecognition } from "../components/DonorRecognition";
 const HeroAccessButton = () => {
   const [showForm, setShowForm] = useState(false);
 
-  const handleSuccess = (data: any) => {
+  const handleSuccess = (data: { email: string; firstName?: string }) => {
     // Track successful signup with existing analytics
     analytics.subscribeSubmitted(data.email);
     analytics.subscribeSuccess();

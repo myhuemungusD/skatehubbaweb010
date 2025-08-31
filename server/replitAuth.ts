@@ -63,8 +63,15 @@ export function getSession() {
   });
 }
 
+interface AuthUser {
+  claims?: any;
+  access_token?: string;
+  refresh_token?: string;
+  expires_at?: number;
+}
+
 function updateUserSession(
-  user: any,
+  user: AuthUser,
   tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
 ) {
   user.claims = tokens.claims();
@@ -73,7 +80,7 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
-async function upsertUser(claims: any) {
+async function upsertUser(claims: Record<string, any>) {
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],

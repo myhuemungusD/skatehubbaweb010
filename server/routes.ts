@@ -170,7 +170,7 @@ const validateRequest =
           details: result.error.errors,
         });
       }
-      (req as any).validatedBody = result.data;
+      (req as Request & { validatedBody: typeof result.data }).validatedBody = result.data;
       next();
     } catch (error) {
       res.status(400).json({ error: "Request validation failed" });
@@ -456,7 +456,7 @@ export async function registerRoutes(
           clientSecret: paymentIntent.client_secret,
           paymentIntentId: paymentIntent.id,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Payment intent creation failed:", error);
         res.status(500).json({
           error: "Failed to create payment intent",
@@ -477,11 +477,11 @@ export async function registerRoutes(
         currency: paymentIntent.currency,
         description: paymentIntent.description,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to retrieve payment intent:", error);
       res.status(500).json({
         error: "Failed to retrieve payment intent",
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });

@@ -133,10 +133,7 @@ export async function sendVerificationEmail(
       html: getVerificationEmailTemplate(name, verificationUrl),
     });
   } else {
-    // Fallback: log to console in development
-    console.log(`📧 Verification email for ${email}:`);
-    console.log(`🔗 Verification URL: ${verificationUrl}`);
-    console.log(`📝 To: ${name} <${email}>`);
+    // Fallback for development - no email service configured
   }
 }
 
@@ -157,9 +154,6 @@ export async function sendPasswordResetEmail(
       html: getPasswordResetEmailTemplate(name, resetUrl),
     });
   } else {
-    // Fallback: log to console in development
-    console.log(`📧 Password reset email for ${email}:`);
-    console.log(`🔗 Reset URL: ${resetUrl}`);
-    console.log(`📝 To: ${name} <${email}>`);
+    // Fallback for development - no email service configured
   }
 }

@@ -35,7 +35,6 @@ export async function sendSubscriberNotification(subscriberData: {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Subscriber notification email sent successfully");
   } catch (error) {
     console.error("Failed to send subscriber notification email:", error);
     // Don't throw error - we don't want subscription to fail if email fails
