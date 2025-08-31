@@ -198,14 +198,7 @@ export class DatabaseStorage implements IStorage {
   async createTutorialStep(step: InsertTutorialStep): Promise<TutorialStep> {
     const [createdStep] = await db
       .insert(tutorialSteps)
-      .values({
-        type: step.type,
-        title: step.title,
-        description: step.description,
-        content: step.content,
-        order: step.order,
-        isActive: step.isActive ?? true
-      })
+      .values(step)
       .returning();
     return createdStep;
   }
@@ -237,14 +230,7 @@ export class DatabaseStorage implements IStorage {
   ): Promise<UserProgress> {
     const [createdProgress] = await db
       .insert(userProgress)
-      .values({
-        userId: progress.userId,
-        stepId: progress.stepId,
-        completed: progress.completed ?? false,
-        completedAt: progress.completedAt,
-        timeSpent: progress.timeSpent,
-        interactionData: progress.interactionData
-      })
+      .values(progress)
       .returning();
     return createdProgress;
   }
@@ -255,9 +241,11 @@ export class DatabaseStorage implements IStorage {
     updates: UpdateUserProgress,
   ): Promise<UserProgress | undefined> {
     const updateData: any = {
-      ...updates,
-      completedAt: updates.completed ? new Date() : undefined,
+      ...updates
     };
+    if (updates.completed) {
+      updateData.completedAt = new Date();
+    }
 
     const [updatedProgress] = await db
       .update(userProgress)
