@@ -7,6 +7,7 @@ import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 import BackgroundCarousel from "../components/BackgroundCarousel";
 import { z } from "zod";
 import { NewSubscriberInput } from "../../../shared/schema";
+import EmailSignup from "../components/EmailSignup";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
@@ -219,7 +220,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           ...validatedData,
           company: "" // honeypot field
         })
@@ -281,7 +282,7 @@ export default function Home() {
       <a href="#main-content" className="sr-only focus:not-sr-only">
         Skip to main content
       </a>
-      
+
 
         {/* Beta Notice */}
         <div className="bg-orange-500 text-white text-center py-3">
@@ -335,7 +336,7 @@ export default function Home() {
                       SkateHubba
                     </h1>
                     <p className="text-lg md:text-xl lg:text-2xl text-gray-300 leading-relaxed">
-                      Own your tricks. Play SKATE anywhere.
+                      Own your tricks. Play S.K.A.T.E. anywhere.
                     </p>
 
                     {/* Trust & Proof Row */}
@@ -435,7 +436,7 @@ export default function Home() {
                         {/* Screen */}
                         <div className="w-full h-full bg-black rounded-2xl overflow-hidden relative">
                           {/* Map/Check-in Screenshot */}
-                          <div 
+                          <div
                             className="w-full h-full bg-gradient-to-br from-orange-900/30 to-gray-900 flex items-center justify-center"
                             data-testid="hero-phone-mockup"
                           >
@@ -553,6 +554,17 @@ export default function Home() {
               </div>
             </section>
 
+
+            {/* Email Signup Section */}
+            <section id="signup" className="py-16 bg-black/50 rounded-2xl mb-12">
+              <div className="container mx-auto px-4 text-center">
+                <h3 className="text-3xl md:text-4xl font-bold mb-5 text-[#fafafa] font-orbitron">Get SkateHubba Updates</h3>
+                <p className="text-lg text-gray-300 mb-8 max-w-xl mx-auto">
+                  Sign up for exclusive content, early access to features, and news about the SkateHubba community.
+                </p>
+                <EmailSignup />
+              </div>
+            </section>
 
 
           </div>
