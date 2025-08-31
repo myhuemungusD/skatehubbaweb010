@@ -1,14 +1,16 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-import cookieParser from 'cookie-parser';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const compression = require('compression');
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { validateEnvironment } from "./security";
 import rateLimit from "express-rate-limit";
-import helmet from "helmet";
-import compression from "compression";
-import pinoHttp from "pino-http";
-import Sentry from "./sentry.js";
+// import pinoHttp from "pino-http";
+// import Sentry from "./sentry.js";
 
 // Validate environment on startup
 validateEnvironment();
