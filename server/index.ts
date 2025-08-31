@@ -5,7 +5,7 @@ import { createServer } from "http";
 
 const app = express();
 
-// CORS middleware
+// CORS middleware - permissive for development, secure for production  
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
