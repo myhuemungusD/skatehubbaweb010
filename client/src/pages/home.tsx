@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { useToast } from "../hooks/use-toast";
@@ -6,191 +7,52 @@ import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 import BackgroundCarousel from "../components/BackgroundCarousel";
 import { z } from "zod";
 import { NewSubscriberInput } from "../../../shared/schema";
-import UltimateEmailSignup from "../components/UltimateEmailSignup";
+import EmailSignup from "../components/EmailSignup";
 
 // Placeholder for custom SkateHubba images - removed missing imports
 
 // Import components
 import { DonorRecognition } from "../components/DonorRecognition";
 
-// Hero Access Button Component
+// Hero Access Button Component - Simplified with UltimateEmailSignup  
 const HeroAccessButton = () => {
   const [showForm, setShowForm] = useState(false);
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [validationError, setValidationError] = useState("");
-  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setValidationError("");
-
-    // Client-side validation
-    try {
-      const validatedData = NewSubscriberInput.parse({ email, firstName });
-      setIsSubmitting(true);
-      analytics.subscribeSubmitted(validatedData.email);
-
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(validatedData)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        if (data.status === "exists") {
-          toast({
-            title: "Already subscribed",
-            description: "You're already on our list!",
-          });
-        } else if (data.status === "created") {
-          setIsSuccess(true);
-          analytics.subscribeSuccess();
-          toast({
-            title: "Welcome to SkateHubba! 🎉",
-            description: "You're now on the beta list!",
-          });
-        }
-        setEmail("");
-        setFirstName("");
-      } else {
-        const errorMsg = data.error?.formErrors?.[0] || "Something went wrong. Please try again.";
-        toast({
-          title: "Signup failed",
-          description: errorMsg,
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setValidationError(error.errors[0]?.message || "Please check your email");
-      } else {
-        toast({
-          title: "Network Error",
-          description: "Please check your connection and try again.",
-          variant: "destructive"
-        });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSuccess = (data: any) => {
+    // Track successful signup with existing analytics
+    analytics.subscribeSubmitted(data.email);
+    analytics.subscribeSuccess();
   };
 
-  if (isSuccess) {
+  if (!showForm) {
     return (
-      <div className="space-y-4 max-w-md mx-auto lg:mx-0">
-        <div className="bg-green-500/20 border border-green-400 rounded-lg p-4 text-center">
-          <div className="text-green-400 text-2xl mb-2">🎉</div>
-          <h3 className="text-green-400 font-bold mb-1">You're In!</h3>
-          <p className="text-green-300 text-sm">Get ready for updates, drops & sessions.</p>
-        </div>
-        <button
-          onClick={() => {
-            setIsSuccess(false);
-            setShowForm(false);
-          }}
-          className="text-orange-400 hover:text-orange-300 text-sm"
-        >
-          Subscribe another email →
-        </button>
-      </div>
-    );
-  }
-
-  if (showForm) {
-    return (
-      <div className="space-y-4 max-w-md mx-auto lg:mx-0">
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label htmlFor="hero-firstName" className="sr-only">
-              First Name
-            </label>
-            <Input
-              id="hero-firstName"
-              name="firstName"
-              type="text"
-              placeholder="Your Name"
-              value={firstName}
-              onChange={(e) => {
-                setFirstName(e.target.value);
-                setValidationError("");
-              }}
-              className="bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
-            />
-          </div>
-          <div>
-            <label htmlFor="hero-email" className="sr-only">
-              Email Address
-            </label>
-            <Input
-              id="hero-email"
-              name="email"
-              type="email"
-              placeholder="Your Email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setValidationError("");
-              }}
-              required
-              aria-describedby="hero-form-description hero-form-error"
-              aria-invalid={validationError ? "true" : "false"}
-              className={`bg-[#232323] border-[#333] text-[#fafafa] placeholder-gray-400 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none ${
-                validationError ? "border-red-500" : ""
-              }`}
-            />
-            <div id="hero-form-error" role="alert" aria-live="polite" className="min-h-[1.25rem]">
-              {validationError && (
-                <p className="text-red-400 text-sm">{validationError}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
-            >
-              {isSubmitting ? 'Joining...' : 'Join the beta'}
-            </Button>
-            <Button
-              type="button"
-              onClick={() => setShowForm(false)}
-              variant="outline"
-              className="px-3 border-[#333] text-[#fafafa] hover:bg-[#333] focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#181818] focus-visible:outline-none"
-              aria-label="Close form"
-            >
-              ×
-            </Button>
-          </div>
-        </form>
-        <p id="hero-form-description" className="text-xs text-gray-300 text-center">
-          Get updates on drops, sessions & early access
-        </p>
-      </div>
+      <button
+        onClick={() => {
+          const element = document.getElementById('signup');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+          analytics.ctaClickHero('join_beta'); // Track CTA click
+        }}
+        className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
+        data-testid="button-join-beta"
+      >
+        Join the Beta
+      </button>
     );
   }
 
   return (
-    <button
-      onClick={() => {
-        const element = document.getElementById('signup');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-        analytics.ctaClickHero('join_beta'); // Track CTA click
-      }}
-      className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-lg md:text-xl font-bold px-8 md:px-12 py-4 md:py-5 rounded-lg transition-all transform hover:scale-105 shadow-2xl min-h-[56px] touch-manipulation"
-      data-testid="button-join-beta"
-    >
-      Join the Beta
-    </button>
+    <div className="space-y-4 max-w-md mx-auto lg:mx-0">
+      <EmailSignup />
+      <button
+        onClick={() => setShowForm(false)}
+        className="text-orange-400 hover:text-orange-300 text-sm"
+        data-testid="button-back-to-cta"
+      >
+        ← Back to overview
+      </button>
+    </div>
   );
 };
 
@@ -198,7 +60,6 @@ const HeroAccessButton = () => {
 
 
 export default function Home() {
-  const [, setLocation] = useLocation();
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
