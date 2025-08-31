@@ -107,42 +107,9 @@ export const subscribeLimit = rateLimit({
   legacyHeaders: false
 });
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 auth requests per windowMs
-  message: {
-    error: "Too many authentication attempts, please try again later."
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-const paymentLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // limit each IP to 10 payment attempts per hour
-  message: {
-    error: "Too many payment attempts, please try again later."
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-const subscribeLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // limit each IP to 3 subscription attempts per 15 minutes
-  message: {
-    error: "Too many subscription attempts, please try again later."
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
 // Apply rate limiting only in production
 if (process.env.NODE_ENV !== 'development') {
   app.use(limiter);
-  app.use('/api/auth', authLimiter);
-  app.use('/api/create-payment-intent', paymentLimiter);
-  app.use('/api/subscribe', subscribeLimiter);
 }
 
 // Body parsing with size limits

@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import { subscribeLimit } from "./index";
 import { Resend } from "resend";
-import { Request, Response } from "express";
 import { db, eq } from "./db";
 import { users, insertUserSchema, selectUserSchema, tutorialSteps, userProgress } from "../shared/schema";
 import { hashPassword, comparePassword } from "./storage";
@@ -53,10 +52,7 @@ const validateId = (id: string): boolean => {
   return validator.isInt(id, { min: 1 }) && validator.isLength(id, { max: 20 });
 };
 
-const validateEmail = (email: string): boolean => {
-  const normalizedEmail = validator.normalizeEmail(email);
-  return Boolean(normalizedEmail) && validator.isEmail(normalizedEmail) && validator.isLength(normalizedEmail, { max: 254 });
-};
+
 
 const validateUserId = (userId: string): boolean => {
   // Validate Replit user ID format
@@ -543,58 +539,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     }
   });
 
-  // Secure email signup endpoint
-  app.post('/api/secure-signup', 
-    emailSignupLimiter,
-    validateHoneypot,
-    validateEmail,
-    validateUserAgent,
-    logIPAddress,
-    async (req: Request, res: Response) => {
-      try {
-        const { email, source = 'landing', userAgent, ipAddress } = req.body;
-        const db = admin.firestore();
-
-        // Check for existing subscription
-        const existingSubscriptions = await db.collection('subscriptions')
-          .where('email', '==', email.toLowerCase())
-          .limit(1)
-          .get();
-
-        if (!existingSubscriptions.empty) {
-          return res.json({ 
-            success: true, 
-            msg: "You're already on the beta list! We'll notify you when it's ready." 
-          });
-        }
-
-        const expireDate = new Date();
-        expireDate.setFullYear(expireDate.getFullYear() + 2);
-
-        await db.collection('subscriptions').add({
-          email: email.toLowerCase(),
-          source,
-          status: 'subscribed',
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          expireAt: admin.firestore.Timestamp.fromDate(expireDate),
-          userAgent,
-          ipAddress,
-          timestamp: Date.now(),
-        });
-
-        res.json({ 
-          success: true, 
-          msg: "Success! You're on the list. We'll notify you when SkateHubba launches!" 
-        });
-      } catch (error) {
-        console.error('Signup error:', error);
-        res.status(500).json({ 
-          success: false, 
-          msg: "Something went wrong. Please try again." 
-        });
-      }
-    }
-  );
+  
 
   const httpServer = createServer(app);
   return httpServer;

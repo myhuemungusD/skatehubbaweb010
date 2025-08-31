@@ -25,22 +25,20 @@ export default function EmailSignup() {
     trackButtonClick('email_signup', 'landing_page');
 
     try {
-      const response = await fetch('/api/secure-signup', {
+      const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email: email.toLowerCase().trim(),
-          source: 'landing',
-          userAgent: navigator.userAgent,
-          ipAddress: 'client-side', // Server will get real IP
+          firstName: '', // Required by schema
         }),
       });
 
       const data = await response.json();
 
-      if (data.success) {
+      if (data.ok) {
         toast({
           title: "Success! 🎉",
           description: data.msg || "Thanks for signing up! We'll keep you updated.",
