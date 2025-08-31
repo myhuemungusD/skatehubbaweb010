@@ -30,7 +30,7 @@ async function runPreDeploymentTests() {
 }
 
 if (import.meta.main) {
-  runPreDeploymentTests().then(success => {
+  runPreDeploymentTests().then((success) => {
     process.exit(success ? 0 : 1);
   });
 }

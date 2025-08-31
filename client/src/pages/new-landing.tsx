@@ -26,14 +26,26 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
       <nav className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2 font-extrabold tracking-tight">
+        <a
+          href="/"
+          className="flex items-center gap-2 font-extrabold tracking-tight"
+        >
           <span className="text-2xl">🛹</span>
           <span>SkateHubba</span>
         </a>
         <div className="hidden sm:flex items-center gap-2">
-          <a href="#features" className="btn btn-ghost">Features</a>
-          <a href="/donate" className="btn btn-ghost">Donate</a>
-          <a href="https://skate-hubba-frontend-jayham710.replit.app" className="btn btn-primary">Join the beta</a>
+          <a href="#features" className="btn btn-ghost">
+            Features
+          </a>
+          <a href="/donate" className="btn btn-ghost">
+            Donate
+          </a>
+          <a
+            href="https://skate-hubba-frontend-jayham710.replit.app"
+            className="btn btn-primary"
+          >
+            Join the beta
+          </a>
         </div>
       </nav>
     </header>
@@ -52,14 +64,25 @@ function Hero() {
             Own your tricks. Play SKATE anywhere.
           </p>
           <p className="mt-2 text-gray-600">
-            Remote SKATE battles. Legendary spot check-ins. Live lobbies. Built for core skaters.
+            Remote SKATE battles. Legendary spot check-ins. Live lobbies. Built
+            for core skaters.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a href="/donate" className="btn btn-primary">Donate</a>
-            <a href="https://skate-hubba-frontend-jayham710.replit.app" className="btn">Get beta access</a>
+            <a href="/donate" className="btn btn-primary">
+              Donate
+            </a>
+            <a
+              href="https://skate-hubba-frontend-jayham710.replit.app"
+              className="btn"
+            >
+              Get beta access
+            </a>
           </div>
           <ul className="mt-6 text-sm text-gray-500">
-            <li>24-hr trick reply window · Legendary spot multipliers · Live lobbies and replays</li>
+            <li>
+              24-hr trick reply window · Legendary spot multipliers · Live
+              lobbies and replays
+            </li>
           </ul>
         </div>
         <div className="relative">
@@ -103,33 +126,39 @@ function Features() {
     {
       icon: "🏆",
       title: "Remote SKATE battles",
-      description: "Challenge anyone, anywhere. Upload tricks, vote on winners, climb the leaderboards."
+      description:
+        "Challenge anyone, anywhere. Upload tricks, vote on winners, climb the leaderboards.",
     },
     {
       icon: "📍",
       title: "Legendary spot check-ins",
-      description: "Find iconic skate spots worldwide. Check-in for rewards and rep your local scene."
+      description:
+        "Find iconic skate spots worldwide. Check-in for rewards and rep your local scene.",
     },
     {
       icon: "🎥",
       title: "Live streaming",
-      description: "Broadcast your sessions, watch others skate, and build your following."
+      description:
+        "Broadcast your sessions, watch others skate, and build your following.",
     },
     {
       icon: "👕",
       title: "Digital closet",
-      description: "Customize your avatar with the latest gear and show off your style."
+      description:
+        "Customize your avatar with the latest gear and show off your style.",
     },
     {
       icon: "🌍",
       title: "Global community",
-      description: "Connect with skaters worldwide, join crews, and make lasting friendships."
+      description:
+        "Connect with skaters worldwide, join crews, and make lasting friendships.",
     },
     {
       icon: "📱",
       title: "Mobile-first",
-      description: "Designed for your phone. Capture, share, and compete on the go."
-    }
+      description:
+        "Designed for your phone. Capture, share, and compete on the go.",
+    },
   ];
 
   return (
@@ -140,7 +169,8 @@ function Features() {
             Everything you need to dominate
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Built by skaters, for skaters. Every feature designed to elevate your game.
+            Built by skaters, for skaters. Every feature designed to elevate
+            your game.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -168,16 +198,10 @@ function Donate() {
           Support the build. Keep the beta rolling.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
-            href={DONATE_STRIPE}
-            className="btn btn-primary px-8 py-3"
-          >
+          <a href={DONATE_STRIPE} className="btn btn-primary px-8 py-3">
             Donate with Stripe
           </a>
-          <a
-            href={DONATE_PAYPAL}
-            className="btn px-8 py-3"
-          >
+          <a href={DONATE_PAYPAL} className="btn px-8 py-3">
             Donate with PayPal
           </a>
         </div>
@@ -185,7 +209,6 @@ function Donate() {
     </section>
   );
 }
-
 
 function Footer() {
   return (

@@ -3,30 +3,37 @@ import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { CheckCircle, XCircle, Mail } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
 
 export default function VerifyEmailPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending');
-  const [message, setMessage] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState<
+    "pending" | "success" | "error"
+  >("pending");
+  const [message, setMessage] = useState("");
 
   // Get token from URL params
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
+  const token = urlParams.get("token");
 
   const verifyMutation = useMutation({
     mutationFn: async (token: string) => {
-      return apiRequest('/api/auth/verify-email', {
-        method: 'POST',
+      return apiRequest("/api/auth/verify-email", {
+        method: "POST",
         body: JSON.stringify({ token }),
       });
     },
     onSuccess: (response: any) => {
-      setVerificationStatus('success');
-      setMessage(response.message || 'Email verified successfully!');
+      setVerificationStatus("success");
+      setMessage(response.message || "Email verified successfully!");
       toast({
         title: "Email Verified! ✅",
         description: "You can now sign in to your account.",
@@ -34,11 +41,12 @@ export default function VerifyEmailPage() {
       });
     },
     onError: (error: any) => {
-      setVerificationStatus('error');
-      setMessage(error.message || 'Email verification failed.');
+      setVerificationStatus("error");
+      setMessage(error.message || "Email verification failed.");
       toast({
         title: "Verification Failed",
-        description: error.message || "The verification link may be expired or invalid.",
+        description:
+          error.message || "The verification link may be expired or invalid.",
         variant: "destructive",
       });
     },
@@ -48,17 +56,17 @@ export default function VerifyEmailPage() {
     if (token) {
       verifyMutation.mutate(token);
     } else {
-      setVerificationStatus('error');
-      setMessage('No verification token provided.');
+      setVerificationStatus("error");
+      setMessage("No verification token provided.");
     }
   }, [token]);
 
   const handleSignIn = () => {
-    setLocation('/auth');
+    setLocation("/auth");
   };
 
   const handleGoHome = () => {
-    setLocation('/');
+    setLocation("/");
   };
 
   return (
@@ -75,32 +83,34 @@ export default function VerifyEmailPage() {
         <Card className="bg-[#232323] border-gray-700">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              {verificationStatus === 'pending' && (
+              {verificationStatus === "pending" && (
                 <Mail className="h-16 w-16 text-orange-500 animate-pulse" />
               )}
-              {verificationStatus === 'success' && (
+              {verificationStatus === "success" && (
                 <CheckCircle className="h-16 w-16 text-green-500" />
               )}
-              {verificationStatus === 'error' && (
+              {verificationStatus === "error" && (
                 <XCircle className="h-16 w-16 text-red-500" />
               )}
             </div>
             <CardTitle className="text-2xl text-white">
-              {verificationStatus === 'pending' && "Verifying Email..."}
-              {verificationStatus === 'success' && "Email Verified!"}
-              {verificationStatus === 'error' && "Verification Failed"}
+              {verificationStatus === "pending" && "Verifying Email..."}
+              {verificationStatus === "success" && "Email Verified!"}
+              {verificationStatus === "error" && "Verification Failed"}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-6">
             <p className="text-gray-300">
-              {verificationStatus === 'pending' && "Please wait while we verify your email address..."}
+              {verificationStatus === "pending" &&
+                "Please wait while we verify your email address..."}
               {message || "We're processing your email verification."}
             </p>
 
-            {verificationStatus === 'success' && (
+            {verificationStatus === "success" && (
               <div className="space-y-4">
                 <p className="text-green-400 text-sm">
-                  🎉 Welcome to the SkateHubba community! Your account is now active.
+                  🎉 Welcome to the SkateHubba community! Your account is now
+                  active.
                 </p>
                 <Button
                   onClick={handleSignIn}
@@ -112,10 +122,11 @@ export default function VerifyEmailPage() {
               </div>
             )}
 
-            {verificationStatus === 'error' && (
+            {verificationStatus === "error" && (
               <div className="space-y-4">
                 <p className="text-red-400 text-sm">
-                  The verification link may be expired or invalid. Please try signing up again or contact support.
+                  The verification link may be expired or invalid. Please try
+                  signing up again or contact support.
                 </p>
                 <div className="space-y-2">
                   <Button
@@ -137,7 +148,7 @@ export default function VerifyEmailPage() {
               </div>
             )}
 
-            {verificationStatus === 'pending' && (
+            {verificationStatus === "pending" && (
               <Button
                 onClick={handleGoHome}
                 variant="link"

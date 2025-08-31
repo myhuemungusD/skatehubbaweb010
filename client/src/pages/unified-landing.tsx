@@ -6,7 +6,15 @@ import { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
 import { analytics } from "../lib/analytics";
 import { z } from "zod";
-import { ChevronDown, Play, CheckCircle, Zap, MapPin, Users, Trophy } from "lucide-react";
+import {
+  ChevronDown,
+  Play,
+  CheckCircle,
+  Zap,
+  MapPin,
+  Users,
+  Trophy,
+} from "lucide-react";
 
 const subscribeSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -15,22 +23,25 @@ const subscribeSchema = z.object({
 
 // Apple-level micro-interaction hooks
 const useSpringAnimation = (isVisible: boolean) => {
-  const [style, setStyle] = useState({ transform: 'translateY(20px)', opacity: 0 });
-  
+  const [style, setStyle] = useState({
+    transform: "translateY(20px)",
+    opacity: 0,
+  });
+
   useEffect(() => {
     if (isVisible) {
-      setStyle({ 
-        transform: 'translateY(0px)', 
+      setStyle({
+        transform: "translateY(0px)",
         opacity: 1,
       });
     }
   }, [isVisible]);
-  
+
   return {
     style: {
       ...style,
-      transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-    }
+      transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+    },
   };
 };
 
@@ -41,13 +52,15 @@ const LoadingButton = ({ isLoading, children, className, ...props }: any) => (
     disabled={isLoading}
     className={`${className} relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed`}
     style={{
-      minHeight: '48px',
-      fontSize: '16px',
-      WebkitTapHighlightColor: 'transparent',
-      touchAction: 'manipulation'
+      minHeight: "48px",
+      fontSize: "16px",
+      WebkitTapHighlightColor: "transparent",
+      touchAction: "manipulation",
     }}
   >
-    <span className={`transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+    <span
+      className={`transition-opacity duration-200 ${isLoading ? "opacity-0" : "opacity-100"}`}
+    >
       {children}
     </span>
     {isLoading && (
@@ -61,9 +74,7 @@ const LoadingButton = ({ isLoading, children, className, ...props }: any) => (
 // Systematic component spacing
 const Section = ({ children, className = "", ...props }: any) => (
   <section className={`py-16 md:py-24 ${className}`} {...props}>
-    <div className="max-w-6xl mx-auto px-6">
-      {children}
-    </div>
+    <div className="max-w-6xl mx-auto px-6">{children}</div>
   </section>
 );
 
@@ -83,32 +94,55 @@ const SkateHubbaLogo = () => (
         stroke="#fafafa"
         strokeWidth="2"
       />
-      <circle cx="25" cy="52.5" r="8" fill="#181818" stroke="currentColor" strokeWidth="2"/>
-      <circle cx="75" cy="52.5" r="8" fill="#181818" stroke="currentColor" strokeWidth="2"/>
-      <rect x="22" y="48" width="6" height="9" fill="#666" rx="1"/>
-      <rect x="72" y="48" width="6" height="9" fill="#666" rx="1"/>
-      <text x="50" y="55" textAnchor="middle" fontSize="8" fill="#fafafa" fontWeight="bold">SH</text>
+      <circle
+        cx="25"
+        cy="52.5"
+        r="8"
+        fill="#181818"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle
+        cx="75"
+        cy="52.5"
+        r="8"
+        fill="#181818"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <rect x="22" y="48" width="6" height="9" fill="#666" rx="1" />
+      <rect x="72" y="48" width="6" height="9" fill="#666" rx="1" />
+      <text
+        x="50"
+        y="55"
+        textAnchor="middle"
+        fontSize="8"
+        fill="#fafafa"
+        fontWeight="bold"
+      >
+        SH
+      </text>
     </svg>
   </div>
 );
 
 export default function UnifiedLanding() {
   const [showDetailedFeatures, setShowDetailedFeatures] = useState(false);
-  
+
   // Progressive disclosure with intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
+            entry.target.classList.add("animate-in");
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    document.querySelectorAll('.fade-in-section').forEach((el) => {
+    document.querySelectorAll(".fade-in-section").forEach((el) => {
       observer.observe(el);
     });
 

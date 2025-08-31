@@ -1,4 +1,3 @@
-
 import crypto from "crypto";
 
 // Security constants
@@ -14,37 +13,41 @@ export const SECURITY_CONFIG = {
 // Validate critical environment variables
 export function validateEnvironment() {
   const required = [
-    'DATABASE_URL',
-    'SESSION_SECRET',
-    'REPL_ID',
-    'STRIPE_SECRET_KEY'
+    "DATABASE_URL",
+    "SESSION_SECRET",
+    "REPL_ID",
+    "STRIPE_SECRET_KEY",
   ];
 
-  const missing = required.filter(key => !process.env[key]);
+  const missing = required.filter((key) => !process.env[key]);
   if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    throw new Error(
+      `Missing required environment variables: ${missing.join(", ")}`,
+    );
   }
 
   // Validate session secret strength
   if (process.env.SESSION_SECRET!.length < 32) {
-    console.warn('SESSION_SECRET should be at least 32 characters for security');
+    console.warn(
+      "SESSION_SECRET should be at least 32 characters for security",
+    );
   }
 
   // Validate Stripe key format
-  if (!process.env.STRIPE_SECRET_KEY!.startsWith('sk_')) {
-    throw new Error('Invalid Stripe secret key format');
+  if (!process.env.STRIPE_SECRET_KEY!.startsWith("sk_")) {
+    throw new Error("Invalid Stripe secret key format");
   }
 }
 
 // Generate secure random tokens
 export function generateSecureToken(length: number = 32): string {
-  return crypto.randomBytes(length).toString('hex');
+  return crypto.randomBytes(length).toString("hex");
 }
 
 // Secure string comparison
 export function secureCompare(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
+  return crypto.timingSafeEqual(Buffer.from(a, "utf8"), Buffer.from(b, "utf8"));
 }
 
 // IP address validation

@@ -15,10 +15,10 @@ export function useAuth() {
 
       try {
         const idToken = await firebaseUser.getIdToken();
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch("/api/auth/me", {
           headers: {
-            'Authorization': `Bearer ${idToken}`
-          }
+            Authorization: `Bearer ${idToken}`,
+          },
         });
 
         if (response.ok) {
@@ -27,7 +27,7 @@ export function useAuth() {
 
         return null;
       } catch (error) {
-        console.warn('Failed to get user data:', error);
+        console.warn("Failed to get user data:", error);
         return null;
       }
     },
@@ -43,7 +43,8 @@ export function useAuth() {
     }
   }, [firebaseLoading]);
 
-  const isLoading = firebaseLoading || (!isInitialized) || (firebaseUser && backendLoading);
+  const isLoading =
+    firebaseLoading || !isInitialized || (firebaseUser && backendLoading);
 
   // User is authenticated if we have both Firebase user and backend user data
   const isAuthenticated = !!firebaseUser && !!backendUser?.user;

@@ -8,15 +8,15 @@ export function useCustomAuth() {
 
   // Get auth token from localStorage
   const getAuthToken = (): string | null => {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem("auth_token");
   };
 
   // Set auth token in localStorage and update headers
   const setAuthToken = (token: string | null) => {
     if (token) {
-      localStorage.setItem('auth_token', token);
+      localStorage.setItem("auth_token", token);
     } else {
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem("auth_token");
     }
   };
 
@@ -26,17 +26,21 @@ export function useCustomAuth() {
   };
 
   // Get current user data
-  const { data: user, isLoading, error } = useQuery<CustomUser>({
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery<CustomUser>({
     queryKey: ["/api/auth/me"],
     queryFn: async () => {
       const token = getAuthToken();
       if (!token) {
-        throw new Error('No auth token');
+        throw new Error("No auth token");
       }
 
-      return apiRequest('/api/auth/me', {
+      return apiRequest("/api/auth/me", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       }).then((response: any) => response.user);
     },
@@ -50,10 +54,10 @@ export function useCustomAuth() {
     mutationFn: async () => {
       const token = getAuthToken();
       if (token) {
-        await apiRequest('/api/auth/logout', {
-          method: 'POST',
+        await apiRequest("/api/auth/logout", {
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
       }
@@ -61,13 +65,13 @@ export function useCustomAuth() {
     onSuccess: () => {
       setAuthToken(null);
       queryClient.clear();
-      window.location.href = '/';
+      window.location.href = "/";
     },
     onError: () => {
       // Even if logout fails on server, clear local state
       setAuthToken(null);
       queryClient.clear();
-      window.location.href = '/';
+      window.location.href = "/";
     },
   });
 
@@ -90,12 +94,14 @@ export function useCustomAuth() {
 }
 
 // Utility to add auth header to API requests
-export function addAuthHeader(headers: Record<string, string> = {}): Record<string, string> {
-  const token = localStorage.getItem('auth_token');
+export function addAuthHeader(
+  headers: Record<string, string> = {},
+): Record<string, string> {
+  const token = localStorage.getItem("auth_token");
   if (token) {
     return {
       ...headers,
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     };
   }
   return headers;

@@ -1,20 +1,22 @@
-
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 // Email configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD
-  }
+    pass: process.env.EMAIL_APP_PASSWORD,
+  },
 });
 
-export async function sendSubscriberNotification(subscriberData: { firstName: string; email: string }) {
+export async function sendSubscriberNotification(subscriberData: {
+  firstName: string;
+  email: string;
+}) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: 'jason@skatehubba.com',
-    subject: '🛹 New SkateHubba Subscriber!',
+    to: "jason@skatehubba.com",
+    subject: "🛹 New SkateHubba Subscriber!",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #f97316;">🛹 New Subscriber Alert!</h2>
@@ -28,14 +30,14 @@ export async function sendSubscriberNotification(subscriberData: { firstName: st
         
         <p style="color: #666;">Keep building that community! 🚀</p>
       </div>
-    `
+    `,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Subscriber notification email sent successfully');
+    console.log("Subscriber notification email sent successfully");
   } catch (error) {
-    console.error('Failed to send subscriber notification email:', error);
+    console.error("Failed to send subscriber notification email:", error);
     // Don't throw error - we don't want subscription to fail if email fails
   }
 }

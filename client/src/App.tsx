@@ -1,4 +1,3 @@
-
 import { Router, Route, Switch } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -50,9 +49,12 @@ function AppRoutes() {
         <>
           <Route path="/" component={Home} />
           <Route path="/donate" component={DonationPage} />
-          <Route path="/tutorial" component={() => {
-            return user ? <Tutorial userId={user.id} /> : <NotFound />;
-          }} />
+          <Route
+            path="/tutorial"
+            component={() => {
+              return user ? <Tutorial userId={user.id} /> : <NotFound />;
+            }}
+          />
           <Route path="/auth" component={AuthPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route component={NotFound} />
@@ -66,7 +68,7 @@ export default function App() {
   useEffect(() => {
     // Initialize Firebase Analytics on app start
     if (firebaseAnalytics) {
-      console.log('Firebase Analytics initialized successfully');
+      console.log("Firebase Analytics initialized successfully");
     }
   }, []);
 

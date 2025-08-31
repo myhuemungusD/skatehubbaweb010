@@ -1,5 +1,5 @@
-import { neon, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { neon, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../shared/schema.js";
 
 if (!process.env.DATABASE_URL) {
@@ -33,8 +33,8 @@ export async function initializeDatabase() {
           type: "intro" as const,
           content: { videoUrl: "https://example.com/intro-video" },
           order: 1,
-          isActive: true
-        }
+          isActive: true,
+        },
       ];
       for (const step of defaultSteps) {
         await db.insert(schema.tutorialSteps).values(step);
@@ -46,7 +46,7 @@ export async function initializeDatabase() {
   } catch (error) {
     console.error("Database initialization failed:", error);
     // Don't throw in production, just log the error
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       throw error;
     }
   }

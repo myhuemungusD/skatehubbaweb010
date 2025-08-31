@@ -1,16 +1,30 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 import { Button } from "../components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
 import { ArrowLeft, DollarSign, Heart, Users, Zap } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import { trackDonation, trackButtonClick, trackPageView } from "../lib/analytics";
+import {
+  trackDonation,
+  trackButtonClick,
+  trackPageView,
+} from "../lib/analytics";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
@@ -35,7 +49,8 @@ const DonateForm = ({ amount }: DonateFormProps) => {
     if (!donorName.trim()) {
       toast({
         title: "Name Required",
-        description: "Please enter your first name to be recognized as a supporter.",
+        description:
+          "Please enter your first name to be recognized as a supporter.",
         variant: "destructive",
       });
       return;
@@ -49,7 +64,7 @@ const DonateForm = ({ amount }: DonateFormProps) => {
         confirmParams: {
           return_url: `${window.location.origin}/donate?success=true&name=${encodeURIComponent(donorName)}`,
         },
-        redirect: "if_required"
+        redirect: "if_required",
       });
 
       if (error) {
@@ -61,25 +76,26 @@ const DonateForm = ({ amount }: DonateFormProps) => {
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         // Record the donation
         try {
-          await fetch('/api/record-donation', {
-            method: 'POST',
+          await fetch("/api/record-donation", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               paymentIntentId: paymentIntent.id,
-              firstName: donorName.trim()
-            })
+              firstName: donorName.trim(),
+            }),
           });
         } catch (recordError) {
-          console.error('Failed to record donation:', recordError);
+          console.error("Failed to record donation:", recordError);
         }
 
         toast({
           title: "Thank You! 🎉",
-          description: "Your donation was successful. You're helping build the future of skateboarding!",
+          description:
+            "Your donation was successful. You're helping build the future of skateboarding!",
         });
-        
+
         // Redirect to success page
         window.location.href = `${window.location.origin}/donate?success=true`;
       }
@@ -97,7 +113,10 @@ const DonateForm = ({ amount }: DonateFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <label htmlFor="donor-name" className="text-sm font-medium text-[#fafafa]">
+        <label
+          htmlFor="donor-name"
+          className="text-sm font-medium text-[#fafafa]"
+        >
           First Name (for recognition)
         </label>
         <input
@@ -136,20 +155,21 @@ const DonateForm = ({ amount }: DonateFormProps) => {
 export default function Donate() {
   const [, setLocation] = useLocation();
   const [selectedAmount, setSelectedAmount] = useState(25);
-  const [customAmount, setCustomAmount] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
+  const [customAmount, setCustomAmount] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const { toast } = useToast();
 
   // Track page view and check for success parameter
   useEffect(() => {
-    trackPageView('Donation Page');
-    
+    trackPageView("Donation Page");
+
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
+    if (urlParams.get("success") === "true") {
       toast({
         title: "Thank You! 🎉",
-        description: "Your donation was successful. You're helping build the future of skateboarding!",
+        description:
+          "Your donation was successful. You're helping build the future of skateboarding!",
       });
     }
   }, [toast]);
@@ -158,9 +178,9 @@ export default function Donate() {
   const donationAmounts = [10, 25, 50, 100];
 
   const handleAmountSelect = (amount: number) => {
-    trackButtonClick(`donation_amount_${amount}`, 'donation_page');
+    trackButtonClick(`donation_amount_${amount}`, "donation_page");
     setSelectedAmount(amount);
-    setCustomAmount('');
+    setCustomAmount("");
   };
 
   const handleCustomAmountChange = (value: string) => {
@@ -173,8 +193,8 @@ export default function Donate() {
 
   const createPaymentIntent = async () => {
     // Track donation initiation
-    trackDonation(selectedAmount, 'stripe');
-    
+    trackDonation(selectedAmount, "stripe");
+
     if (selectedAmount < 1) {
       toast({
         title: "Invalid Amount",
@@ -187,22 +207,22 @@ export default function Donate() {
     setIsCreatingPayment(true);
 
     try {
-      const response = await fetch('/api/create-payment-intent', {
-        method: 'POST',
+      const response = await fetch("/api/create-payment-intent", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           amount: selectedAmount,
-          currency: 'usd',
-          description: `SkateHubba Support - $${selectedAmount}`
-        })
+          currency: "usd",
+          description: `SkateHubba Support - $${selectedAmount}`,
+        }),
       });
 
       const { clientSecret } = await response.json();
       setClientSecret(clientSecret);
     } catch (error) {
-      console.error('Error creating payment intent:', error);
+      console.error("Error creating payment intent:", error);
       toast({
         title: "Payment Setup Failed",
         description: "Unable to set up payment. Please try again.",
@@ -214,19 +234,22 @@ export default function Donate() {
   };
 
   return (
-    <div className="min-h-screen" style={{
-      backgroundImage: `url('/attached_assets/graffwallskateboardrack_1754296307132.png')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center top',
-      backgroundAttachment: 'fixed'
-    }}>
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundImage: `url('/attached_assets/graffwallskateboardrack_1754296307132.png')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center top",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <div className="min-h-screen">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 bg-transparent">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
             <Button
               variant="ghost"
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation("/")}
               className="text-white hover:text-orange-400 bg-transparent border-none"
               data-testid="button-back-home"
             >
@@ -234,8 +257,12 @@ export default function Donate() {
               Back to Home
             </Button>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">Support SkateHubba</h1>
-              <p className="text-gray-200">Help us build the future of skateboarding</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                Support SkateHubba
+              </h1>
+              <p className="text-gray-200">
+                Help us build the future of skateboarding
+              </p>
             </div>
           </div>
 
@@ -248,7 +275,8 @@ export default function Donate() {
                   Support Our Mission
                 </CardTitle>
                 <CardDescription className="text-gray-200 text-lg">
-                  Help us create the ultimate skateboarding platform that connects skaters worldwide
+                  Help us create the ultimate skateboarding platform that
+                  connects skaters worldwide
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -258,21 +286,27 @@ export default function Donate() {
                       <Users className="w-6 h-6 text-orange-400" />
                     </div>
                     <h4 className="text-white font-semibold">Community</h4>
-                    <p className="text-sm text-gray-200">Build connections between skaters globally</p>
+                    <p className="text-sm text-gray-200">
+                      Build connections between skaters globally
+                    </p>
                   </div>
                   <div className="text-center">
                     <div className="p-3 bg-orange-400/20 rounded-lg inline-flex items-center justify-center mb-2">
                       <Zap className="w-6 h-6 text-orange-400" />
                     </div>
                     <h4 className="text-white font-semibold">Innovation</h4>
-                    <p className="text-sm text-gray-200">Cutting-edge features and technology</p>
+                    <p className="text-sm text-gray-200">
+                      Cutting-edge features and technology
+                    </p>
                   </div>
                   <div className="text-center">
                     <div className="p-3 bg-orange-400/20 rounded-lg inline-flex items-center justify-center mb-2">
                       <DollarSign className="w-6 h-6 text-orange-400" />
                     </div>
                     <h4 className="text-white font-semibold">Sustainability</h4>
-                    <p className="text-sm text-gray-200">Keep the platform free and accessible</p>
+                    <p className="text-sm text-gray-200">
+                      Keep the platform free and accessible
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -281,9 +315,12 @@ export default function Donate() {
             {/* Donation Form */}
             <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-white">Choose Your Support Level</CardTitle>
+                <CardTitle className="text-white">
+                  Choose Your Support Level
+                </CardTitle>
                 <CardDescription className="text-gray-200">
-                  Every contribution helps us build amazing features for the skate community
+                  Every contribution helps us build amazing features for the
+                  skate community
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -291,12 +328,16 @@ export default function Donate() {
                   <>
                     {/* Amount Selection */}
                     <div className="space-y-3">
-                      <Label className="text-white text-base">Select Amount</Label>
+                      <Label className="text-white text-base">
+                        Select Amount
+                      </Label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                         {donationAmounts.map((amount) => (
                           <Button
                             key={amount}
-                            variant={selectedAmount === amount ? "default" : "outline"}
+                            variant={
+                              selectedAmount === amount ? "default" : "outline"
+                            }
                             onClick={() => handleAmountSelect(amount)}
                             className={`h-12 sm:h-14 text-base sm:text-lg font-semibold rounded-lg transition-all ${
                               selectedAmount === amount
@@ -313,7 +354,10 @@ export default function Donate() {
 
                     {/* Custom Amount */}
                     <div className="space-y-2">
-                      <Label htmlFor="custom-amount" className="text-white text-base">
+                      <Label
+                        htmlFor="custom-amount"
+                        className="text-white text-base"
+                      >
                         Or Enter Custom Amount
                       </Label>
                       <div className="relative">
@@ -325,7 +369,9 @@ export default function Donate() {
                           step="0.01"
                           placeholder="25.00"
                           value={customAmount}
-                          onChange={(e) => handleCustomAmountChange(e.target.value)}
+                          onChange={(e) =>
+                            handleCustomAmountChange(e.target.value)
+                          }
                           className="pl-8 sm:pl-10 bg-white/20 border-orange-400/50 text-white placeholder-gray-300 h-10 sm:h-12 text-base sm:text-lg"
                           data-testid="input-custom-amount"
                         />
@@ -353,7 +399,9 @@ export default function Donate() {
 
                     {/* Alternative Options */}
                     <div className="p-4 bg-green-500/10 rounded-lg border border-green-400/30">
-                      <h4 className="text-green-400 font-semibold mb-3">Alternative Options</h4>
+                      <h4 className="text-green-400 font-semibold mb-3">
+                        Alternative Options
+                      </h4>
                       <div className="space-y-2">
                         <a
                           href="https://gofund.me/4d6b7234"
@@ -364,7 +412,11 @@ export default function Donate() {
                           🎯 GoFundMe
                         </a>
                         <p className="text-sm text-gray-300">
-                          Or send directly to <strong className="text-green-400">$SkateHubbaApp</strong> via CashApp
+                          Or send directly to{" "}
+                          <strong className="text-green-400">
+                            $SkateHubbaApp
+                          </strong>{" "}
+                          via CashApp
                         </p>
                       </div>
                     </div>
@@ -375,7 +427,9 @@ export default function Donate() {
                       <Badge className="bg-orange-400/20 text-orange-400 border-orange-400/30">
                         Secure Payment
                       </Badge>
-                      <p className="text-gray-300 mt-2">Complete your secure payment below</p>
+                      <p className="text-gray-300 mt-2">
+                        Complete your secure payment below
+                      </p>
                     </div>
 
                     <Elements stripe={stripePromise} options={{ clientSecret }}>
@@ -385,7 +439,7 @@ export default function Donate() {
                     <div className="text-center">
                       <Button
                         variant="outline"
-                        onClick={() => setClientSecret('')}
+                        onClick={() => setClientSecret("")}
                         className="border-gray-600 text-gray-300 hover:bg-gray-700"
                         data-testid="button-change-amount"
                       >
@@ -400,17 +454,21 @@ export default function Donate() {
             {/* Quick Donate Option */}
             <Card className="bg-black/30 border-orange-400/30 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-white text-center">Quick Donate</CardTitle>
+                <CardTitle className="text-white text-center">
+                  Quick Donate
+                </CardTitle>
                 <CardDescription className="text-gray-200 text-center">
                   Skip the form and donate any amount instantly
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <a 
-                  href="https://buy.stripe.com/9B63cu9AngM80LV4ntfMA01" 
-                  target="_blank" 
+                <a
+                  href="https://buy.stripe.com/9B63cu9AngM80LV4ntfMA01"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => trackButtonClick('quick_donate_stripe', 'donation_page')}
+                  onClick={() =>
+                    trackButtonClick("quick_donate_stripe", "donation_page")
+                  }
                   className="inline-block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg shadow-lg transition-all transform hover:scale-105"
                   data-testid="button-quick-donate"
                 >
@@ -424,11 +482,16 @@ export default function Donate() {
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-green-400">
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Secure</Badge>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                      Secure
+                    </Badge>
                     <span className="text-sm">Payments powered by Stripe</span>
                   </div>
                   <div className="text-sm text-gray-400">
-                    <p>🔒 Your payment information is encrypted and secure. We never store your card details.</p>
+                    <p>
+                      🔒 Your payment information is encrypted and secure. We
+                      never store your card details.
+                    </p>
                   </div>
                 </div>
               </CardContent>

@@ -1,13 +1,19 @@
-import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { User, Play, ArrowLeft } from 'lucide-react';
-import { useToast } from '../hooks/use-toast';
-import type { User as UserType } from '@shared/schema';
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import { User, Play, ArrowLeft } from "lucide-react";
+import { useToast } from "../hooks/use-toast";
+import type { User as UserType } from "@shared/schema";
 
 export default function Demo() {
   const [, setLocation] = useLocation();
@@ -17,11 +23,11 @@ export default function Demo() {
   // Create demo user mutation
   const createDemoUserMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/demo-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/demo-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
-      if (!response.ok) throw new Error('Failed to create demo user');
+      if (!response.ok) throw new Error("Failed to create demo user");
       return response.json();
     },
     onSuccess: (user: UserType) => {
@@ -53,19 +59,22 @@ export default function Demo() {
   };
 
   return (
-    <div className="min-h-screen bg-[#181818]" style={{
-      backgroundImage: `url('/attached_assets/graffwallskateboardrack_1754296307132.png')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundAttachment: 'fixed'
-    }}>
+    <div
+      className="min-h-screen bg-[#181818]"
+      style={{
+        backgroundImage: `url('/attached_assets/graffwallskateboardrack_1754296307132.png')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <div className="min-h-screen bg-black/70">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <Button
               variant="ghost"
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation("/")}
               className="text-[#fafafa] hover:text-orange-400"
               data-testid="button-back-home"
             >
@@ -73,8 +82,12 @@ export default function Demo() {
               Back to Home
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-[#fafafa]">SkateHubba Demo</h1>
-              <p className="text-gray-300">Try the interactive tutorial experience</p>
+              <h1 className="text-3xl font-bold text-[#fafafa]">
+                SkateHubba Demo
+              </h1>
+              <p className="text-gray-300">
+                Try the interactive tutorial experience
+              </p>
             </div>
           </div>
 
@@ -89,16 +102,21 @@ export default function Demo() {
                   Interactive Tutorial Demo
                 </CardTitle>
                 <CardDescription className="text-gray-300 text-lg">
-                  Experience the complete SkateHubba onboarding flow with our interactive tutorial system.
+                  Experience the complete SkateHubba onboarding flow with our
+                  interactive tutorial system.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
-                  <h3 className="text-orange-400 font-semibold text-lg">What you'll learn:</h3>
+                  <h3 className="text-orange-400 font-semibold text-lg">
+                    What you'll learn:
+                  </h3>
                   <ul className="space-y-2 text-[#fafafa]">
                     <li className="flex items-start gap-3">
                       <span className="text-orange-400">🗺️</span>
-                      <span>Navigate the interactive map and check in at skate spots</span>
+                      <span>
+                        Navigate the interactive map and check in at skate spots
+                      </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-orange-400">🎥</span>
@@ -122,7 +140,8 @@ export default function Demo() {
                 {!demoUserId ? (
                   <div className="space-y-4">
                     <p className="text-gray-300">
-                      Create a temporary demo account to experience the full tutorial:
+                      Create a temporary demo account to experience the full
+                      tutorial:
                     </p>
                     <Button
                       onClick={() => createDemoUserMutation.mutate()}
@@ -130,7 +149,9 @@ export default function Demo() {
                       className="w-full bg-orange-400 text-black hover:bg-orange-500 font-semibold py-3"
                       data-testid="button-create-demo-user"
                     >
-                      {createDemoUserMutation.isPending ? 'Creating Demo User...' : 'Create Demo Account & Start Tutorial'}
+                      {createDemoUserMutation.isPending
+                        ? "Creating Demo User..."
+                        : "Create Demo Account & Start Tutorial"}
                     </Button>
                   </div>
                 ) : (
@@ -138,15 +159,24 @@ export default function Demo() {
                     <div className="p-4 bg-green-500/20 rounded-lg border border-green-500/30">
                       <div className="flex items-center gap-3 mb-2">
                         <User className="w-5 h-5 text-green-400" />
-                        <span className="text-green-400 font-semibold">Demo Account Ready!</span>
+                        <span className="text-green-400 font-semibold">
+                          Demo Account Ready!
+                        </span>
                       </div>
                       <p className="text-[#fafafa]">
-                        Username: <Badge variant="outline" className="ml-2 border-green-500/50 text-green-400">
+                        Username:{" "}
+                        <Badge
+                          variant="outline"
+                          className="ml-2 border-green-500/50 text-green-400"
+                        >
                           {demoUser?.username}
                         </Badge>
                       </p>
                       <p className="text-sm text-gray-300 mt-2">
-                        Tutorial progress: {demoUser?.onboardingCompleted ? 'Completed' : 'Ready to start'}
+                        Tutorial progress:{" "}
+                        {demoUser?.onboardingCompleted
+                          ? "Completed"
+                          : "Ready to start"}
                       </p>
                     </div>
 
@@ -166,7 +196,9 @@ export default function Demo() {
             {/* Features Preview */}
             <Card className="bg-black/60 border-gray-600 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-[#fafafa]">Tutorial Features</CardTitle>
+                <CardTitle className="text-[#fafafa]">
+                  Tutorial Features
+                </CardTitle>
                 <CardDescription className="text-gray-300">
                   Advanced onboarding system with interactive elements
                 </CardDescription>
@@ -174,7 +206,10 @@ export default function Demo() {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Badge variant="outline" className="border-orange-400/50 text-orange-400">
+                    <Badge
+                      variant="outline"
+                      className="border-orange-400/50 text-orange-400"
+                    >
                       Interactive Guide
                     </Badge>
                     <p className="text-sm text-gray-300">
@@ -182,7 +217,10 @@ export default function Demo() {
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Badge variant="outline" className="border-purple-500/50 text-purple-400">
+                    <Badge
+                      variant="outline"
+                      className="border-purple-500/50 text-purple-400"
+                    >
                       Challenge System
                     </Badge>
                     <p className="text-sm text-gray-300">
@@ -190,7 +228,10 @@ export default function Demo() {
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+                    <Badge
+                      variant="outline"
+                      className="border-blue-500/50 text-blue-400"
+                    >
                       Progress Tracking
                     </Badge>
                     <p className="text-sm text-gray-300">
@@ -198,7 +239,10 @@ export default function Demo() {
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Badge variant="outline" className="border-green-500/50 text-green-400">
+                    <Badge
+                      variant="outline"
+                      className="border-green-500/50 text-green-400"
+                    >
                       Adaptive Flow
                     </Badge>
                     <p className="text-sm text-gray-300">
@@ -220,20 +264,34 @@ export default function Demo() {
               <CardContent>
                 <div className="space-y-3 font-mono text-sm">
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-green-600/20 text-green-400 border-green-600/30">GET</Badge>
+                    <Badge className="bg-green-600/20 text-green-400 border-green-600/30">
+                      GET
+                    </Badge>
                     <span className="text-gray-300">/api/tutorial/steps</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-blue-600/20 text-blue-400 border-blue-600/30">POST</Badge>
-                    <span className="text-gray-300">/api/users/:id/progress</span>
+                    <Badge className="bg-blue-600/20 text-blue-400 border-blue-600/30">
+                      POST
+                    </Badge>
+                    <span className="text-gray-300">
+                      /api/users/:id/progress
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-orange-600/20 text-orange-400 border-orange-600/30">PATCH</Badge>
-                    <span className="text-gray-300">/api/users/:id/progress/:stepId</span>
+                    <Badge className="bg-orange-600/20 text-orange-400 border-orange-600/30">
+                      PATCH
+                    </Badge>
+                    <span className="text-gray-300">
+                      /api/users/:id/progress/:stepId
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-purple-600/20 text-purple-400 border-purple-600/30">PATCH</Badge>
-                    <span className="text-gray-300">/api/users/:id/onboarding</span>
+                    <Badge className="bg-purple-600/20 text-purple-400 border-purple-600/30">
+                      PATCH
+                    </Badge>
+                    <span className="text-gray-300">
+                      /api/users/:id/onboarding
+                    </span>
                   </div>
                 </div>
               </CardContent>

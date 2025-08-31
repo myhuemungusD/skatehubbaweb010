@@ -11,7 +11,7 @@ type VerifyFunction = (
   idToken: string,
   accessToken: string,
   refreshToken: string,
-  verified: passport.AuthenticateCallback
+  verified: passport.AuthenticateCallback,
 ) => void;
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
@@ -25,13 +25,16 @@ if (!process.env.REPLIT_DOMAINS) {
 const getOidcConfig = memoize(
   async () => {
     return await client.Issuer.discover(
-      process.env.ISSUER_URL ?? "https://replit.com/oidc"
-    ).then(issuer => new issuer.Client({
-      client_id: process.env.REPL_ID!,
-      client_secret: process.env.CLIENT_SECRET!
-    }));
+      process.env.ISSUER_URL ?? "https://replit.com/oidc",
+    ).then(
+      (issuer) =>
+        new issuer.Client({
+          client_id: process.env.REPL_ID!,
+          client_secret: process.env.CLIENT_SECRET!,
+        }),
+    );
   },
-  { maxAge: 3600 * 1000 }
+  { maxAge: 3600 * 1000 },
 );
 
 export function getSession() {
@@ -48,21 +51,21 @@ export function getSession() {
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    name: 'skatehubba.sid',
+    name: "skatehubba.sid",
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       maxAge: sessionTtl,
-      sameSite: 'strict'
+      sameSite: "strict",
     },
     rolling: true, // Reset expiry on activity
-    genid: () => crypto.randomBytes(32).toString('hex')
+    genid: () => crypto.randomBytes(32).toString("hex"),
   });
 }
 
 function updateUserSession(
   user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
+  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
 ) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
@@ -70,9 +73,7 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
-async function upsertUser(
-  claims: any,
-) {
+async function upsertUser(claims: any) {
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
@@ -97,24 +98,24 @@ export async function setupAuth(app: Express) {
     idToken: string,
     accessToken: string,
     refreshToken: string,
-    verified: passport.AuthenticateCallback
+    verified: passport.AuthenticateCallback,
   ) => {
     const user = {
       access_token: accessToken,
       refresh_token: refreshToken,
       claims: profile,
-      expires_at: profile.exp
+      expires_at: profile.exp,
     };
     await upsertUser(profile);
     verified(null, user);
   };
 
-  const replitDomains = process.env.REPLIT_DOMAINS?.split(',') || [];
+  const replitDomains = process.env.REPLIT_DOMAINS?.split(",") || [];
   const allowedDomains = [
-    'localhost:5000',
-    '0.0.0.0:5000',
-    `${process.env.REPL_SLUG || 'skatehubba'}.${process.env.REPL_OWNER || 'replituser'}.repl.co`,
-    ...replitDomains
+    "localhost:5000",
+    "0.0.0.0:5000",
+    `${process.env.REPL_SLUG || "skatehubba"}.${process.env.REPL_OWNER || "replituser"}.repl.co`,
+    ...replitDomains,
   ];
 
   for (const domain of allowedDomains) {

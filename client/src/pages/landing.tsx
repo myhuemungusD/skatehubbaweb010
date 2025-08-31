@@ -19,18 +19,41 @@ const SkateHubbaLogo = () => (
         stroke="#fafafa"
         strokeWidth="2"
       />
-      <circle cx="25" cy="52.5" r="8" fill="#181818" stroke="currentColor" strokeWidth="2"/>
-      <circle cx="75" cy="52.5" r="8" fill="#181818" stroke="currentColor" strokeWidth="2"/>
-      <rect x="22" y="48" width="6" height="9" fill="#666" rx="1"/>
-      <rect x="72" y="48" width="6" height="9" fill="#666" rx="1"/>
-      <text x="50" y="55" textAnchor="middle" fontSize="8" fill="#fafafa" fontWeight="bold">SH</text>
+      <circle
+        cx="25"
+        cy="52.5"
+        r="8"
+        fill="#181818"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle
+        cx="75"
+        cy="52.5"
+        r="8"
+        fill="#181818"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <rect x="22" y="48" width="6" height="9" fill="#666" rx="1" />
+      <rect x="72" y="48" width="6" height="9" fill="#666" rx="1" />
+      <text
+        x="50"
+        y="55"
+        textAnchor="middle"
+        fontSize="8"
+        fill="#fafafa"
+        fontWeight="bold"
+      >
+        SH
+      </text>
     </svg>
   </div>
 );
 
 export default function Landing() {
   useEffect(() => {
-    const donate = document.getElementById('donate');
+    const donate = document.getElementById("donate");
     if (donate) document.body.appendChild(donate);
   }, []);
 
