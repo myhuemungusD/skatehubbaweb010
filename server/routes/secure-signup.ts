@@ -57,4 +57,62 @@ router.post('/secure-signup',
   }
 );
 
+// Secure subscription endpoint with TTL
+router.post('/subscribe', 
+  emailSignupLimiter,
+  validateUserAgent,
+  validateHoneypot,
+  validateEmail,
+  logIPAddress,
+  async (req, res) => {
+    try {
+      const { email, source = 'landing', userAgent, ipAddress } = req.body;
+      
+      // Check for existing subscription
+      const existingSubscriptions = query(
+        collection(db, 'subscriptions'),
+        where('email', '==', email.toLowerCase())
+      );
+      
+      const duplicateCheck = await getDocs(existingSubscriptions);
+      if (!duplicateCheck.empty) {
+        // Return success to prevent email enumeration
+        return res.json({ 
+          success: true, 
+          status: 'exists',
+          message: 'You\'re already on our list!' 
+        });
+      }
+      
+      // Create subscription with 2-year TTL
+      const expireDate = new Date();
+      expireDate.setFullYear(expireDate.getFullYear() + 2);
+      
+      await addDoc(collection(db, 'subscriptions'), {
+        email: email.toLowerCase(),
+        source,
+        status: 'subscribed',
+        createdAt: serverTimestamp(),
+        expireAt: expireDate,
+        userAgent,
+        ipAddress,
+        timestamp: Date.now(),
+        verified: false
+      });
+      
+      res.json({ 
+        success: true, 
+        status: 'created',
+        message: 'Thanks for subscribing!' 
+      });
+      
+    } catch (error) {
+      console.error('Subscription error:', error);
+      res.status(500).json({ 
+        error: 'Something went wrong. Please try again.' 
+      });
+    }
+  }
+);
+
 export default router;

@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { app } from "../lib/firebase";
@@ -23,38 +22,38 @@ export default function EmailSignup() {
   const isRateLimited = (): boolean => {
     const now = Date.now();
     const timeSinceLastSubmit = now - lastSubmitTime.current;
-    
+
     // Prevent more than 3 submissions per minute
     if (submitCount >= 3 && timeSinceLastSubmit < 60000) {
       return true;
     }
-    
+
     // Prevent submissions faster than 2 seconds apart
     if (timeSinceLastSubmit < 2000) {
       return true;
     }
-    
+
     return false;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Security checks
     if (!email.trim()) return;
-    
+
     // Honeypot check - if filled, it's likely a bot
     if (honeypot) {
       setMessage("Error. Please try again.");
       return;
     }
-    
+
     // Rate limiting
     if (isRateLimited()) {
       setMessage("Please wait before submitting again.");
       return;
     }
-    
+
     // Email validation
     if (!validateEmail(email.trim())) {
       setMessage("Please enter a valid email address.");
@@ -69,18 +68,32 @@ export default function EmailSignup() {
       lastSubmitTime.current = now;
       setSubmitCount(prev => prev + 1);
 
-      await addDoc(collection(db, "signups"), {
-        email: email.trim().toLowerCase(),
-        source: "site",
-        createdAt: serverTimestamp(),
-        userAgent: navigator.userAgent,
-        timestamp: now,
-        ip: undefined // Will be populated server-side if needed
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          source: 'site',
+          userAgent: navigator.userAgent
+        })
       });
-      
-      setMessage("Thanks. Check your inbox.");
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Subscription failed');
+      }
+
+      if (result.status === 'exists') {
+        setMessage("You're already subscribed!");
+      } else {
+        setMessage("Thanks for subscribing!");
+      }
+
       setEmail("");
-      
+
       // Reset rate limiting after successful submission
       setTimeout(() => setSubmitCount(0), 60000);
     } catch (err) {
@@ -104,7 +117,7 @@ export default function EmailSignup() {
           tabIndex={-1}
           autoComplete="off"
         />
-        
+
         <Input
           type="email"
           placeholder="Enter your email"
@@ -116,11 +129,11 @@ export default function EmailSignup() {
           minLength={3}
           maxLength={254}
         />
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isSubmitting || !email.trim() || isRateLimited()}
         >
-          {isSubmitting ? "Signing up..." : "Sign Up"}
+          {isSubmitting ? "Subscribing..." : "Subscribe"}
         </Button>
       </form>
       {message && (

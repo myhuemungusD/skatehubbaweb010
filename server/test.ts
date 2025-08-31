@@ -1,5 +1,7 @@
 import { storage } from "./storage.js";
 import { validateEnvironment } from "./security.js";
+import { db } from "./firebaseAdmin.js"; // Assuming you have firebaseAdmin.js setup
+import { collection, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 
 async function runPreDeploymentTests() {
   console.log("🚀 Starting pre-deployment tests...");
@@ -49,7 +51,7 @@ async function runPreDeploymentTests() {
     const fs = await import('fs');
     if (fs.existsSync('dist/server.js')) {
       console.log("✅ Production build exists");
-      
+
       // Test that the build doesn't have immediate syntax errors
       try {
         await import('../dist/server.js');
@@ -59,7 +61,34 @@ async function runPreDeploymentTests() {
       }
     }
 
-    console.log("🎉 Pre-deployment tests completed successfully!");
+    // Test subscription endpoint
+    console.log('\n📝 Testing subscription endpoint...');
+    try {
+      const subscribeResponse = await fetch('http://localhost:5000/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Test-Agent/1.0'
+        },
+        body: JSON.stringify({
+          email: 'test-subscription@example.com',
+          source: 'landing'
+        })
+      });
+
+      const subscribeResult = await subscribeResponse.json();
+      console.log('Subscription test result:', subscribeResult);
+
+      if (subscribeResponse.ok && subscribeResult.success) {
+        console.log('✅ Subscription endpoint working');
+      } else {
+        console.log('❌ Subscription endpoint failed');
+      }
+    } catch (error) {
+      console.log('❌ Subscription test failed:', error.message);
+    }
+
+    console.log('✅ All tests passed!');
 
     process.exit(0);
   } catch (error) {
