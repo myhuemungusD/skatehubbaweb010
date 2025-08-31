@@ -43,18 +43,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Allow creating subscriptions with validation
+    // Server-only subscriptions collection
     match /subscriptions/{document} {
-      allow create: if request.auth == null
-        && isValidEmail(request.resource.data.email)
-        && request.resource.data.email.size() >= 3
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.source is string
-        && request.resource.data.status == 'subscribed'
-        && request.resource.data.keys().hasAll(['email', 'source', 'status', 'createdAt', 'expireAt'])
-        && request.time < request.resource.data.expireAt;
-
-      allow read, update, delete: if false;
+      allow read, write: if false;
     }
 
     // Default deny all other collections

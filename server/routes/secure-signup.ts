@@ -1,10 +1,10 @@
 
 import express from 'express';
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress } from '../middleware/security.js';
+import { admin } from '../admin.js';
 
 const router = express.Router();
-const db = getFirestore();
+const db = admin.firestore();
 
 // Secure email signup endpoint
 router.post('/secure-signup', 
@@ -69,13 +69,12 @@ router.post('/subscribe',
       const { email, source = 'landing', userAgent, ipAddress } = req.body;
       
       // Check for existing subscription
-      const existingSubscriptions = query(
-        collection(db, 'subscriptions'),
-        where('email', '==', email.toLowerCase())
-      );
+      const existingSubscriptions = await db.collection('subscriptions')
+        .where('email', '==', email.toLowerCase())
+        .limit(1)
+        .get();
       
-      const duplicateCheck = await getDocs(existingSubscriptions);
-      if (!duplicateCheck.empty) {
+      if (!existingSubscriptions.empty) {
         // Return success to prevent email enumeration
         return res.json({ 
           success: true, 
@@ -88,12 +87,12 @@ router.post('/subscribe',
       const expireDate = new Date();
       expireDate.setFullYear(expireDate.getFullYear() + 2);
       
-      await addDoc(collection(db, 'subscriptions'), {
+      await db.collection('subscriptions').add({
         email: email.toLowerCase(),
         source,
         status: 'subscribed',
-        createdAt: serverTimestamp(),
-        expireAt: expireDate,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        expireAt: admin.firestore.Timestamp.fromDate(expireDate),
         userAgent,
         ipAddress,
         timestamp: Date.now(),
