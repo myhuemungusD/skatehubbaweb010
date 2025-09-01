@@ -26,7 +26,7 @@ export async function buildServer() {
 
   // Structured logging
   if (process.env.NODE_ENV === "production") {
-    const pino = (await import("pino-http")).default;
+    const { default: pino } = await import("pino-http");
     app.use(
       pino({
         level: "info",
@@ -175,9 +175,9 @@ export async function buildServer() {
     let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
     const originalResJson = res.json;
-    res.json = function (bodyJson: any, ...args: any[]) {
+    res.json = function (bodyJson: any) {
       capturedJsonResponse = bodyJson;
-      return originalResJson.apply(res, [bodyJson, ...args]);
+      return originalResJson.call(res, bodyJson);
     };
 
     res.on("finish", () => {

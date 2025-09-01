@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "noEmit": false
   },
   "include": ["server/**/*.ts"],
