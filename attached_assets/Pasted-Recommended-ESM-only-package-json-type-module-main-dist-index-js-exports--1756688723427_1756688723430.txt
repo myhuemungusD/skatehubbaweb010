@@ -1,0 +1,114 @@
+Recommended: ESM only
+
+package.json
+
+{
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx watch server/index.ts",
+    "build": "tsc -p server/tsconfig.json",
+    "start": "node dist/index.js"
+  }
+}
+
+
+server/tsconfig.json
+
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true
+  },
+  "include": ["server/**/*.ts"]
+}
+
+
+ESM caveats
+
+// __dirname replacement
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// require in ESM
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+If you want CJS only
+
+package.json
+
+{
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "ts-node-dev --respawn server/index.ts",
+    "build": "tsc -p server/tsconfig.json",
+    "start": "node dist/index.cjs"
+  }
+}
+
+
+server/tsconfig.json
+
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true
+  },
+  "include": ["server/**/*.ts"]
+}
+
+If you truly need both outputs (library use)
+
+Use tsup (or rollup) and an array.
+
+tsup.config.ts
+
+import { defineConfig } from "tsup";
+export default defineConfig({
+  entry: { index: "server/index.ts" },
+  target: "node20",
+  outDir: "dist",
+  dts: true,
+  splitting: false,
+  clean: true,
+  format: ["esm", "cjs"] // <-- array, not two keys
+});
+
+
+package.json
+
+{
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "exports": {
+    "require": "./dist/index.cjs",
+    "import": "./dist/index.js"
+  },
+  "types": "dist/index.d.ts"
+}
+
+Sanity checks
+
+Remove duplicates: never have both format: "esm", format: "cjs".
+
+ESM: use import. CJS: use require. Don’t mix.
+
+Node 20. One initializeApp client. One admin.initializeApp server.
