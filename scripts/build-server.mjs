@@ -33,4 +33,4 @@ async function buildServer() {
   }
 }
 
-buildServer();r();
+buildServer();
