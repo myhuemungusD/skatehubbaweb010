@@ -2,11 +2,11 @@ import {
   users, tutorialSteps, userProgress, subscribers,
   type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
-} from "../shared/schema.js";
-import { CreateSubscriber } from "./storage/types.js";
+} from "../shared/schema.ts";
+import { CreateSubscriber } from "./storage/types.ts";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
-import * as schema from "../shared/schema.js";
+import * as schema from "../shared/schema.ts";
 
 export interface IStorage {
   // User methods for Replit Auth

@@ -9,8 +9,8 @@ import { hashPassword, comparePassword } from "./storage";
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress } from './middleware/security.js';
-import { admin } from './admin.js';
+import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress } from './middleware/security.ts';
+import { admin } from './admin.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,12 +22,12 @@ import {
   insertUserProgressSchema, 
   updateUserProgressSchema,
   NewSubscriberInput
-} from "../shared/schema.js";
+} from "../shared/schema.ts";
 import crypto from "crypto";
 import validator from "validator";
 import { sendSubscriberNotification } from "./email";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { setupAuthRoutes } from "./auth/routes.js";
+import { setupAuthRoutes } from "./auth/routes.ts";
 import OpenAI from "openai";
 import { initializeDatabase } from "./db";
 

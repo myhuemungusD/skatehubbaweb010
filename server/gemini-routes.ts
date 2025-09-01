@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { generateText, generateTextStream } from './gemini.js';
+import { generateText, generateTextStream } from './gemini.ts';
 
 const router = express.Router();
 

@@ -1,10 +1,10 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { db } from '../db.js';
-import { customUsers, authSessions } from '../../shared/schema.js';
+import { db } from '../db.ts';
+import { customUsers, authSessions } from '../../shared/schema.ts';
 import { eq, and, gt } from 'drizzle-orm';
-import type { CustomUser, InsertCustomUser, AuthSession } from '../../shared/schema.js';
+import type { CustomUser, InsertCustomUser, AuthSession } from '../../shared/schema.ts';
 
 export class AuthService {
   private static readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';

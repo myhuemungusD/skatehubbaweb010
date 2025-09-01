@@ -1,7 +1,7 @@
 
 import type { Request, Response, NextFunction } from 'express';
-import { AuthService } from './service.js';
-import type { CustomUser } from '../../shared/schema.js';
+import { AuthService } from './service.ts';
+import type { CustomUser } from '../../shared/schema.ts';
 import admin from 'firebase-admin';
 
 // Initialize Firebase Admin SDK

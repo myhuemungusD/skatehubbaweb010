@@ -1,5 +1,5 @@
-import { storage } from "./storage.js";
-import { validateEnvironment } from "./security.js";
+import { storage } from "./storage.ts";
+import { validateEnvironment } from "./security.ts";
 
 async function runPreDeploymentTests() {
   console.log("🚀 Starting pre-deployment tests...");

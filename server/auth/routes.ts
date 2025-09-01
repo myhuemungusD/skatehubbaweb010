@@ -1,6 +1,6 @@
 import type { Express } from 'express';
-import { AuthService } from './service.js';
-import { authenticateUser } from './middleware.js';
+import { AuthService } from './service.ts';
+import { authenticateUser } from './middleware.ts';
 import admin from 'firebase-admin';
 
 export function setupAuthRoutes(app: Express) {
