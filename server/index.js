@@ -1,11 +1,6 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -42,12 +37,6 @@ async function initializeDatabase() {
     console.warn("⚠️  Database integration failed, running in basic mode:", error.message);
     // Continue without database - graceful degradation
   }
-}
-
-// Serve static files from the client build directory in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = join(__dirname, '../dist');
-  app.use(express.static(distPath));
 }
 
 // Health check endpoint
@@ -132,15 +121,8 @@ app.post("/api/subscribe", async (req, res) => {
   }
 });
 
-// Catch-all handler: send back React's index.html file in production
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(join(__dirname, '../dist/index.html'));
-  });
-}
-
 // Start server with database initialization
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 async function startServer() {
   // Initialize database first
