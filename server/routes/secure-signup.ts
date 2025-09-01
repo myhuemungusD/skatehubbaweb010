@@ -1,22 +1,16 @@
 import express from "express";
-import admin from "firebase-admin"; // Import the Admin SDK
+import { admin } from "../admin.js"; // Import the already configured admin instance
 import {
   emailSignupLimiter,
   validateHoneypot,
   validateEmail,
   validateUserAgent,
   logIPAddress,
-} from "../middleware/security";
+} from "../middleware/security.js";
 
 const router = express.Router();
 
-// Initialize Firebase Admin SDK if not already initialized
-// This is a common pattern to ensure it's only initialized once.
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
-
-// Get Firestore instance (Admin SDK)
+// Get Firestore instance (Admin SDK) - admin is already initialized in admin.ts
 const db = admin.firestore();
 
 // Secure email signup endpoint
