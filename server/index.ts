@@ -9,7 +9,7 @@ import helmet from "helmet";
 import compression from "compression";
 import pinoHttp from "pino-http";
 import Sentry from "./sentry.js";
-import authRoutes from "./auth/routes";
+import { authRoutes } from "./auth/routes";
 import geminiRoutes from "./gemini-routes";
 import secureSignupRoutes from "./routes/secure-signup";
 import debugRoutes from "./debug-routes";
@@ -220,7 +220,7 @@ app.use((req, res, next) => {
     // Mount optional replitAuth route if file exists
     try {
       const { default: replitAuthRoute } = await import("./replitAuth");
-      app.use("/api", replitAuthRoute);
+      app.use("/api/auth/replit", typeof replitAuthRoute === "function" ? replitAuthRoute() : replitAuthRoute);
     } catch (e: any) {
       if (!/MODULE_NOT_FOUND|ERR_MODULE_NOT_FOUND/.test(e?.code || e?.message)) throw e;
       console.log("replitAuth route not present. Skipping.");
