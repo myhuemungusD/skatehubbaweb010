@@ -7,6 +7,8 @@ import { validateEnvironment } from "./security.js";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import compression from "compression";
+import path from "path";
+import { fileURLToPath } from "url";
 // Pino import removed - using dynamic import
 import { authRoutes } from "./auth/routes.js";
 import geminiRoutes from "./gemini-routes.js";
@@ -197,6 +199,9 @@ export async function buildServer() {
     next();
   });
 
+  // Health check endpoint
+  app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
   // Mount API routes
   app.use("/api/auth", authRoutes);
   app.use("/api/gemini", geminiRoutes);
@@ -227,7 +232,12 @@ export async function buildServer() {
     const server = createServer(app);
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const pub = path.join(__dirname, "public");
+
+    app.use(express.static(pub));
+    app.get(/^(?!\/api\/).*/, (_req, res) => res.sendFile(path.join(pub, "index.html")));
   }
 
   return app;
