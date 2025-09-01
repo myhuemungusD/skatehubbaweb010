@@ -198,7 +198,7 @@ export class DatabaseStorage implements IStorage {
   async createTutorialStep(step: InsertTutorialStep): Promise<TutorialStep> {
     const [createdStep] = await db
       .insert(tutorialSteps)
-      .values(step)
+      .values(step as any)
       .returning();
     return createdStep;
   }
@@ -230,7 +230,7 @@ export class DatabaseStorage implements IStorage {
   ): Promise<UserProgress> {
     const [createdProgress] = await db
       .insert(userProgress)
-      .values(progress)
+      .values(progress as any)
       .returning();
     return createdProgress;
   }
