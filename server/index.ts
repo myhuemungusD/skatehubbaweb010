@@ -210,8 +210,7 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
-    const server = await registerRoutes(app);
-
+    // Mount API routes first before calling registerRoutes
     app.use("/api/auth", authRoutes);
     app.use("/api/gemini", geminiRoutes);
     app.use("/api", secureSignupRoutes);
@@ -226,6 +225,7 @@ app.use((req, res, next) => {
       console.log("replitAuth route not present. Skipping.");
     }
 
+    // Error handling middleware
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
@@ -234,9 +234,10 @@ app.use((req, res, next) => {
       res.status(status).json({ message });
     });
 
-    // importantly only setup vite in development and after
-    // setting up all the other routes so the catch-all route
-    // doesn't interfere with the other routes
+    // Register routes and get server instance
+    const server = await registerRoutes(app);
+
+    // Setup Vite or static serving after all routes are configured
     if (process.env.NODE_ENV === "development") {
       await setupVite(app, server);
     } else {
@@ -248,18 +249,22 @@ app.use((req, res, next) => {
     // this serves both the API and the client.
     // It is the only port that is not firewalled.
     const port = parseInt(process.env.PORT || "5000", 10);
-    server.listen(
-      {
-        port,
-        host: "0.0.0.0",
-        reusePort: true,
-      },
-      () => {
-        log(
-          `🚀 Server running on port ${port} in ${process.env.NODE_ENV || "development"} mode`,
-        );
-      },
-    );
+    
+    // Only start the server if it's not already listening
+    if (!server.listening) {
+      server.listen(
+        {
+          port,
+          host: "0.0.0.0",
+          reusePort: true,
+        },
+        () => {
+          log(
+            `🚀 Server running on port ${port} in ${process.env.NODE_ENV || "development"} mode`,
+          );
+        },
+      );
+    }
   } catch (error) {
     console.error("Server startup failed:", error);
     process.exit(1);
