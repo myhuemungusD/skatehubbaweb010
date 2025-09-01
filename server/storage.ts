@@ -13,7 +13,7 @@ import {
   type Subscriber,
 } from "../shared/schema.js";
 import { CreateSubscriber } from "./storage/types.js";
-import { db } from "./db";
+import { db } from "./db.js";
 import { eq, and, desc } from "drizzle-orm";
 import * as schema from "../shared/schema.js";
 

@@ -7,7 +7,7 @@ import { validateEnvironment } from "./security.js";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import compression from "compression";
-import pinoHttp from "pino-http";
+// Pino import removed - using dynamic import
 import { authRoutes } from "./auth/routes.js";
 import geminiRoutes from "./gemini-routes.js";
 import secureSignupRoutes from "./routes/secure-signup.js";
@@ -24,16 +24,17 @@ export async function buildServer() {
 
   // Structured logging
   if (process.env.NODE_ENV === "production") {
+    const pino = (await import("pino-http")).default;
     app.use(
-      pinoHttp({
+      pino({
         level: "info",
         serializers: {
-          req: (req) => ({
+          req: (req: any) => ({
             method: req.method,
             url: req.url,
             userAgent: req.headers["user-agent"],
           }),
-          res: (res) => ({
+          res: (res: any) => ({
             statusCode: res.statusCode,
           }),
         },

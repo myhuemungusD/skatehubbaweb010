@@ -7,9 +7,9 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 // import { subscribeLimit } from "./index";
 import { Resend } from "resend";
-import { db } from "./db";
+import { db } from "./db.js";
 import { eq } from "drizzle-orm";
-import { users, tutorialSteps, userProgress } from "../shared/schema";
+import { users, tutorialSteps, userProgress } from "../shared/schema.js";
 // import { hashPassword, comparePassword } from "./storage"; // Using storage interface instead
 import fs from "fs/promises";
 import path from "path";
@@ -30,7 +30,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 import Stripe from "stripe";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 import {
   insertUserProgressSchema,
   updateUserProgressSchema,
@@ -38,11 +38,11 @@ import {
 } from "../shared/schema.js";
 import crypto from "crypto";
 import validator from "validator";
-import { sendSubscriberNotification } from "./email";
+import { sendSubscriberNotification } from "./email.js";
 // import { setupAuth, isAuthenticated } from "./replitAuth"; // Temporarily disabled
 // import { setupAuthRoutes } from "./auth/routes.js"; // Temporarily disabled
 import OpenAI from "openai";
-import { initializeDatabase } from "./db";
+import { initializeDatabase } from "./db.js";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
