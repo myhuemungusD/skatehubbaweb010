@@ -69,7 +69,7 @@ task = "shell.exec"
 args = "tsx server/test.ts"
 
 [agent]
-integrations = ["firebase_barebones_javascript==1.0.0", "javascript_database==1.0.0", "javascript_log_in_with_replit==1.0.0"]
+integrations = ["javascript_database==1.0.0", "javascript_log_in_with_replit==1.0.0", "firebase_barebones_javascript==1.0.0"]
 
 [objectStorage]
 defaultBucketID = "replit-objstore-e4f9b2c3-4759-4b50-90de-b9908003792e"
