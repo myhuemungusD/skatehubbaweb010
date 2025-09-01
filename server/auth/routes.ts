@@ -1,11 +1,13 @@
-import type { Express } from "express";
+import { Router } from "express";
 import { AuthService } from "./service.js";
 import { authenticateUser } from "./middleware.js";
 import admin from "firebase-admin";
 
-export function setupAuthRoutes(app: Express) {
+const router = Router();
+
+export function setupAuthRoutes() {
   // Single login/register endpoint - Firebase ID token only
-  app.post("/api/auth/login", async (req, res) => {
+  router.post("/login", async (req, res) => {
     try {
       const authHeader = req.headers.authorization ?? "";
 
@@ -67,7 +69,7 @@ export function setupAuthRoutes(app: Express) {
   });
 
   // Get current user endpoint
-  app.get("/api/auth/me", authenticateUser, async (req, res) => {
+  router.get("/me", authenticateUser, async (req, res) => {
     try {
       const user = req.currentUser!;
       res.json({
@@ -90,7 +92,7 @@ export function setupAuthRoutes(app: Express) {
   });
 
   // Logout endpoint
-  app.post("/api/auth/logout", authenticateUser, async (req, res) => {
+  router.post("/logout", authenticateUser, async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -109,4 +111,8 @@ export function setupAuthRoutes(app: Express) {
       });
     }
   });
+
+  return router;
 }
+
+export const authRoutes = setupAuthRoutes();
