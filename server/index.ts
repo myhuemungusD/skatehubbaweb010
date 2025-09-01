@@ -1,16 +1,13 @@
 import express from "express";
 import path from "path";
+import { serveStatic } from "./viteStatic.js";
 
 const app = express();
 
 // Health check endpoint
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const pub = path.join(__dirname, "public");
-
-app.use(express.static(pub));
-app.get(/^(?!\/api\/).*/, (_req, res) => res.sendFile(path.join(pub, "index.html")));
+serveStatic(app);
 
 const port = Number(process.env.PORT) || (process.env.NODE_ENV === "production" ? 8080 : 5000);
 const server = app.listen(port, "0.0.0.0", () => {
