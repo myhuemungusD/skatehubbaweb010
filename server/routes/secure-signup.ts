@@ -1,13 +1,5 @@
 import express from "express";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import admin from "firebase-admin"; // Import the Admin SDK
 import {
   emailSignupLimiter,
   validateHoneypot,
@@ -17,7 +9,15 @@ import {
 } from "../middleware/security";
 
 const router = express.Router();
-const db = getFirestore();
+
+// Initialize Firebase Admin SDK if not already initialized
+// This is a common pattern to ensure it's only initialized once.
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+// Get Firestore instance (Admin SDK)
+const db = admin.firestore();
 
 // Secure email signup endpoint
 router.post(
@@ -32,12 +32,9 @@ router.post(
       const { email, source = "site", userAgent, ipAddress } = req.body;
 
       // Check for duplicate emails (optional - you might want to allow this)
-      const existingSignups = query(
-        collection(db, "signups"),
-        where("email", "==", email),
-      );
+      const existingSignups = db.collection("signups").where("email", "==", email);
 
-      const duplicateCheck = await getDocs(existingSignups);
+      const duplicateCheck = await existingSignups.get();
       if (!duplicateCheck.empty) {
         // Still return success to prevent email enumeration
         return res.json({
@@ -47,10 +44,10 @@ router.post(
       }
 
       // Add to Firestore with additional security data
-      await addDoc(collection(db, "signups"), {
+      await db.collection("signups").add({
         email,
         source,
-        createdAt: serverTimestamp(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(), // Use Admin SDK's serverTimestamp
         userAgent,
         ipAddress,
         timestamp: Date.now(),
