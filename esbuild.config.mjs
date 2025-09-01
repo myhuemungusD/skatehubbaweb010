@@ -6,7 +6,7 @@ const config = {
   bundle: true,
   platform: "node",
   outfile: "dist/server.js",
-  format: "cjs",
+  format: "esm",
   packages: "external", // This automatically excludes all Node.js built-ins
   external: [
     "pg-native",

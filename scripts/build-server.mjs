@@ -12,7 +12,7 @@ const projectRoot = join(__dirname, "..");
 async function buildServer() {
   try {
     // Use TypeScript compiler for ESM-only build
-    await execAsync("npx tsc -p tsconfig.server.json", { cwd: projectRoot });
+    await execAsync("npx --package=typescript tsc -p tsconfig.server.json", { cwd: projectRoot });
 
     // Create package.json for production server
     const serverPackageJson = {

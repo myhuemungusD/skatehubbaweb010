@@ -205,7 +205,7 @@ export async function buildServer() {
   // Mount optional replitAuth route if file exists
   try {
     const { default: replitAuthRoute } = await import("./replitAuth.js");
-    app.use("/api/auth/replit", typeof replitAuthRoute === "function" ? replitAuthRoute() : replitAuthRoute);
+    app.use("/api/auth/replit", replitAuthRoute);
   } catch (e: any) {
     if (!/MODULE_NOT_FOUND|ERR_MODULE_NOT_FOUND/.test(e?.code || e?.message)) throw e;
     console.log("replitAuth route not present. Skipping.");
