@@ -117,50 +117,6 @@ export default function UnifiedLanding() {
 
   const springAnimation = useSpringAnimation(true);
 
-  
-
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          ...validatedData,
-          company: "" // honeypot field
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.ok) {
-        analytics.subscribeSuccess();
-        setSignupSuccess(true);
-        setEmail("");
-        setFirstName("");
-        
-        toast({
-          title: "Welcome to SkateHubba! 🎉",
-          description: data.msg || "You're now on the beta list!",
-        });
-
-        // Auto-hide success after 8 seconds
-        setTimeout(() => setSignupSuccess(false), 8000);
-      } else {
-        throw new Error(data.msg || "Signup failed");
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setValidationError(error.errors[0]?.message || "Please check your email");
-      } else {
-        toast({
-          title: "Signup failed",
-          description: error instanceof Error ? error.message : "Please try again.",
-          variant: "destructive"
-        });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <Background className="text-white min-h-screen">
       {/* Enhanced Navigation with Apple-level polish */}

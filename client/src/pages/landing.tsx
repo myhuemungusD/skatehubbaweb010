@@ -33,69 +33,6 @@ export default function Landing() {
     const donate = document.getElementById('donate');
     if (donate) document.body.appendChild(donate);
   }, []);
-
-    // Client-side validation
-    try {
-      const validatedData = subscribeSchema.parse({ email, firstName });
-      setIsSubmitting(true);
-      analytics.subscribeSubmitted(validatedData.email);
-
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          ...validatedData,
-          company: "" // honeypot field
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.ok) {
-        console.log('Signup success!', data);
-        analytics.subscribeSuccess();
-        
-        // Force success state immediately
-        setSignupSuccess(true);
-        
-        // Clear form
-        setEmail("");
-        setFirstName("");
-        
-        // Show toast
-        toast({
-          title: "Welcome to SkateHubba! 🎉",
-          description: data.msg || "You're now on the beta list!",
-        });
-        
-        // Hide success message after 10 seconds
-        setTimeout(() => {
-          setSignupSuccess(false);
-        }, 10000);
-      } else {
-        toast({
-          title: "Signup failed",
-          description: data.msg || "Something went wrong. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Signup error:', error);
-      if (error instanceof z.ZodError) {
-        setValidationError(error.errors[0]?.message || "Please check your email");
-      } else {
-        toast({
-          title: "Network Error",
-          description: "Please check your connection and try again.",
-          variant: "destructive"
-        });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
   return (
     <Background className="text-white">
       {/* Navigation */}
@@ -135,77 +72,15 @@ export default function Landing() {
               Own your tricks. Play SKATE anywhere.
             </p>
             
-            {/* Beta Signup Form */}
+            {/* Beta Signup Form - Now Powered by Ultimate Component */}
             <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-orange-400/30 max-w-md mx-auto">
-              {signupSuccess ? (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">
-                    You're In! 🛹
-                  </h3>
-                  <p className="text-green-400 mb-4 font-semibold">
-                    Welcome to the crew! Check your email for confirmation.
-                  </p>
-                  <p className="text-gray-300 text-sm">
-                    We'll notify you as soon as the beta drops. Get ready to own your tricks!
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <h3 className="text-2xl font-bold text-white mb-4 text-center">
-                    Sign up
-                  </h3>
-                  <p className="text-gray-300 mb-6 text-center">
-                    Sign up to get early access to beta and dev updates
-                  </p>
-                  <form onSubmit={handleJoinSubmit} className="space-y-4" autoComplete="on">
-                    <div className="grid grid-cols-1 gap-3">
-                      <input
-                        type="text"
-                        name="firstName"
-                        placeholder="First name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full px-4 py-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none text-base"
-                        required
-                        autoComplete="given-name"
-                        data-testid="input-hero-firstname"
-                      />
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-4 bg-black/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none text-base"
-                        required
-                        autoComplete="email"
-                        data-testid="input-hero-email"
-                      />
-                    </div>
-                    {validationError && (
-                      <p className="text-red-400 text-sm text-center">{validationError}</p>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-orange-400 text-white font-bold py-4 rounded-lg transition-colors touch-manipulation text-lg"
-                      data-testid="button-hero-join"
-                      style={{ 
-                        minHeight: '48px', 
-                        fontSize: '16px',
-                        WebkitTapHighlightColor: 'transparent'
-                      }}
-                    >
-                      {isSubmitting ? 'Signing up...' : 'Sign up'}
-                    </button>
-                  </form>
-                </>
-              )}
+              <h3 className="text-2xl font-bold text-white mb-4 text-center">
+                Sign up
+              </h3>
+              <p className="text-gray-300 mb-6 text-center">
+                Sign up to get early access to beta and dev updates
+              </p>
+              <EmailSignup />
             </div>
           </div>
         </section>
