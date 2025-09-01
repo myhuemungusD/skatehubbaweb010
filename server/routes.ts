@@ -170,7 +170,8 @@ const validateRequest =
           details: result.error.errors,
         });
       }
-      (req as Request & { validatedBody: typeof result.data }).validatedBody = result.data;
+      (req as Request & { validatedBody: typeof result.data }).validatedBody =
+        result.data;
       next();
     } catch (error) {
       res.status(400).json({ error: "Request validation failed" });

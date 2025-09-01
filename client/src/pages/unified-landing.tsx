@@ -55,7 +55,12 @@ interface LoadingButtonProps {
   type?: "button" | "submit" | "reset";
 }
 
-const LoadingButton = ({ isLoading, children, className = "", ...props }: LoadingButtonProps) => (
+const LoadingButton = ({
+  isLoading,
+  children,
+  className = "",
+  ...props
+}: LoadingButtonProps) => (
   <button
     {...props}
     disabled={isLoading}

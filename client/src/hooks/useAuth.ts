@@ -28,7 +28,8 @@ export function useAuth() {
         return null;
       } catch (error) {
         // Silently handle auth errors in production
-        if (import.meta.env.DEV) console.warn("Failed to get user data:", error);
+        if (import.meta.env.DEV)
+          console.warn("Failed to get user data:", error);
         return null;
       }
     },

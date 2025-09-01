@@ -241,7 +241,7 @@ export class DatabaseStorage implements IStorage {
     updates: UpdateUserProgress,
   ): Promise<UserProgress | undefined> {
     const updateData: any = {
-      ...updates
+      ...updates,
     };
     if (updates.completed) {
       updateData.completedAt = new Date();
