@@ -1,21 +1,19 @@
-import { Router } from "express";
-import { AuthService } from "./service.js";
-import { authenticateUser } from "./middleware.js";
-import admin from "firebase-admin";
+import type { Express } from 'express';
+import { AuthService } from './service.js';
+import { authenticateUser } from './middleware.js';
+import admin from 'firebase-admin';
 
-const router = Router();
-
-export function setupAuthRoutes() {
+export function setupAuthRoutes(app: Express) {
   // Single login/register endpoint - Firebase ID token only
-  router.post("/login", async (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     try {
-      const authHeader = req.headers.authorization ?? "";
+      const authHeader = req.headers.authorization ?? '';
 
-      if (!authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ error: "Firebase ID token required" });
+      if (!authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Firebase ID token required' });
       }
 
-      const idToken = authHeader.slice("Bearer ".length).trim();
+      const idToken = authHeader.slice('Bearer '.length).trim();
 
       try {
         // Verify Firebase ID token
@@ -29,11 +27,10 @@ export function setupAuthRoutes() {
         if (!user) {
           // Create new user from Firebase token data
           const { user: newUser } = await AuthService.createUser({
-            email: decoded.email || `user${uid.slice(0, 8)}@firebase.local`,
-            password: "firebase-auth-user", // Placeholder
-            firstName: firstName || decoded.name?.split(" ")[0] || "User",
-            lastName:
-              lastName || decoded.name?.split(" ").slice(1).join(" ") || "",
+            email: decoded.email || `user${uid.slice(0,8)}@firebase.local`,
+            password: 'firebase-auth-user', // Placeholder
+            firstName: firstName || decoded.name?.split(' ')[0] || 'User',
+            lastName: lastName || decoded.name?.split(' ').slice(1).join(' ') || '',
             firebaseUid: uid,
           });
           user = newUser;
@@ -53,23 +50,23 @@ export function setupAuthRoutes() {
             photoUrl: decoded.picture || null,
             roles: [],
             createdAt: user.createdAt,
-            provider: "firebase",
+            provider: 'firebase',
           },
           tokens: { sessionJwt },
-          strategy: "firebase",
+          strategy: 'firebase',
         });
       } catch (firebaseError) {
-        console.error("Firebase ID token verification failed:", firebaseError);
-        return res.status(401).json({ error: "Invalid Firebase token" });
+        console.error('Firebase ID token verification failed:', firebaseError);
+        return res.status(401).json({ error: 'Invalid Firebase token' });
       }
     } catch (error) {
-      console.error("Login error:", error);
-      return res.status(500).json({ error: "Login failed" });
+      console.error('Login error:', error);
+      return res.status(500).json({ error: 'Login failed' });
     }
   });
 
   // Get current user endpoint
-  router.get("/me", authenticateUser, async (req, res) => {
+  app.get('/api/auth/me', authenticateUser, async (req, res) => {
     try {
       const user = req.currentUser!;
       res.json({
@@ -84,35 +81,31 @@ export function setupAuthRoutes() {
         },
       });
     } catch (error) {
-      console.error("Get user error:", error);
+      console.error('Get user error:', error);
       res.status(500).json({
-        error: "Failed to get user information",
+        error: 'Failed to get user information',
       });
     }
   });
 
   // Logout endpoint
-  router.post("/logout", authenticateUser, async (req, res) => {
+  app.post('/api/auth/logout', authenticateUser, async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith("Bearer ")) {
+      if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7);
         await AuthService.deleteSession(token);
       }
 
       res.json({
         success: true,
-        message: "Logged out successfully",
+        message: 'Logged out successfully',
       });
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error('Logout error:', error);
       res.status(500).json({
-        error: "Logout failed",
+        error: 'Logout failed',
       });
     }
   });
-
-  return router;
 }
-
-export const authRoutes = setupAuthRoutes();

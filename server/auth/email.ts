@@ -1,14 +1,9 @@
-import { Resend } from "resend";
+import { Resend } from 'resend';
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Email templates
-const getVerificationEmailTemplate = (
-  name: string,
-  verificationUrl: string,
-) => `
+const getVerificationEmailTemplate = (name: string, verificationUrl: string) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -110,50 +105,48 @@ const getPasswordResetEmailTemplate = (name: string, resetUrl: string) => `
 
 // Get base URL for email links
 const getBaseUrl = (): string => {
-  if (process.env.NODE_ENV === "production") {
-    return process.env.PRODUCTION_URL || "https://skatehubba.com";
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.PRODUCTION_URL || 'https://skatehubba.com';
   }
-  return "http://localhost:5000";
+  return 'http://localhost:5000';
 };
 
 // Send verification email
-export async function sendVerificationEmail(
-  email: string,
-  token: string,
-  name: string,
-): Promise<void> {
+export async function sendVerificationEmail(email: string, token: string, name: string): Promise<void> {
   const baseUrl = getBaseUrl();
   const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
 
   if (resend) {
     await resend.emails.send({
-      from: "SkateHubba <hello@skatehubba.com>",
+      from: 'SkateHubba <hello@skatehubba.com>',
       to: email,
-      subject: "Verify your SkateHubba account 🛹",
+      subject: 'Verify your SkateHubba account 🛹',
       html: getVerificationEmailTemplate(name, verificationUrl),
     });
   } else {
-    // Fallback for development - no email service configured
+    // Fallback: log to console in development
+    console.log(`📧 Verification email for ${email}:`);
+    console.log(`🔗 Verification URL: ${verificationUrl}`);
+    console.log(`📝 To: ${name} <${email}>`);
   }
 }
 
 // Send password reset email
-export async function sendPasswordResetEmail(
-  email: string,
-  token: string,
-  name: string,
-): Promise<void> {
+export async function sendPasswordResetEmail(email: string, token: string, name: string): Promise<void> {
   const baseUrl = getBaseUrl();
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
 
   if (resend) {
     await resend.emails.send({
-      from: "SkateHubba <hello@skatehubba.com>",
+      from: 'SkateHubba <hello@skatehubba.com>',
       to: email,
-      subject: "Reset your SkateHubba password",
+      subject: 'Reset your SkateHubba password',
       html: getPasswordResetEmailTemplate(name, resetUrl),
     });
   } else {
-    // Fallback for development - no email service configured
+    // Fallback: log to console in development
+    console.log(`📧 Password reset email for ${email}:`);
+    console.log(`🔗 Reset URL: ${resetUrl}`);
+    console.log(`📝 To: ${name} <${email}>`);
   }
 }

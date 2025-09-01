@@ -4,29 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { trackEvent } from "../lib/analytics";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useToast } from "../hooks/use-toast";
 import { registerSchema, loginSchema } from "../../../shared/schema";
 import type { RegisterInput, LoginInput } from "../../../shared/schema";
@@ -61,51 +46,46 @@ export default function AuthPage() {
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterInput) => {
       // 1. Create Firebase user
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password,
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const firebaseUser = userCredential.user;
 
       // 2. Update Firebase profile
       await updateProfile(firebaseUser, {
-        displayName: `${data.firstName} ${data.lastName}`.trim(),
+        displayName: `${data.firstName} ${data.lastName}`.trim()
       });
 
       // 3. Get ID token and register with backend
       const idToken = await firebaseUser.getIdToken();
 
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
           firstName: data.firstName,
           lastName: data.lastName,
-          isRegistration: true,
+          isRegistration: true
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Registration failed");
+        throw new Error(errorData.error || 'Registration failed');
       }
 
-      trackEvent("sign_up", { method: "firebase" });
+      trackEvent('sign_up', { method: 'firebase' });
       return await response.json();
     },
     onSuccess: () => {
       toast({
         title: "Account Created! 🎉",
-        description:
-          "Your account has been created successfully! Welcome to SkateHubba.",
+        description: "Your account has been created successfully! Welcome to SkateHubba.",
         variant: "default",
       });
       registerForm.reset();
-      setLocation("/");
+      setLocation('/');
     },
     onError: (error: any) => {
       toast({
@@ -120,31 +100,27 @@ export default function AuthPage() {
   const loginMutation = useMutation({
     mutationFn: async (data: LoginInput) => {
       // 1. Authenticate with Firebase
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password,
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       const firebaseUser = userCredential.user;
 
       // 2. Get ID token and authenticate with backend
       const idToken = await firebaseUser.getIdToken();
 
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${idToken}`,
-          "Content-Type": "application/json",
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({}),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Login failed");
+        throw new Error(errorData.error || 'Login failed');
       }
 
-      trackEvent("login", { method: "firebase" });
+      trackEvent('login', { method: 'firebase' });
       return await response.json();
     },
     onSuccess: () => {
@@ -153,13 +129,12 @@ export default function AuthPage() {
         description: "You've successfully signed in.",
         variant: "default",
       });
-      setLocation("/");
+      setLocation('/');
     },
     onError: (error: any) => {
       toast({
         title: "Sign In Failed",
-        description:
-          error.message || "Please check your credentials and try again.",
+        description: error.message || "Please check your credentials and try again.",
         variant: "destructive",
       });
     },
@@ -187,9 +162,7 @@ export default function AuthPage() {
 
         <Card className="bg-[#232323] border-gray-700">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-white">
-              Get Started
-            </CardTitle>
+            <CardTitle className="text-2xl text-center text-white">Get Started</CardTitle>
             <CardDescription className="text-center text-gray-400">
               Sign in or create an account to continue
             </CardDescription>
@@ -197,30 +170,19 @@ export default function AuthPage() {
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-[#181818]">
-                <TabsTrigger
-                  value="login"
-                  className="text-white data-[state=active]:bg-orange-500"
-                >
+                <TabsTrigger value="login" className="text-white data-[state=active]:bg-orange-500">
                   Sign In
                 </TabsTrigger>
-                <TabsTrigger
-                  value="register"
-                  className="text-white data-[state=active]:bg-orange-500"
-                >
+                <TabsTrigger value="register" className="text-white data-[state=active]:bg-orange-500">
                   Sign Up
                 </TabsTrigger>
               </TabsList>
 
               {/* Login Tab */}
               <TabsContent value="login" className="space-y-4 mt-6">
-                <form
-                  onSubmit={loginForm.handleSubmit(onLogin)}
-                  className="space-y-4"
-                >
+                <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-white">
-                      Email
-                    </Label>
+                    <Label htmlFor="login-email" className="text-white">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -233,16 +195,12 @@ export default function AuthPage() {
                       />
                     </div>
                     {loginForm.formState.errors.email && (
-                      <p className="text-sm text-red-400">
-                        {loginForm.formState.errors.email.message}
-                      </p>
+                      <p className="text-sm text-red-400">{loginForm.formState.errors.email.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-password" className="text-white">
-                      Password
-                    </Label>
+                    <Label htmlFor="login-password" className="text-white">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -261,17 +219,11 @@ export default function AuthPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         data-testid="button-toggle-password"
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
                     {loginForm.formState.errors.password && (
-                      <p className="text-sm text-red-400">
-                        {loginForm.formState.errors.password.message}
-                      </p>
+                      <p className="text-sm text-red-400">{loginForm.formState.errors.password.message}</p>
                     )}
                   </div>
 
@@ -286,11 +238,7 @@ export default function AuthPage() {
                 </form>
 
                 <div className="text-center">
-                  <Button
-                    variant="link"
-                    className="text-orange-400 hover:text-orange-300"
-                    data-testid="link-forgot-password"
-                  >
+                  <Button variant="link" className="text-orange-400 hover:text-orange-300" data-testid="link-forgot-password">
                     Forgot your password?
                   </Button>
                 </div>
@@ -298,18 +246,10 @@ export default function AuthPage() {
 
               {/* Register Tab */}
               <TabsContent value="register" className="space-y-4 mt-6">
-                <form
-                  onSubmit={registerForm.handleSubmit(onRegister)}
-                  className="space-y-4"
-                >
+                <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label
-                        htmlFor="register-firstName"
-                        className="text-white"
-                      >
-                        First Name
-                      </Label>
+                      <Label htmlFor="register-firstName" className="text-white">First Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
@@ -322,16 +262,12 @@ export default function AuthPage() {
                         />
                       </div>
                       {registerForm.formState.errors.firstName && (
-                        <p className="text-sm text-red-400">
-                          {registerForm.formState.errors.firstName.message}
-                        </p>
+                        <p className="text-sm text-red-400">{registerForm.formState.errors.firstName.message}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="register-lastName" className="text-white">
-                        Last Name
-                      </Label>
+                      <Label htmlFor="register-lastName" className="text-white">Last Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
@@ -344,17 +280,13 @@ export default function AuthPage() {
                         />
                       </div>
                       {registerForm.formState.errors.lastName && (
-                        <p className="text-sm text-red-400">
-                          {registerForm.formState.errors.lastName.message}
-                        </p>
+                        <p className="text-sm text-red-400">{registerForm.formState.errors.lastName.message}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-email" className="text-white">
-                      Email
-                    </Label>
+                    <Label htmlFor="register-email" className="text-white">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -367,16 +299,12 @@ export default function AuthPage() {
                       />
                     </div>
                     {registerForm.formState.errors.email && (
-                      <p className="text-sm text-red-400">
-                        {registerForm.formState.errors.email.message}
-                      </p>
+                      <p className="text-sm text-red-400">{registerForm.formState.errors.email.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-password" className="text-white">
-                      Password
-                    </Label>
+                    <Label htmlFor="register-password" className="text-white">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -392,26 +320,17 @@ export default function AuthPage() {
                         variant="ghost"
                         size="sm"
                         className="absolute right-1 top-1 h-8 w-8 text-gray-400 hover:text-white"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         data-testid="button-toggle-register-password"
                       >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
                     {registerForm.formState.errors.password && (
-                      <p className="text-sm text-red-400">
-                        {registerForm.formState.errors.password.message}
-                      </p>
+                      <p className="text-sm text-red-400">{registerForm.formState.errors.password.message}</p>
                     )}
                     <p className="text-xs text-gray-500">
-                      Must contain at least 8 characters with uppercase,
-                      lowercase, and numbers
+                      Must contain at least 8 characters with uppercase, lowercase, and numbers
                     </p>
                   </div>
 
@@ -421,15 +340,12 @@ export default function AuthPage() {
                     disabled={registerMutation.isPending}
                     data-testid="button-register"
                   >
-                    {registerMutation.isPending
-                      ? "Creating Account..."
-                      : "Create Account"}
+                    {registerMutation.isPending ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
 
                 <div className="text-center text-xs text-gray-500">
-                  By creating an account, you agree to our Terms of Service and
-                  Privacy Policy
+                  By creating an account, you agree to our Terms of Service and Privacy Policy
                 </div>
               </TabsContent>
             </Tabs>
@@ -437,11 +353,7 @@ export default function AuthPage() {
             {/* Back to Home */}
             <div className="mt-6 text-center">
               <Link to="/">
-                <Button
-                  variant="link"
-                  className="text-gray-400 hover:text-white"
-                  data-testid="link-back-home"
-                >
+                <Button variant="link" className="text-gray-400 hover:text-white" data-testid="link-back-home">
                   ← Back to Home
                 </Button>
               </Link>

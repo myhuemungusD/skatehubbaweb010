@@ -1,18 +1,13 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
-import { db } from "../db.js";
-import { customUsers, authSessions } from "../../shared/schema.js";
-import { eq, and, gt } from "drizzle-orm";
-import type {
-  CustomUser,
-  InsertCustomUser,
-  AuthSession,
-} from "../../shared/schema.js";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { db } from '../db.js';
+import { customUsers, authSessions } from '../../shared/schema.js';
+import { eq, and, gt } from 'drizzle-orm';
+import type { CustomUser, InsertCustomUser, AuthSession } from '../../shared/schema.js';
 
 export class AuthService {
-  private static readonly JWT_SECRET =
-    process.env.JWT_SECRET || "your-secret-key-change-this";
+  private static readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
   private static readonly SALT_ROUNDS = 12;
   private static readonly TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
   private static readonly EMAIL_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
@@ -23,18 +18,17 @@ export class AuthService {
   }
 
   // Verify password
-  static async verifyPassword(
-    password: string,
-    hash: string,
-  ): Promise<boolean> {
+  static async verifyPassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
 
   // Generate JWT token
   static generateJWT(userId: string): string {
-    return jwt.sign({ userId, type: "access" }, this.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    return jwt.sign(
+      { userId, type: 'access' },
+      this.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
   }
 
   // Verify JWT token
@@ -49,7 +43,7 @@ export class AuthService {
 
   // Generate random token for email verification
   static generateSecureToken(): string {
-    return crypto.randomBytes(32).toString("hex");
+    return crypto.randomBytes(32).toString('hex');
   }
 
   // Create user
@@ -60,8 +54,8 @@ export class AuthService {
     lastName: string;
     firebaseUid?: string;
   }): Promise<{ user: CustomUser; emailToken: string }> {
-    const passwordHash = userData.firebaseUid
-      ? "firebase-auth-user" // Placeholder for Firebase users
+    const passwordHash = userData.firebaseUid 
+      ? 'firebase-auth-user' // Placeholder for Firebase users
       : await this.hashPassword(userData.password);
     const emailToken = this.generateSecureToken();
     const emailTokenExpiry = new Date(Date.now() + this.EMAIL_TOKEN_EXPIRY);
@@ -90,7 +84,7 @@ export class AuthService {
       .select()
       .from(customUsers)
       .where(eq(customUsers.email, email.toLowerCase().trim()));
-
+    
     return user || null;
   }
 
@@ -100,19 +94,17 @@ export class AuthService {
       .select()
       .from(customUsers)
       .where(eq(customUsers.id, id));
-
+    
     return user || null;
   }
 
   // Find user by Firebase UID
-  static async findUserByFirebaseUid(
-    firebaseUid: string,
-  ): Promise<CustomUser | null> {
+  static async findUserByFirebaseUid(firebaseUid: string): Promise<CustomUser | null> {
     const [user] = await db
       .select()
       .from(customUsers)
       .where(eq(customUsers.firebaseUid, firebaseUid));
-
+    
     return user || null;
   }
 
@@ -124,8 +116,8 @@ export class AuthService {
       .where(
         and(
           eq(customUsers.emailVerificationToken, token),
-          gt(customUsers.emailVerificationExpires, new Date()),
-        ),
+          gt(customUsers.emailVerificationExpires, new Date())
+        )
       );
 
     if (!user) return null;
@@ -162,9 +154,7 @@ export class AuthService {
   }
 
   // Create session
-  static async createSession(
-    userId: string,
-  ): Promise<{ token: string; session: AuthSession }> {
+  static async createSession(userId: string): Promise<{ token: string; session: AuthSession }> {
     const token = this.generateJWT(userId);
     const expiresAt = new Date(Date.now() + this.TOKEN_EXPIRY);
 
@@ -193,8 +183,8 @@ export class AuthService {
       .where(
         and(
           eq(authSessions.token, token),
-          gt(authSessions.expiresAt, new Date()),
-        ),
+          gt(authSessions.expiresAt, new Date())
+        )
       );
 
     if (!session) return null;
@@ -205,7 +195,9 @@ export class AuthService {
 
   // Delete session (logout)
   static async deleteSession(token: string): Promise<void> {
-    await db.delete(authSessions).where(eq(authSessions.token, token));
+    await db
+      .delete(authSessions)
+      .where(eq(authSessions.token, token));
   }
 
   // Update last login
@@ -220,9 +212,7 @@ export class AuthService {
   }
 
   // Generate password reset token
-  static async generatePasswordResetToken(
-    email: string,
-  ): Promise<string | null> {
+  static async generatePasswordResetToken(email: string): Promise<string | null> {
     const user = await this.findUserByEmail(email);
     if (!user || !user.isEmailVerified) return null;
 
@@ -242,18 +232,15 @@ export class AuthService {
   }
 
   // Reset password with token
-  static async resetPassword(
-    token: string,
-    newPassword: string,
-  ): Promise<CustomUser | null> {
+  static async resetPassword(token: string, newPassword: string): Promise<CustomUser | null> {
     const [user] = await db
       .select()
       .from(customUsers)
       .where(
         and(
           eq(customUsers.resetPasswordToken, token),
-          gt(customUsers.resetPasswordExpires, new Date()),
-        ),
+          gt(customUsers.resetPasswordExpires, new Date())
+        )
       );
 
     if (!user) return null;
@@ -275,10 +262,7 @@ export class AuthService {
   }
 
   // Update user helper method
-  static async updateUser(
-    userId: string,
-    updates: Partial<InsertCustomUser>,
-  ): Promise<CustomUser | null> {
+  static async updateUser(userId: string, updates: Partial<InsertCustomUser>): Promise<CustomUser | null> {
     const [updatedUser] = await db
       .update(customUsers)
       .set({

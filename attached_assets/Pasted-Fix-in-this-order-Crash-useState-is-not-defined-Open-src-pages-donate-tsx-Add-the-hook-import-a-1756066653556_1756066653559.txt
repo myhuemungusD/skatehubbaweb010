@@ -1,0 +1,86 @@
+Fix in this order:
+
+Crash: useState is not defined
+
+Open src/pages/donate.tsx. Add the hook import at top.
+
+import { useState, useEffect } from "react";
+// if missing React in file, also: import React from "react";
+
+
+If your tsconfig uses the new JSX runtime, ensure:
+
+// tsconfig.json
+"compilerOptions": { "jsx": "react-jsx" }
+
+
+Firebase Analytics warnings in dev
+
+Safe to ignore, but better to gate or disable in dev.
+
+import { initializeApp } from "firebase/app";
+import { getAnalytics, isSupported } from "firebase/analytics";
+
+const app = initializeApp(firebaseConfig);
+
+if (import.meta.env.PROD) {
+  isSupported().then((ok) => ok && getAnalytics(app)).catch(() => {});
+}
+
+
+Ensure firebaseConfig includes both measurementId and appId. Use the explicit measurementId you posted.
+
+Repeating “Failed to fetch” network calls
+Check these three levers:
+
+A. Wrong API base
+
+const API = import.meta.env.VITE_API_URL ?? "/api";  // Vite dev proxy expects /api
+await fetch(`${API}/donate`, { method: "POST", ... });
+
+
+B. Vite dev proxy (if server runs on 5000)
+
+// vite.config.ts
+server: {
+  proxy: { "/api": { target: "http://localhost:5000", changeOrigin: true } }
+}
+
+
+C. CORS (if hitting full URL)
+On server:
+
+import cors from "cors";
+app.use(cors({ origin: ["http://localhost:5173", "https://<your-replit-app-domain>"], credentials: true }));
+
+
+Common Donate-page pitfalls
+
+Ensure handlers onSubmit call event.preventDefault().
+
+Don’t await res.json() if response is 204.
+
+Log exact URL and status:
+
+const res = await fetch(url, opts);
+console.log("donate POST", url, res.status);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+
+Quick validation guard to avoid undefined state use
+
+const [amount, setAmount] = useState<number>(5);
+if (Number.isNaN(amount)) setAmount(5);
+
+
+Build/run sanity
+
+Stop and restart Vite after tsconfig or env changes.
+
+Verify envs: add .env:
+
+VITE_API_URL=/api
+VITE_FIREBASE_MEASUREMENT_ID=G-7XVNF1LHZW
+
+
+If errors persist, paste the top 30 lines of donate.tsx and your vite.config.ts.

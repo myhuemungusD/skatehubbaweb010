@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 
@@ -16,13 +17,13 @@ export function DonorRecognition() {
 
   const fetchRecentDonors = async () => {
     try {
-      const response = await fetch("/api/recent-donors?limit=15");
+      const response = await fetch('/api/recent-donors?limit=15');
       if (response.ok) {
         const donorData = await response.json();
         setDonors(donorData);
       }
     } catch (error) {
-      console.error("Failed to fetch donors:", error);
+      console.error('Failed to fetch donors:', error);
     } finally {
       setLoading(false);
     }
@@ -42,7 +43,7 @@ export function DonorRecognition() {
           </div>
           <div className="flex flex-wrap items-center gap-2 text-sm text-[#fafafa]">
             {donors.slice(0, 10).map((donor, index) => (
-              <span
+              <span 
                 key={`${donor.firstName}-${donor.createdAt}`}
                 className="inline-flex items-center gap-1"
               >

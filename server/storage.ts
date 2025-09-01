@@ -1,19 +1,10 @@
 import {
-  users,
-  tutorialSteps,
-  userProgress,
-  subscribers,
-  type User,
-  type UpsertUser,
-  type TutorialStep,
-  type InsertTutorialStep,
-  type UserProgress,
-  type InsertUserProgress,
-  type UpdateUserProgress,
-  type Subscriber,
+  users, tutorialSteps, userProgress, subscribers,
+  type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
+  type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
 } from "../shared/schema.js";
 import { CreateSubscriber } from "./storage/types.js";
-import { db } from "./db.js";
+import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
 import * as schema from "../shared/schema.js";
 
@@ -21,11 +12,7 @@ export interface IStorage {
   // User methods for Replit Auth
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  updateUserOnboardingStatus(
-    userId: string,
-    completed: boolean,
-    currentStep?: number,
-  ): Promise<User | undefined>;
+  updateUserOnboardingStatus(userId: string, completed: boolean, currentStep?: number): Promise<User | undefined>;
 
   // Tutorial steps methods
   getAllTutorialSteps(): Promise<TutorialStep[]>;
@@ -34,16 +21,9 @@ export interface IStorage {
 
   // User progress methods
   getUserProgress(userId: string): Promise<UserProgress[]>;
-  getUserStepProgress(
-    userId: string,
-    stepId: number,
-  ): Promise<UserProgress | undefined>;
+  getUserStepProgress(userId: string, stepId: number): Promise<UserProgress | undefined>;
   createUserProgress(progress: InsertUserProgress): Promise<UserProgress>;
-  updateUserProgress(
-    userId: string,
-    stepId: number,
-    updates: UpdateUserProgress,
-  ): Promise<UserProgress | undefined>;
+  updateUserProgress(userId: string, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined>;
 
   // Subscriber methods
   createSubscriber(data: CreateSubscriber): Promise<Subscriber>;
@@ -58,9 +38,7 @@ export interface IStorage {
     status: string;
   }): Promise<any>;
   updateDonationStatus(paymentIntentId: string, status: string): Promise<any>;
-  getRecentDonors(
-    limit?: number,
-  ): Promise<{ firstName: string; createdAt: Date }[]>;
+  getRecentDonors(limit?: number): Promise<{ firstName: string; createdAt: Date }[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -80,8 +58,11 @@ export class DatabaseStorage implements IStorage {
 
       // Check if tutorial steps already exist
       if (testQuery.length > 0) {
+        console.log('Tutorial steps already initialized');
         return;
       }
+
+      console.log('Initializing default tutorial steps...');
 
       // Initialize with default steps
       const defaultSteps: InsertTutorialStep[] = [
@@ -90,9 +71,9 @@ export class DatabaseStorage implements IStorage {
           description: "Learn the basics of navigating the skate community",
           type: "intro",
           content: {
-            videoUrl: "https://example.com/intro-video",
+            videoUrl: "https://example.com/intro-video"
           },
-          order: 1,
+          order: 1
         },
         {
           title: "Interactive Elements",
@@ -103,16 +84,16 @@ export class DatabaseStorage implements IStorage {
               {
                 type: "tap",
                 target: "skate-board",
-                instruction: "Tap the skateboard to pick it up",
+                instruction: "Tap the skateboard to pick it up"
               },
               {
                 type: "swipe",
                 target: "trick-menu",
-                instruction: "Swipe to browse tricks",
-              },
-            ],
+                instruction: "Swipe to browse tricks"
+              }
+            ]
           },
-          order: 2,
+          order: 2
         },
         {
           title: "Community Challenge",
@@ -121,21 +102,20 @@ export class DatabaseStorage implements IStorage {
           content: {
             challengeData: {
               action: "post_trick",
-              expectedResult: "Share a trick with the community",
-            },
+              expectedResult: "Share a trick with the community"
+            }
           },
-          order: 3,
-        },
+          order: 3
+        }
       ];
 
       for (const step of defaultSteps) {
         await this.createTutorialStep(step);
       }
+
+      console.log('Successfully initialized tutorial steps');
     } catch (error) {
-      console.error(
-        "Database initialization failed - continuing without default tutorial steps:",
-        error,
-      );
+      console.error('Database initialization failed - continuing without default tutorial steps:', error);
       // Don't throw error to prevent crash loop - app can still function
     }
   }
@@ -161,17 +141,13 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserOnboardingStatus(
-    userId: string,
-    completed: boolean,
-    currentStep?: number,
-  ): Promise<User | undefined> {
+  async updateUserOnboardingStatus(userId: string, completed: boolean, currentStep?: number): Promise<User | undefined> {
     const [user] = await db
       .update(users)
       .set({
         onboardingCompleted: completed,
         currentTutorialStep: currentStep,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       })
       .where(eq(users.id, userId))
       .returning();
@@ -188,10 +164,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTutorialStep(id: number): Promise<TutorialStep | undefined> {
-    const [step] = await db
-      .select()
-      .from(tutorialSteps)
-      .where(eq(tutorialSteps.id, id));
+    const [step] = await db.select().from(tutorialSteps).where(eq(tutorialSteps.id, id));
     return step || undefined;
   }
 
@@ -212,22 +185,15 @@ export class DatabaseStorage implements IStorage {
       .orderBy(userProgress.stepId);
   }
 
-  async getUserStepProgress(
-    userId: string,
-    stepId: number,
-  ): Promise<UserProgress | undefined> {
+  async getUserStepProgress(userId: string, stepId: number): Promise<UserProgress | undefined> {
     const [progress] = await db
       .select()
       .from(userProgress)
-      .where(
-        and(eq(userProgress.userId, userId), eq(userProgress.stepId, stepId)),
-      );
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.stepId, stepId)));
     return progress || undefined;
   }
 
-  async createUserProgress(
-    progress: InsertUserProgress,
-  ): Promise<UserProgress> {
+  async createUserProgress(progress: InsertUserProgress): Promise<UserProgress> {
     const [createdProgress] = await db
       .insert(userProgress)
       .values(progress as any)
@@ -235,24 +201,16 @@ export class DatabaseStorage implements IStorage {
     return createdProgress;
   }
 
-  async updateUserProgress(
-    userId: string,
-    stepId: number,
-    updates: UpdateUserProgress,
-  ): Promise<UserProgress | undefined> {
+  async updateUserProgress(userId: string, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined> {
     const updateData: any = {
       ...updates,
+      completedAt: updates.completed ? new Date() : undefined
     };
-    if (updates.completed) {
-      updateData.completedAt = new Date();
-    }
 
     const [updatedProgress] = await db
       .update(userProgress)
       .set(updateData)
-      .where(
-        and(eq(userProgress.userId, userId), eq(userProgress.stepId, stepId)),
-      )
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.stepId, stepId)))
       .returning();
     return updatedProgress || undefined;
   }
@@ -280,10 +238,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSubscriber(email: string): Promise<Subscriber | undefined> {
-    const [subscriber] = await db
-      .select()
-      .from(subscribers)
-      .where(eq(subscribers.email, email));
+    const [subscriber] = await db.select().from(subscribers).where(eq(subscribers.email, email));
     return subscriber || undefined;
   }
 
@@ -310,13 +265,11 @@ export class DatabaseStorage implements IStorage {
     return updatedDonation;
   }
 
-  async getRecentDonors(
-    limit: number = 10,
-  ): Promise<{ firstName: string; createdAt: Date }[]> {
+  async getRecentDonors(limit: number = 10): Promise<{ firstName: string; createdAt: Date }[]> {
     return await db
       .select({
         firstName: schema.donations.firstName,
-        createdAt: schema.donations.createdAt,
+        createdAt: schema.donations.createdAt
       })
       .from(schema.donations)
       .where(eq(schema.donations.status, "succeeded"))

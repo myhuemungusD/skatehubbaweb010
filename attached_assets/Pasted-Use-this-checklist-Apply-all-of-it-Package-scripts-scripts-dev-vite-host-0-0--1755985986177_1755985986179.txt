@@ -1,0 +1,101 @@
+Use this checklist. Apply all of it.
+
+Package scripts
+
+{
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3000",
+    "start": "npm run preview"
+  }
+}
+
+
+Vite config (React example)
+
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: true,          // 0.0.0.0 on Replit
+    port: 5173,
+    strictPort: true,
+    hmr: { clientPort: 443 } // fixes HMR over Replit proxy
+  },
+  preview: {
+    host: true,
+    port: 3000
+  },
+  build: {
+    outDir: "dist",
+    sourcemap: true
+  }
+});
+
+
+Replit “Run” command
+Set Run to:
+
+npm run start
+
+
+Do not use vite dev for production. Replit will expose port 3000 from vite preview.
+
+Static assets and base path
+If the site is served at root, keep default. If you serve under a subpath, set:
+
+export default defineConfig({ base: "/subpath/" })
+
+
+React Router SPA fallback
+Create public/_redirects for SPA routing (if you serve with a static server later). On Replit with vite preview, routing works by default. If you switch to serve, add:
+
+/*  /index.html  200
+
+
+Environment variables
+Vite exposes only VITE_*. In Replit Secrets, prefix all client-side vars:
+
+VITE_FIREBASE_API_KEY=...
+
+
+Use import.meta.env.VITE_FIREBASE_API_KEY.
+
+Fix common errors
+
+“Blocked by host / HMR not connecting”: ensure server.host: true and hmr.clientPort: 443.
+
+“White screen in deploy but dev works”: you deployed dev server. Use npm run build && npm run preview.
+
+404 on refresh with React Router: use SPA fallback (see 5).
+
+Assets 404 in production: wrong base. Remove custom base unless you need a subpath.
+
+Minimal file structure
+
+/public
+  favicon.ico
+/src
+  main.tsx
+  App.tsx
+index.html
+vite.config.ts
+package.json
+
+
+index.html must reference /src/main.tsx via <script type="module" src="/src/main.tsx"></script>.
+
+Optional: static server alternative
+If you prefer a static server:
+
+npm i -D vite
+npm i -g serve
+"start": "npm run build && serve -s dist -l 3000"
+
+
+Health check
+After deploy, open the Replit URL. If blank, open DevTools > Console. Errors usually point to wrong env names or base path.

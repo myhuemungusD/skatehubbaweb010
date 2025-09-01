@@ -1,23 +1,34 @@
-import express from "express";
-import path from "path";
-import { serveStatic } from "./viteStatic.js";
+// Simple TypeScript wrapper for our working Express server
+// This allows the existing workflow to continue working while using our clean implementation
+import { spawn } from 'child_process';
+import path from 'path';
 
-const app = express();
+const serverPath = path.join(process.cwd(), 'server', 'index.js');
 
-// Health check endpoint
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+console.log('🔄 Starting SkateHubba server via TypeScript wrapper...');
 
-serveStatic(app);
-
-const port = Number(process.env.PORT) || (process.env.NODE_ENV === "production" ? 8080 : 5000);
-const server = app.listen(port, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${port} in ${process.env.NODE_ENV || "development"} mode`);
+const server = spawn('node', [serverPath], {
+  stdio: 'inherit',
+  env: { ...process.env, NODE_ENV: 'development' }
 });
 
-// Handle graceful shutdown
-process.on("SIGTERM", () => {
-  server.close(() => {
-    console.log("Server closed");
-    process.exit(0);
-  });
+server.on('error', (error) => {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
+});
+
+server.on('exit', (code) => {
+  console.log(`🛑 Server exited with code ${code}`);
+  process.exit(code || 0);
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down server...');
+  server.kill('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 Shutting down server...');
+  server.kill('SIGTERM');
 });

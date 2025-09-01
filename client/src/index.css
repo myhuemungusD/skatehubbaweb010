@@ -8,7 +8,7 @@
   --brand: 24 95% 50%; /* orange - primary accent */
   --brand-light: 24 95% 60%;
   --brand-dark: 24 95% 40%;
-
+  
   /* Systematic Gray Scale */
   --gray-50: 249 250 251;
   --gray-100: 243 244 246;
@@ -21,60 +21,60 @@
   --gray-800: 31 41 55;
   --gray-900: 17 24 39;
   --gray-950: 3 7 18;
-
+  
   /* Semantic Colors */
   --white: 255 255 255;
   --black: 0 0 0;
   --success: 34 197 94;
   --error: 239 68 68;
   --warning: 245 158 11;
-
+  
   /* Spacing Scale (Apple's 8pt grid system) */
-  --space-1: 0.25rem; /* 4px */
-  --space-2: 0.5rem; /* 8px */
-  --space-3: 0.75rem; /* 12px */
-  --space-4: 1rem; /* 16px */
-  --space-5: 1.25rem; /* 20px */
-  --space-6: 1.5rem; /* 24px */
-  --space-8: 2rem; /* 32px */
-  --space-10: 2.5rem; /* 40px */
-  --space-12: 3rem; /* 48px */
-  --space-16: 4rem; /* 64px */
-  --space-20: 5rem; /* 80px */
-  --space-24: 6rem; /* 96px */
-
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  
   /* Typography Scale */
-  --text-xs: 0.75rem; /* 12px */
-  --text-sm: 0.875rem; /* 14px */
-  --text-base: 1rem; /* 16px */
-  --text-lg: 1.125rem; /* 18px */
-  --text-xl: 1.25rem; /* 20px */
-  --text-2xl: 1.5rem; /* 24px */
-  --text-3xl: 1.875rem; /* 30px */
-  --text-4xl: 2.25rem; /* 36px */
-  --text-5xl: 3rem; /* 48px */
-  --text-6xl: 3.75rem; /* 60px */
-  --text-7xl: 4.5rem; /* 72px */
-
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+  --text-7xl: 4.5rem;     /* 72px */
+  
   /* Line Heights */
   --leading-tight: 1.25;
   --leading-snug: 1.375;
   --leading-normal: 1.5;
   --leading-relaxed: 1.625;
   --leading-loose: 2;
-
+  
   /* Touch Target Sizes (44pt minimum) */
-  --touch-target-sm: 2.75rem; /* 44px */
-  --touch-target-md: 3rem; /* 48px */
-  --touch-target-lg: 3.5rem; /* 56px */
-
+  --touch-target-sm: 2.75rem;   /* 44px */
+  --touch-target-md: 3rem;      /* 48px */
+  --touch-target-lg: 3.5rem;    /* 56px */
+  
   /* Border Radius Scale */
-  --radius-sm: 0.25rem; /* 4px */
-  --radius-md: 0.5rem; /* 8px */
-  --radius-lg: 0.75rem; /* 12px */
-  --radius-xl: 1rem; /* 16px */
-  --radius-2xl: 1.5rem; /* 24px */
-
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  
   /* Animation Curves (Apple's preferred easings) */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -84,9 +84,7 @@
 /* Global focus-visible styles */
 *:focus-visible {
   outline: none;
-  box-shadow:
-    0 0 0 2px hsl(var(--black)),
-    0 0 0 4px hsla(var(--black), 0.1);
+  box-shadow: 0 0 0 2px hsl(var(--black)), 0 0 0 4px hsla(var(--black), 0.1);
   transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -137,17 +135,13 @@
   background: hsl(var(--brand));
   color: white;
   border-color: hsl(var(--brand));
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.1),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: hsl(var(--brand-dark));
   border-color: hsl(var(--brand-dark));
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
 
@@ -181,7 +175,7 @@
 }
 
 .btn-loading::after {
-  content: "";
+  content: '';
   position: absolute;
   width: 20px;
   height: 20px;
@@ -192,22 +186,16 @@
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 /* Card styles with subtle shadows */
 .card {
   @apply rounded-2xl border border-gray-200 bg-white p-6;
-  box-shadow:
-    0 1px 3px 0 rgb(0 0 0 / 0.1),
-    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 .card:hover {
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -220,7 +208,7 @@
     @apply bg-background text-foreground;
     background-color: var(--skatehubba-dark-bg);
     color: var(--skatehubba-light-text);
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 }
 
@@ -235,19 +223,14 @@
   }
 
   @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
   }
 }
 
 /* Font families */
 .font-orbitron {
-  font-family: "Orbitron", monospace;
+  font-family: 'Orbitron', monospace;
 }
 
 /* Scrollbar styling */
@@ -353,7 +336,7 @@ a:focus-visible {
 }
 
 .graffiti-bg {
-  background-image: url("/attached_assets/hubbagraffwall.png");
+  background-image: url('/attached_assets/hubbagraffwall.png');
 }
 
 /* High contrast mode support */
@@ -378,26 +361,20 @@ a:focus-visible {
 
 /* Style for new button */
 .auth-button {
-  background: #ff6600; /* solid orange */
+  background: #ff6600;        /* solid orange */
   color: #fff;
-  font-size: 1.2rem; /* larger text */
+  font-size: 1.2rem;          /* larger text */
   font-weight: bold;
   padding: 14px 28px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  box-shadow:
-    0 0 15px #ff6600,
-    0 0 30px #ff6600; /* neon glow */
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  box-shadow: 0 0 15px #ff6600, 0 0 30px #ff6600; /* neon glow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Hover effect */
 .auth-button:hover {
   transform: scale(1.05);
-  box-shadow:
-    0 0 25px #ff6600,
-    0 0 50px #ff6600;
+  box-shadow: 0 0 25px #ff6600, 0 0 50px #ff6600;
 }

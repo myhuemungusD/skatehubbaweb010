@@ -1,0 +1,105 @@
+Reliability + errors
+npm i @sentry/react @sentry/node
+
+// src/sentry.ts
+import * as Sentry from '@sentry/react';
+Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN, tracesSampleRate: 1.0 });
+
+// server/sentry.js
+import * as Sentry from '@sentry/node';
+Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 1.0 });
+
+Analytics (lightweight)
+
+Add to index.html head:
+
+<script defer data-domain="skatehubba.com" src="https://plausible.io/js/script.js"></script>
+
+Performance
+npm i -D @squoosh/cli    # optimize hero/media
+npm i compression        # gzip/br
+
+// server/index.js
+import compression from 'compression';
+app.use(compression());
+
+Security
+npm i helmet cors express-rate-limit
+
+import helmet from 'helmet';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+app.use(helmet());
+app.use(cors({ origin: ['https://skatehubba.com', /\.replit\.dev$/] }));
+app.use(rateLimit({ windowMs: 60_000, max: 60 }));
+
+Email signup: stable + strict
+npm i zod react-hook-form @hookform/resolvers ky
+
+// src/Signup.tsx
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import ky from 'ky';
+
+const Schema = z.object({ email: z.string().email(), company: z.string().optional() });
+type Form = z.infer<typeof Schema>;
+
+export default function Signup() {
+  const { register, handleSubmit, formState:{ isSubmitting, errors } } =
+    useForm<Form>({ resolver: zodResolver(Schema) });
+
+  return (
+    <form onSubmit={handleSubmit(async v=>{
+      await ky.post('/api/subscribe',{ json:v });
+    })} noValidate className="grid sm:grid-cols-[1fr_auto] gap-3">
+      <input {...register('email')} type="email" placeholder="you@example.com"
+        className="rounded-xl border px-3 py-2 focus:ring-2 focus:ring-black"/>
+      <button disabled={isSubmitting} className="rounded-xl bg-black text-white px-4">Notify me</button>
+      <input type="text" {...register('company')} className="hidden" tabIndex={-1} aria-hidden="true" />
+      {errors.email && <p className="text-sm text-red-600 mt-2">Enter a valid email.</p>}
+    </form>
+  );
+}
+
+Email provider (transactional)
+npm i resend
+
+// server/subscribe.js
+import { Resend } from 'resend';
+const resend = new Resend(process.env.RESEND_API_KEY);
+router.post('/subscribe', async (req, res)=>{
+  // validate first (zod)
+  await resend.emails.send({
+    from: 'SkateHubba <hello@skatehubba.com>',
+    to: req.body.email,
+    subject: 'Welcome to SkateHubba',
+    html: '<p>You’re on the list.</p>'
+  });
+  res.json({ ok:true });
+});
+
+Web Vitals (prove LCP fix)
+npm i web-vitals
+
+// src/vitals.ts
+import { onLCP, onCLS, onFID } from 'web-vitals';
+const send = (m:any)=>navigator.sendBeacon?.('/api/vitals', JSON.stringify(m));
+onLCP(send); onCLS(send); onFID(send);
+
+SEO assets
+npm i -D favicons sitemap
+
+
+Generate favicons: npx favicons public/logo.png -o public
+
+Generate sitemap in build step with sitemap.
+
+Logging
+npm i pino-http
+
+import pinoHttp from 'pino-http';
+app.use(pinoHttp());
+
+
+Priority order to install: Security → Email form libs → Resend → Compression → Sentry → Web-Vitals → Squoosh → Analytics → SEO.
