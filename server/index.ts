@@ -6,7 +6,7 @@ const serverPath = path.join(process.cwd(), 'server', 'index.js');
 
 console.log('🔄 Starting SkateHubba fullstack application...');
 console.log('📡 API Server: http://localhost:3001');
-console.log('🌐 Frontend: http://localhost:5173');
+console.log('🌐 Frontend: http://localhost:5000');
 
 // Start API server on port 3001
 const apiServer = spawn('node', [serverPath], {
@@ -14,8 +14,8 @@ const apiServer = spawn('node', [serverPath], {
   env: { ...process.env, NODE_ENV: 'development', PORT: '3001' }
 });
 
-// Start Vite dev server on port 5173 for frontend (default Vite port)
-const viteServer = spawn('npx', ['vite', '--host', '0.0.0.0', '--port', '5173'], {
+// Start Vite dev server on port 5000 for frontend
+const viteServer = spawn('npx', ['vite', '--host', '0.0.0.0', '--port', '5000'], {
   stdio: 'pipe',
   env: { ...process.env },
   cwd: process.cwd()
