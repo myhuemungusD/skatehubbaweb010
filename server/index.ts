@@ -15,7 +15,7 @@ const apiServer = spawn('node', [serverPath], {
 });
 
 // Start Vite dev server on port 5000 for frontend
-const viteServer = spawn('npx', ['vite', '--host', '0.0.0.0', '--port', '5000'], {
+const viteServer = spawn('npx', ['vite', '--host', '0.0.0.0', '--port', '5000', '--disable-host-check'], {
   stdio: 'pipe',
   env: { ...process.env },
   cwd: process.cwd()
