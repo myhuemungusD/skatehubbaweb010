@@ -40,11 +40,12 @@ function AppRoutes() {
           <Route path="/old" component={Landing} />
           <Route path="/new" component={NewLanding} />
           <Route path="/home" component={Home} />
-          <Route path="/tutorial" component={Tutorial} />
           <Route path="/demo" component={Demo} />
           <Route path="/donate" component={DonationPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
+          <Route path="/tutorial" component={() => <AuthPage />} />
+          <Route component={NotFound} />
         </>
       ) : (
         <>
