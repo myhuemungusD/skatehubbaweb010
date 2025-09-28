@@ -14,8 +14,8 @@ const apiServer = spawn('node', [serverPath], {
   env: { ...process.env, NODE_ENV: 'development', PORT: '3001' }
 });
 
-// Start Vite dev server on port 5000 for frontend
-const viteServer = spawn('npx', ['vite', '--host', '0.0.0.0', '--port', '5000'], {
+// Start Vite dev server with Replit-compatible host settings  
+const viteServer = spawn('npx', ['vite', '--host', '--port', '5000'], {
   stdio: 'pipe',
   env: { ...process.env },
   cwd: process.cwd()
