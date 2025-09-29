@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,               // allow external connections
-    allowedHosts: ['.replit.dev'],  // whitelist all *.replit.dev hosts
+    allowedHosts: true,       // allow ALL hosts (permanent fix for Replit)
     port: 5000,
   },
   root: 'client',
