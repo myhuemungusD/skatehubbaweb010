@@ -50,6 +50,7 @@ function AppRoutes() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/home" component={Home} />
           <Route path="/donate" component={DonationPage} />
           <Route path="/tutorial" component={() => {
             return user ? <Tutorial userId={user.id} /> : <NotFound />;
