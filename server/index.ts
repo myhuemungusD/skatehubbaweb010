@@ -8,8 +8,8 @@ console.log('🔄 Starting SkateHubba fullstack application...');
 console.log('📡 API Server: http://localhost:3001');
 console.log('🌐 Frontend: http://localhost:5000');
 
-// Start API server on port 3001
-const apiServer = spawn('node', [serverPath], {
+// Start API server on port 3001 with tsx to handle TypeScript
+const apiServer = spawn('npx', ['tsx', serverPath], {
   stdio: 'pipe',
   env: { ...process.env, NODE_ENV: 'development', PORT: '3001' }
 });
