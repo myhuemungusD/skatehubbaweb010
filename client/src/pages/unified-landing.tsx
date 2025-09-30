@@ -95,6 +95,22 @@ const SkateHubbaLogo = () => (
 export default function UnifiedLanding() {
   const [showDetailedFeatures, setShowDetailedFeatures] = useState(false);
   
+  // VHS Glitch Effect on Beta Button
+  useEffect(() => {
+    const betaBtn = document.querySelector('.join-beta');
+    if (!betaBtn) return;
+
+    const handleMouseEnter = () => {
+      (betaBtn as HTMLElement).style.filter = 'url(#glitch)';
+      setTimeout(() => {
+        (betaBtn as HTMLElement).style.filter = 'none';
+      }, 200);
+    };
+
+    betaBtn.addEventListener('mouseenter', handleMouseEnter);
+    return () => betaBtn.removeEventListener('mouseenter', handleMouseEnter);
+  }, []);
+  
   // Progressive disclosure with intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -255,7 +271,7 @@ export default function UnifiedLanding() {
           <Button
             onClick={() => document.querySelector('[data-testid="input-hero-email"]')?.scrollIntoView({ behavior: 'smooth' })}
             size="lg"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-bold rounded-lg transition-all duration-200 hover:scale-105"
+            className="join-beta bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-bold rounded-lg transition-all duration-200 hover:scale-105"
             data-testid="button-cta-scroll"
           >
             Get Beta Access
@@ -285,6 +301,33 @@ export default function UnifiedLanding() {
           transform: translateY(0);
         }
       `}</style>
+      {/* VHS Glitch SVG Filter */}
+      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+        <defs>
+          <filter id="glitch">
+            <feColorMatrix
+              type="matrix"
+              values="1 0 0 0 0
+                      0 0.8 0 0.2 0
+                      0 0.2 0.8 0 0
+                      0 0 0 1 0"
+            />
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.05"
+              numOctaves="3"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="10"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
     </Background>
   );
 }
