@@ -60,6 +60,68 @@ const HeroAccessButton = () => {
 
 
 export default function Home() {
+  const [firstName, setFirstName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState('');
+  const { toast } = useToast();
+
+  const handleJoinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setValidationError('');
+    setIsSubmitting(true);
+
+    try {
+      const validatedData = NewSubscriberInput.parse({ 
+        firstName: firstName.trim() || undefined,
+        email: email.trim().toLowerCase()
+      });
+
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(validatedData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        analytics.subscribeSubmitted(email);
+        analytics.subscribeSuccess();
+
+        if (data.status === "exists") {
+          toast({
+            title: "Already on the list! 👋",
+            description: "You're already signed up. We'll keep you updated!",
+          });
+        } else {
+          toast({
+            title: "Welcome to SkateHubba! 🎉",
+            description: data.msg || "You're now on the beta list!",
+          });
+        }
+
+        setFirstName('');
+        setEmail('');
+      } else {
+        throw new Error(data.error || 'Signup failed');
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setValidationError(error.errors[0]?.message || "Please check your input");
+      } else {
+        toast({
+          title: "Signup failed",
+          description: "Please try again in a moment.",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
