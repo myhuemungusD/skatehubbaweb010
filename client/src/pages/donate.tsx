@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../co
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
+import Navigation from "../components/Navigation";
 import { ArrowLeft, DollarSign, Heart, Users, Zap } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { trackDonation, trackButtonClick, trackPageView } from "../lib/analytics";
@@ -220,19 +221,11 @@ export default function Donate() {
       backgroundPosition: 'center top',
       backgroundAttachment: 'fixed'
     }}>
+      <Navigation />
       <div className="min-h-screen">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 bg-transparent">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
-            <Button
-              variant="ghost"
-              onClick={() => setLocation('/')}
-              className="text-white hover:text-orange-400 bg-transparent border-none"
-              data-testid="button-back-home"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white">Support SkateHubba</h1>
               <p className="text-gray-200">Help us build the future of skateboarding</p>

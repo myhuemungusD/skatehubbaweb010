@@ -5,6 +5,7 @@ import { useToast } from "../hooks/use-toast";
 import { analytics } from "../lib/analytics";
 import { Mail, Phone, Calendar, Users, MapPin, Trophy } from "lucide-react";
 import BackgroundCarousel from "../components/BackgroundCarousel";
+import Navigation from "../components/Navigation";
 import { z } from "zod";
 import { NewSubscriberInput } from "../../../shared/schema";
 import EmailSignup from "../components/EmailSignup";
@@ -162,27 +163,7 @@ export default function Home() {
         {/* Donor Recognition */}
         <DonorRecognition />
 
-        {/* Navigation */}
-        <nav className="bg-[#131313] border-b border-[#333] mb-8">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <strong className="text-xl text-[#fafafa]">SkateHubba</strong>
-              </div>
-              <div className="flex gap-6 items-center">
-                <button
-                  onClick={() => {
-                    window.location.href = '/donate';
-                  }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors"
-                  data-testid="button-donate-nav"
-                >
-                  Donate
-                </button>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <Navigation />
 
         {/* Main Content */}
         <main id="main-content" className="container mx-auto px-4 py-8 overflow-x-hidden" role="main">

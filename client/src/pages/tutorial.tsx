@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Progress } from '../components/ui/progress';
 import { Badge } from '../components/ui/badge';
+import Navigation from '../components/Navigation';
 import { CheckCircle, PlayCircle, Target, Users, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import type { TutorialStep, User, UserProgress } from '@shared/schema';
@@ -200,24 +201,14 @@ export default function Tutorial({ userId }: TutorialProps) {
       backgroundPosition: 'center',
       backgroundAttachment: 'fixed'
     }}>
+      <Navigation />
       <div className="min-h-screen bg-black/70">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => setLocation('/')}
-                className="text-[#fafafa] hover:text-orange-400"
-                data-testid="button-back-home"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold text-[#fafafa]">SkateHubba Tutorial</h1>
-                <p className="text-gray-300">Learn the basics and get started</p>
-              </div>
+            <div>
+              <h1 className="text-3xl font-bold text-[#fafafa]">SkateHubba Tutorial</h1>
+              <p className="text-gray-300">Learn the basics and get started</p>
             </div>
             <Badge variant="secondary" className="bg-orange-400/20 text-orange-400 border-orange-400/30">
               {completedSteps} / {totalSteps} Complete

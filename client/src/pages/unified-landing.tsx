@@ -1,6 +1,7 @@
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import Background from "../components/BackgroundCarousel";
+import Navigation from "../components/Navigation";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
@@ -135,36 +136,7 @@ export default function UnifiedLanding() {
 
   return (
     <Background className="text-white min-h-screen">
-      {/* Enhanced Navigation with Apple-level polish */}
-      <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-gray-800/50">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <SkateHubbaLogo />
-              <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                SkateHubba
-              </span>
-            </div>
-            <div className="flex items-center space-x-6">
-              <button 
-                onClick={() => setShowDetailedFeatures(!showDetailedFeatures)}
-                className="text-gray-300 hover:text-white transition-colors duration-200 text-sm font-medium"
-                data-testid="button-features-toggle"
-              >
-                Features
-              </button>
-              <Button 
-                onClick={() => window.location.href = '/donate'}
-                size="sm"
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 hover:scale-105"
-                data-testid="button-donate-nav"
-              >
-                Donate
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section with Progressive Disclosure */}
       <Section className="pt-24 pb-16">

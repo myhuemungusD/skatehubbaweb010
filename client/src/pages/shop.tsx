@@ -1,19 +1,13 @@
-import { Link } from "wouter";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import Navigation from "../components/Navigation";
 import { ShoppingCart, Package, Shirt, Award } from "lucide-react";
 
 export default function ShopPage() {
   return (
     <div className="min-h-screen bg-black text-white">
+      <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="text-[#ff6a00] hover:text-[#e55f00]">
-              ← Back to Home
-            </Button>
-          </Link>
-        </div>
 
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#ff6a00] mb-4">
