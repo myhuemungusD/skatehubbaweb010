@@ -1,0 +1,73 @@
+Here’s the updated homepage (src/app/page.tsx) for your Remix project skatehubbaweb0.1.0 — now with Login, Profile, Shop, and Closet in the nav:
+
+// src/app/page.tsx
+import Image from "next/image";
+import Link from "next/link";
+
+export default function HomePage() {
+  return (
+    <main className="relative min-h-screen bg-black text-white">
+      {/* Background graffiti wall */}
+      <Image
+        src="/hubbagraffwall.png"
+        alt="Graffiti wall"
+        fill
+        className="object-cover opacity-60"
+        priority
+      />
+
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center space-y-6">
+        {/* Logo */}
+        <Image
+          src="/LOGOmain.png"
+          alt="SkateHubba logo"
+          width={240}
+          height={240}
+          priority
+        />
+
+        <h1 className="text-3xl font-bold text-[#ff6a00] drop-shadow-lg">
+          Own Your Tricks
+        </h1>
+
+        {/* Menu links */}
+        <nav className="flex flex-wrap gap-4 mt-6 justify-center">
+          <Link
+            href="/login"
+            className="px-6 py-3 rounded-xl bg-[#24d52b] text-black hover:bg-[#1fb125] transition"
+          >
+            Login
+          </Link>
+          <Link
+            href="/profile"
+            className="px-6 py-3 rounded-xl bg-[#ff6a00] text-black hover:bg-[#e55f00] transition"
+          >
+            Profile
+          </Link>
+          <Link
+            href="/shop"
+            className="px-6 py-3 rounded-xl bg-neutral-900 border border-neutral-700 hover:bg-neutral-800 transition"
+          >
+            Shop
+          </Link>
+          <Link
+            href="/closet"
+            className="px-6 py-3 rounded-xl bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition"
+          >
+            Closet
+          </Link>
+        </nav>
+      </div>
+    </main>
+  );
+}
+
+What this does
+
+Full graffiti background.
+
+SkateHubba logo + tagline.
+
+Nav with Login, Profile, Shop, Closet (styled in brand colors).
+
+Responsive + wraps to multiple lines on mobile.

@@ -16,6 +16,7 @@ import DonationPage from "./pages/donate";
 import AuthPage from "./pages/auth";
 import VerifyEmailPage from "./pages/verify-email";
 import ShopPage from "./pages/shop";
+import ClosetPage from "./pages/closet";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { useEffect } from "react";
 
@@ -44,6 +45,7 @@ function AppRoutes() {
           <Route path="/demo" component={Demo} />
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
+          <Route path="/closet" component={ClosetPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/tutorial" component={() => <AuthPage />} />
@@ -55,6 +57,7 @@ function AppRoutes() {
           <Route path="/home" component={Home} />
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
+          <Route path="/closet" component={ClosetPage} />
           <Route path="/tutorial" component={() => {
             return user ? <Tutorial userId={user.id} /> : <NotFound />;
           }} />
