@@ -17,6 +17,8 @@ import AuthPage from "./pages/auth";
 import VerifyEmailPage from "./pages/verify-email";
 import ShopPage from "./pages/shop";
 import ClosetPage from "./pages/closet";
+import MapPage from "./pages/map";
+import SkateGamePage from "./pages/skate-game";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { useEffect } from "react";
 
@@ -46,6 +48,8 @@ function AppRoutes() {
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
           <Route path="/closet" component={ClosetPage} />
+          <Route path="/map" component={MapPage} />
+          <Route path="/skate-game" component={SkateGamePage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/tutorial" component={() => <AuthPage />} />
@@ -58,6 +62,8 @@ function AppRoutes() {
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
           <Route path="/closet" component={ClosetPage} />
+          <Route path="/map" component={MapPage} />
+          <Route path="/skate-game" component={SkateGamePage} />
           <Route path="/tutorial" component={() => {
             return user ? <Tutorial userId={user.id} /> : <NotFound />;
           }} />
