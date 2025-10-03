@@ -509,6 +509,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
       const resp = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "system", content: system }, ...messages].slice(-12),
+        temperature: 0.7,
         max_tokens: 300
       });
 

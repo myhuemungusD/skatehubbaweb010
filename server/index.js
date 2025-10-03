@@ -20,19 +20,19 @@ async function initializeDatabase() {
     const storageModule = await import('./storage.ts');
     const emailModule = await import('./email.ts');
     const schemaModule = await import('../shared/schema.ts');
-
+    
     db = dbModule.db;
     storage = storageModule.storage;
     sendSubscriberNotification = emailModule.sendSubscriberNotification;
     NewSubscriberInput = schemaModule.NewSubscriberInput;
-
+    
     console.log("🎯 Database integration loaded successfully");
-
+    
     // Initialize database
     if (dbModule.initializeDatabase) {
       await dbModule.initializeDatabase();
     }
-
+    
   } catch (error) {
     console.warn("⚠️  Database integration failed, running in basic mode:", error.message);
     // Continue without database - graceful degradation
@@ -47,7 +47,7 @@ app.post("/api/subscribe", async (req, res) => {
   try {
     // Use advanced validation if available, otherwise basic validation
     let email, firstName;
-
+    
     if (NewSubscriberInput) {
       const parsed = NewSubscriberInput.safeParse(req.body);
       if (!parsed.success) {
@@ -94,7 +94,7 @@ app.post("/api/subscribe", async (req, res) => {
       }
 
       console.log(`📧 New subscriber saved: ${firstName || 'Anonymous'} <${email}> [ID: ${created.id}]`);
-
+      
       return res.status(201).json({ 
         ok: true, 
         status: "created", 
@@ -104,14 +104,14 @@ app.post("/api/subscribe", async (req, res) => {
     } else {
       // Fallback mode without database
       console.log(`📧 New signup (no DB): ${firstName || 'Anonymous'} <${email}>`);
-
+      
       res.json({ 
         ok: true, 
         status: "created",
         msg: "Welcome to the beta list! Check your email for confirmation." 
       });
     }
-
+    
   } catch (error) {
     console.error("Subscription error:", error);
     res.status(500).json({ 
@@ -122,13 +122,12 @@ app.post("/api/subscribe", async (req, res) => {
 });
 
 // Start server with database initialization
-// Server initialization - prefer env var, fallback to 3001
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+const PORT = process.env.PORT || 5000;
 
 async function startServer() {
   // Initialize database first
   await initializeDatabase();
-
+  
   app.listen(PORT, () => {
     console.log(`🚀 SkateHubba API running on port ${PORT}`);
     console.log(`📧 Email signup endpoint: POST /api/subscribe`);
