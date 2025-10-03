@@ -1,0 +1,1 @@
+// Session middleware moved to server/auth/middleware.ts
