@@ -4,14 +4,19 @@ import path from 'path';
 
 const serverPath = path.join(process.cwd(), 'server', 'index.js');
 
-console.log('🔄 Starting SkateHubba fullstack application...');
-console.log('📡 API Server: http://localhost:3001');
-console.log('🌐 Frontend: http://localhost:5000');
+const API_PORT = process.env.API_PORT || '3001';
+const FRONTEND_PORT = process.env.PORT || '5000';
 
-// Start API server on port 3001 with tsx to handle TypeScript
+console.log('🔄 Starting SkateHubba fullstack application...');
+console.log(`📡 API Server: http://localhost:${API_PORT}`);
+console.log(`🌐 Frontend: http://localhost:${FRONTEND_PORT}`);
+
+// Start API server with tsx to handle TypeScript
+// Use PORT env var if available, otherwise default to 3001
+const API_PORT = process.env.API_PORT || '3001';
 const apiServer = spawn('npx', ['tsx', serverPath], {
   stdio: 'pipe',
-  env: { ...process.env, NODE_ENV: 'development', PORT: '3001' }
+  env: { ...process.env, NODE_ENV: 'development', PORT: API_PORT }
 });
 
 // Start Vite dev server with custom config to fix host blocking
