@@ -12,8 +12,6 @@ console.log(`📡 API Server: http://localhost:${API_PORT}`);
 console.log(`🌐 Frontend: http://localhost:${FRONTEND_PORT}`);
 
 // Start API server with tsx to handle TypeScript
-// Use PORT env var if available, otherwise default to 3001
-const API_PORT = process.env.API_PORT || '3001';
 const apiServer = spawn('npx', ['tsx', serverPath], {
   stdio: 'pipe',
   env: { ...process.env, NODE_ENV: 'development', PORT: API_PORT }
