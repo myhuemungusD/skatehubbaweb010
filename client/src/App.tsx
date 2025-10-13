@@ -38,7 +38,7 @@ function AppRoutes() {
 
   return (
     <Switch>
-      {!isAuthenticated ? (
+      {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={UnifiedLanding} />
           <Route path="/old" component={Landing} />

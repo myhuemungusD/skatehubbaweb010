@@ -99,7 +99,7 @@
     "memoizee": "^0.4.17",
     "nodemailer": "^6.10.1",
     "openai": "^4.56.0",
-    "openid-client": "^5.7.1",
+    "openid-client": "^6.8.1",
     "passport": "^0.7.0",
     "passport-openidconnect": "^0.1.2",
     "pino-http": "^10.5.0",

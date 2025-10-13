@@ -6,13 +6,16 @@ const app = express();
 
 // Security and CORS
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 
-// Database and email integration
-let db, storage, sendSubscriberNotification, NewSubscriberInput;
+// Database, email, and auth integration
+let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuth, isAuthenticated;
 
-// Initialize database connection
+// Initialize database connection and auth
 async function initializeDatabase() {
   try {
     // Dynamic imports to handle TypeScript files
@@ -20,11 +23,14 @@ async function initializeDatabase() {
     const storageModule = await import('./storage.ts');
     const emailModule = await import('./email.ts');
     const schemaModule = await import('../shared/schema.ts');
+    const authModule = await import('./replitAuth.ts');
     
     db = dbModule.db;
     storage = storageModule.storage;
     sendSubscriberNotification = emailModule.sendSubscriberNotification;
     NewSubscriberInput = schemaModule.NewSubscriberInput;
+    setupAuth = authModule.setupAuth;
+    isAuthenticated = authModule.isAuthenticated;
     
     console.log("🎯 Database integration loaded successfully");
     
@@ -125,16 +131,39 @@ app.post("/api/subscribe", async (req, res) => {
   }
 });
 
-// Start server with database initialization
+// Start server with database and auth initialization
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
   // Initialize database first
   await initializeDatabase();
   
+  // Setup auth if available
+  if (setupAuth) {
+    try {
+      await setupAuth(app);
+      console.log("🔐 Replit Auth initialized");
+      
+      // Add /api/auth/user endpoint
+      app.get('/api/auth/user', isAuthenticated, async (req, res) => {
+        try {
+          const userId = req.user.claims.sub;
+          const user = await storage.getUser(userId);
+          res.json(user);
+        } catch (error) {
+          console.error("Error fetching user:", error);
+          res.status(500).json({ message: "Failed to fetch user" });
+        }
+      });
+    } catch (authError) {
+      console.warn("⚠️  Auth setup failed:", authError.message);
+    }
+  }
+  
   app.listen(PORT, () => {
     console.log(`🚀 SkateHubba API running on port ${PORT}`);
     console.log(`📧 Email signup endpoint: POST /api/subscribe`);
+    console.log(`🔐 Auth endpoints: /api/login, /api/logout, /api/auth/user`);
     console.log(`💾 Database integration: ${storage ? 'ACTIVE' : 'BASIC MODE'}`);
   });
 }
