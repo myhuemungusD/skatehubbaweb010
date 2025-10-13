@@ -75,8 +75,15 @@ export default function AuthPage() {
         throw new Error(errorData.error || 'Registration failed');
       }
 
+      const result = await response.json();
+      
+      // Store the session token in localStorage
+      if (result.tokens?.sessionJwt) {
+        localStorage.setItem('sessionToken', result.tokens.sessionJwt);
+      }
+
       trackEvent('sign_up', { method: 'firebase' });
-      return await response.json();
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -85,7 +92,8 @@ export default function AuthPage() {
         variant: "default",
       });
       registerForm.reset();
-      setLocation('/');
+      // Force reload to refresh auth state
+      window.location.href = '/';
     },
     onError: (error: any) => {
       toast({
@@ -120,8 +128,15 @@ export default function AuthPage() {
         throw new Error(errorData.error || 'Login failed');
       }
 
+      const result = await response.json();
+      
+      // Store the session token in localStorage
+      if (result.tokens?.sessionJwt) {
+        localStorage.setItem('sessionToken', result.tokens.sessionJwt);
+      }
+
       trackEvent('login', { method: 'firebase' });
-      return await response.json();
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -129,7 +144,8 @@ export default function AuthPage() {
         description: "You've successfully signed in.",
         variant: "default",
       });
-      setLocation('/');
+      // Force reload to refresh auth state
+      window.location.href = '/';
     },
     onError: (error: any) => {
       toast({

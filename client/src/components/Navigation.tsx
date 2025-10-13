@@ -59,16 +59,27 @@ export default function Navigation() {
                 </Button>
               </Link>
             ) : (
-              <Link href="/home">
+              <>
                 <Button
                   variant="ghost"
                   className="text-gray-300 hover:bg-neutral-800 hover:text-white"
                   data-testid="button-nav-profile"
                 >
                   <User className="w-4 h-4 mr-2" />
-                  {user?.email || "Profile"}
+                  {user?.email || user?.firstName || "Profile"}
                 </Button>
-              </Link>
+                <Button
+                  variant="ghost"
+                  className="text-gray-300 hover:bg-neutral-800 hover:text-white"
+                  data-testid="button-nav-logout"
+                  onClick={() => {
+                    localStorage.removeItem('sessionToken');
+                    window.location.href = '/';
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
             )}
           </div>
         </div>

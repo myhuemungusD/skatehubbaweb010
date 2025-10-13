@@ -13,7 +13,7 @@ app.use(cors({
 app.use(express.json());
 
 // Database, email, and auth integration
-let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuth, isAuthenticated;
+let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuth, isAuthenticated, setupAuthRoutes;
 
 // Initialize database connection and auth
 async function initializeDatabase() {
@@ -24,6 +24,10 @@ async function initializeDatabase() {
     const emailModule = await import('./email.ts');
     const schemaModule = await import('../shared/schema.ts');
     const authModule = await import('./replitAuth.ts');
+    const firebaseAuthModule = await import('./auth/routes.ts');
+    
+    // Initialize Firebase Admin first
+    await import('./admin.ts');
     
     db = dbModule.db;
     storage = storageModule.storage;
@@ -31,6 +35,7 @@ async function initializeDatabase() {
     NewSubscriberInput = schemaModule.NewSubscriberInput;
     setupAuth = authModule.setupAuth;
     isAuthenticated = authModule.isAuthenticated;
+    setupAuthRoutes = firebaseAuthModule.setupAuthRoutes;
     
     console.log("🎯 Database integration loaded successfully");
     
@@ -138,7 +143,17 @@ async function startServer() {
   // Initialize database first
   await initializeDatabase();
   
-  // Setup auth if available
+  // Setup Firebase auth routes
+  if (setupAuthRoutes) {
+    try {
+      setupAuthRoutes(app);
+      console.log("🔥 Firebase Auth routes initialized");
+    } catch (firebaseAuthError) {
+      console.warn("⚠️  Firebase Auth setup failed:", firebaseAuthError.message);
+    }
+  }
+  
+  // Setup Replit auth if available
   if (setupAuth) {
     try {
       await setupAuth(app);
