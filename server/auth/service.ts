@@ -5,9 +5,10 @@ import { db } from '../db.ts';
 import { customUsers, authSessions } from '../../shared/schema.ts';
 import { eq, and, gt } from 'drizzle-orm';
 import type { CustomUser, InsertCustomUser, AuthSession } from '../../shared/schema.ts';
+import { env } from '../config/env';
 
 export class AuthService {
-  private static readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+  private static readonly JWT_SECRET = env.JWT_SECRET;
   private static readonly SALT_ROUNDS = 12;
   private static readonly TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
   private static readonly EMAIL_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours

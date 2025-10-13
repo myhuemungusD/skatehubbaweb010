@@ -1,9 +1,9 @@
 import { onLCP, onCLS, onINP } from 'web-vitals';
 import { trackEvent } from './lib/analytics';
+import { env } from './config/env';
 
 const send = (metric: any) => {
-  // Skip Web Vitals tracking in development
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     console.log(`[Web Vital] ${metric.name}:`, Math.round(metric.value));
     return;
   }

@@ -17,45 +17,46 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+import { env } from './config/env';
 
-if (!process.env.REPLIT_DOMAINS) {
+if (!env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
 const getOidcConfig = memoize(
   async () => {
     return await client.Issuer.discover(
-      process.env.ISSUER_URL ?? "https://replit.com/oidc"
+      env.ISSUER_URL ?? "https://replit.com/oidc"
     ).then(issuer => new issuer.Client({
-      client_id: process.env.REPL_ID!,
-      client_secret: process.env.CLIENT_SECRET!
+      client_id: env.REPL_ID!,
+      client_secret: env.CLIENT_SECRET!
     }));
   },
   { maxAge: 3600 * 1000 }
 );
 
 export function getSession() {
-  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+  const sessionTtl = 7 * 24 * 60 * 60 * 1000;
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    conString: env.DATABASE_URL,
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: env.SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     name: 'skatehubba.sid',
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.NODE_ENV === 'production',
       maxAge: sessionTtl,
       sameSite: 'strict'
     },
-    rolling: true, // Reset expiry on activity
+    rolling: true,
     genid: () => crypto.randomBytes(32).toString('hex')
   });
 }
@@ -109,11 +110,11 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  const replitDomains = process.env.REPLIT_DOMAINS?.split(',') || [];
+  const replitDomains = env.REPLIT_DOMAINS?.split(',') || [];
   const allowedDomains = [
     'localhost:5000',
     '0.0.0.0:5000',
-    `${process.env.REPL_SLUG || 'skatehubba'}.${process.env.REPL_OWNER || 'replituser'}.repl.co`,
+    `${env.REPL_SLUG || 'skatehubba'}.${env.REPL_OWNER || 'replituser'}.repl.co`,
     ...replitDomains
   ];
 
@@ -125,8 +126,8 @@ export async function setupAuth(app: Express) {
         authorizationURL: config.issuer.metadata.authorization_endpoint,
         tokenURL: config.issuer.metadata.token_endpoint,
         userInfoURL: config.issuer.metadata.userinfo_endpoint,
-        clientID: process.env.REPL_ID!,
-        clientSecret: process.env.CLIENT_SECRET!,
+        clientID: env.REPL_ID!,
+        clientSecret: env.CLIENT_SECRET!,
         scope: "openid email profile offline_access",
         callbackURL: `https://${domain}/api/callback`,
       },

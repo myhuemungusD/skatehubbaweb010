@@ -11,11 +11,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress } from './middleware/security.ts';
 import { admin } from './admin.ts';
+import { env } from './config/env';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { 
@@ -31,14 +32,11 @@ import { setupAuthRoutes } from "./auth/routes.ts";
 import OpenAI from "openai";
 import { initializeDatabase } from "./db";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
-}
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-06-20",
-});
+}) : null;
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = env.OPENAI_API_KEY ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
 
 // Security validation functions
 const sanitizeString = (str: string): string => {
@@ -83,17 +81,16 @@ const createUserRateLimit = (userId: string, maxRequests: number, windowMs: numb
 const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
   const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
 
-  if (!process.env.ADMIN_API_KEY) {
+  if (!env.ADMIN_API_KEY) {
     return res.status(500).json({ error: "Admin API key not configured" });
   }
 
-  // Use crypto.timingSafeEqual to prevent timing attacks
-  if (!apiKey || apiKey.length !== process.env.ADMIN_API_KEY.length) {
+  if (!apiKey || apiKey.length !== env.ADMIN_API_KEY.length) {
     return res.status(401).json({ error: "Invalid or missing API key" });
   }
 
   const providedKey = Buffer.from(apiKey, 'utf8');
-  const validKey = Buffer.from(process.env.ADMIN_API_KEY, 'utf8');
+  const validKey = Buffer.from(env.ADMIN_API_KEY, 'utf8');
 
   if (!crypto.timingSafeEqual(providedKey, validKey)) {
     return res.status(401).json({ error: "Invalid or missing API key" });

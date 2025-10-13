@@ -1,14 +1,13 @@
-
 import type { Request, Response, NextFunction } from 'express';
 import { AuthService } from './service.ts';
 import type { CustomUser } from '../../shared/schema.ts';
 import admin from 'firebase-admin';
+import { env } from '../config/env';
 
-// Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   try {
     admin.initializeApp({
-      projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+      projectId: env.VITE_FIREBASE_PROJECT_ID,
     });
     console.log('Firebase Admin SDK initialized');
   } catch (error) {

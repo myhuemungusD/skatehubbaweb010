@@ -1,18 +1,17 @@
-
 import nodemailer from 'nodemailer';
+import { env } from './config/env';
 
-// Email configuration
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD
+    user: env.EMAIL_USER,
+    pass: env.EMAIL_APP_PASSWORD
   }
 });
 
 export async function sendSubscriberNotification(subscriberData: { firstName: string; email: string }) {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: env.EMAIL_USER,
     to: 'jason@skatehubba.com',
     subject: '🛹 New SkateHubba Subscriber!',
     html: `

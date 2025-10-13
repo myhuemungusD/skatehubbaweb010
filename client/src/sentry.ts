@@ -1,9 +1,10 @@
 import * as Sentry from '@sentry/react';
+import { env } from './config/env';
 
 Sentry.init({ 
-  dsn: import.meta.env.VITE_SENTRY_DSN, 
+  dsn: env.VITE_SENTRY_DSN, 
   tracesSampleRate: 1.0,
-  environment: import.meta.env.NODE_ENV || 'development'
+  environment: env.MODE
 });
 
 export default Sentry;

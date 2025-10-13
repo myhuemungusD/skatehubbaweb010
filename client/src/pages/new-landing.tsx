@@ -4,9 +4,10 @@ import { useToast } from "../hooks/use-toast";
 import { z } from "zod";
 import { NewSubscriberInput } from "../../../shared/schema";
 import EmailSignup from "../components/EmailSignup";
+import { env } from '../config/env';
 
-const DONATE_STRIPE = import.meta.env.VITE_DONATE_STRIPE_URL || "#";
-const DONATE_PAYPAL = import.meta.env.VITE_DONATE_PAYPAL_URL || "#";
+const DONATE_STRIPE = env.VITE_DONATE_STRIPE_URL || "#";
+const DONATE_PAYPAL = env.VITE_DONATE_PAYPAL_URL || "#";
 
 export default function NewLanding() {
   return (

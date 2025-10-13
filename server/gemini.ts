@@ -1,8 +1,7 @@
-
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { env } from './config/env';
 
-// Initialize the Google AI client
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+const genAI = new GoogleGenerativeAI(env.GOOGLE_AI_API_KEY || '');
 
 // Get the Gemini Pro model
 const model = genAI.getGenerativeModel({ model: "gemini-pro" });

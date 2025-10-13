@@ -1,37 +1,21 @@
-
 import crypto from "crypto";
+import { env } from './config/env';
 
-// Security constants
 export const SECURITY_CONFIG = {
-  SESSION_TTL: 7 * 24 * 60 * 60 * 1000, // 1 week
+  SESSION_TTL: 7 * 24 * 60 * 60 * 1000,
   MAX_LOGIN_ATTEMPTS: 5,
-  LOCKOUT_DURATION: 15 * 60 * 1000, // 15 minutes
+  LOCKOUT_DURATION: 15 * 60 * 1000,
   PASSWORD_MIN_LENGTH: 8,
   API_RATE_LIMIT: 100,
   PAYMENT_RATE_LIMIT: 10,
 } as const;
 
-// Validate critical environment variables
 export function validateEnvironment() {
-  const required = [
-    'DATABASE_URL',
-    'SESSION_SECRET',
-    'REPL_ID',
-    'STRIPE_SECRET_KEY'
-  ];
-
-  const missing = required.filter(key => !process.env[key]);
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-
-  // Validate session secret strength
-  if (process.env.SESSION_SECRET!.length < 32) {
+  if (env.SESSION_SECRET.length < 32) {
     console.warn('SESSION_SECRET should be at least 32 characters for security');
   }
 
-  // Validate Stripe key format
-  if (!process.env.STRIPE_SECRET_KEY!.startsWith('sk_')) {
+  if (env.STRIPE_SECRET_KEY && !env.STRIPE_SECRET_KEY.startsWith('sk_')) {
     throw new Error('Invalid Stripe secret key format');
   }
 }

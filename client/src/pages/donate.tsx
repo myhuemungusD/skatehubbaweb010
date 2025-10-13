@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { loadStripe } from "@stripe/stripe-js";
@@ -12,8 +11,9 @@ import Navigation from "../components/Navigation";
 import { ArrowLeft, DollarSign, Heart, Users, Zap } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { trackDonation, trackButtonClick, trackPageView } from "../lib/analytics";
+import { env } from '../config/env';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface DonateFormProps {
   amount: number;

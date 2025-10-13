@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
+import { env } from '../config/env';
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
 // Email templates
 const getVerificationEmailTemplate = (name: string, verificationUrl: string) => `
@@ -103,10 +104,9 @@ const getPasswordResetEmailTemplate = (name: string, resetUrl: string) => `
 </html>
 `;
 
-// Get base URL for email links
 const getBaseUrl = (): string => {
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.PRODUCTION_URL || 'https://skatehubba.com';
+  if (env.NODE_ENV === 'production') {
+    return env.PRODUCTION_URL || 'https://skatehubba.com';
   }
   return 'http://localhost:5000';
 };
