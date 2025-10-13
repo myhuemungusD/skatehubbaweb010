@@ -32,7 +32,7 @@ export default function Background({
             className="w-full h-full object-cover object-center sm:object-top"
             loading="eager"
             decoding="sync"
-            fetchpriority="high"
+            fetchPriority="high"
             style={{
               filter: 'brightness(1) contrast(1.1)',
               transform: 'scale(0.95)'
