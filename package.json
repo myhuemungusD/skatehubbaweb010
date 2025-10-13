@@ -146,16 +146,3 @@
     "typescript": "^5.9.2"
   }
 }
-"scripts": {
-  "start": "NODE_ENV=production node dist/server/index.js",
-  "dev": "NODE_ENV=development npx tsx server/index.ts",
-  "build": "npm run build:client && npm run build:server",
-  "build:client": "vite build",
-  "build:server": "node scripts/build-server.mjs",
-  "db:push": "drizzle-kit push",
-  "db:studio": "drizzle-kit studio",
-  "lint": "eslint .",
-  "typecheck": "tsc --noEmit",
-  "prepare": "husky install",
-  "check": "tsc --noEmit"
-}
