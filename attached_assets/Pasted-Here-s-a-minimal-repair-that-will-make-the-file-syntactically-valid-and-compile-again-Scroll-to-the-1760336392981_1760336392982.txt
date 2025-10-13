@@ -1,0 +1,47 @@
+Here’s a minimal repair that will make the file syntactically valid and compile again.
+Scroll to the end (around line 66) and replace everything from the broken section onward with this block:
+
+  <h2 className="text-4xl font-orbitron text-center mb-16 text-orange-400">
+    What Makes SkateHubba Different
+  </h2>
+
+  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto px-6">
+    <div className="bg-black/60 border border-orange-400/20 p-8 rounded-xl text-center">
+      <div className="text-5xl mb-4">🛹</div>
+      <h3 className="text-xl font-bold mb-2 text-orange-400">Remote S.K.A.T.E.</h3>
+      <p className="text-gray-300 text-sm">
+        Battle friends anywhere with real-time trick validation.
+      </p>
+    </div>
+    <div className="bg-black/60 border border-orange-400/20 p-8 rounded-xl text-center">
+      <div className="text-5xl mb-4">📍</div>
+      <h3 className="text-xl font-bold mb-2 text-orange-400">Legendary Spots</h3>
+      <p className="text-gray-300 text-sm">
+        Check in at real-world spots to earn points and respect.
+      </p>
+    </div>
+    <div className="bg-black/60 border border-orange-400/20 p-8 rounded-xl text-center">
+      <div className="text-5xl mb-4">🎥</div>
+      <h3 className="text-xl font-bold mb-2 text-orange-400">Live Sessions</h3>
+      <p className="text-gray-300 text-sm">
+        Stream sessions and let others spectate or drop props.
+      </p>
+    </div>
+    <div className="bg-black/60 border border-orange-400/20 p-8 rounded-xl text-center">
+      <div className="text-5xl mb-4">🧢</div>
+      <h3 className="text-xl font-bold mb-2 text-orange-400">Digital Closet</h3>
+      <p className="text-gray-300 text-sm">
+        Collect gear, flex your setup, and unlock pro collabs.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer className="py-8 text-center text-gray-400 bg-black border-t border-orange-400/10">
+  <small>
+    &copy; 2025 <span className="text-orange-400">SkateHubba</span> — Own Your Tricks.
+  </small>
+</footer>
+</BackgroundCarousel>
+);
+}
