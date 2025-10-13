@@ -35,12 +35,16 @@ async function initializeDatabase() {
     
   } catch (error) {
     console.warn("⚠️  Database integration failed, running in basic mode:", error.message);
-    // Continue without database - graceful degradation
   }
 }
 
-// Health check endpoint
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    env: process.env.NODE_ENV || 'development',
+    time: new Date().toISOString()
+  });
+});
 
 // Email signup endpoint - the money maker with full database integration
 app.post("/api/subscribe", async (req, res) => {

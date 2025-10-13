@@ -154,7 +154,14 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   // Custom Authentication Routes
   setupAuthRoutes(app);
 
-  // Auth routes
+  app.get('/api/health', (req: Request, res: Response) => {
+    res.status(200).json({
+      status: 'ok',
+      env: env.NODE_ENV,
+      time: new Date().toISOString()
+    });
+  });
+
   app.get('/api/auth/user', isAuthenticated, async (req: Request & { user?: any }, res: Response) => {
     try {
       const userId = req.user.claims.sub;
