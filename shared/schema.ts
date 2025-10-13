@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const newSubscriberInputSchema = z.object({
+export const NewSubscriberInput = z.object({
   firstName: z
     .string()
     .optional()
@@ -8,14 +8,14 @@ export const newSubscriberInputSchema = z.object({
   email: z.string().email().transform(v => v.trim().toLowerCase()),
   isActive: z.boolean().optional(), // default true in service/repo
 });
-export type NewSubscriberInput = z.infer<typeof newSubscriberInputSchema>;
+export type NewSubscriberInput = z.infer<typeof NewSubscriberInput>;
 
-export const subscriberSchema = newSubscriberInputSchema.extend({
+export const SubscriberSchema = NewSubscriberInput.extend({
   id: z.string(),
   isActive: z.boolean(),
   createdAt: z.date(),
 });
-export type SubscriberData = z.infer<typeof subscriberSchema>;
+export type SubscriberData = z.infer<typeof SubscriberSchema>;
 
 export const usernameSchema = z.string()
   .min(3, "Username must be at least 3 characters")
