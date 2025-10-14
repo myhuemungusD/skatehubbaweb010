@@ -14,7 +14,10 @@ import Tutorial from "./pages/tutorial";
 import Demo from "./pages/demo";
 import DonationPage from "./pages/donate";
 import AuthPage from "./pages/auth";
+import SignupPage from "./pages/signup";
+import SigninPage from "./pages/signin";
 import VerifyEmailPage from "./pages/verify-email";
+import VerifiedPage from "./pages/verified";
 import ShopPage from "./pages/shop";
 import ClosetPage from "./pages/closet";
 import MapPage from "./pages/map";
@@ -51,7 +54,10 @@ function AppRoutes() {
           <Route path="/map" component={MapPage} />
           <Route path="/skate-game" component={SkateGamePage} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/signup" component={SignupPage} />
+          <Route path="/signin" component={SigninPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
+          <Route path="/verified" component={VerifiedPage} />
           <Route path="/tutorial" component={() => <AuthPage />} />
           <Route component={NotFound} />
         </>
@@ -68,7 +74,10 @@ function AppRoutes() {
             return user ? <Tutorial userId={user.id} /> : <NotFound />;
           }} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/signup" component={SignupPage} />
+          <Route path="/signin" component={SigninPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
+          <Route path="/verified" component={VerifiedPage} />
           <Route component={NotFound} />
         </>
       )}

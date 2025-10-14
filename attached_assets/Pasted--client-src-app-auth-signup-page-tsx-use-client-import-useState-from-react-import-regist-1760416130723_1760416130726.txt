@@ -1,0 +1,104 @@
+/client/src/app/auth/signup/page.tsx
+"use client";
+import { useState } from "react";
+import { registerUser } from "@/lib/auth";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+
+export default function SignupPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { toast } = useToast();
+
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      await registerUser(email, password);
+      toast({ title: "Check your email", description: "A verification link has been sent." });
+      window.location.href = "/auth/verify";
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message });
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Create Account</h1>
+      <form onSubmit={handleSignup} className="flex flex-col gap-3 w-80">
+        <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Button type="submit">Sign Up</Button>
+      </form>
+    </div>
+  );
+}
+
+3. /client/src/app/auth/signin/page.tsx
+"use client";
+import { useState } from "react";
+import { loginUser } from "@/lib/auth";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+
+export default function SigninPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { toast } = useToast();
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      await loginUser(email, password);
+      toast({ title: "Welcome back!" });
+      window.location.href = "/map";
+    } catch (err: any) {
+      toast({ title: "Login failed", description: err.message });
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Sign In</h1>
+      <form onSubmit={handleLogin} className="flex flex-col gap-3 w-80">
+        <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Button type="submit">Sign In</Button>
+      </form>
+    </div>
+  );
+}
+
+4. /client/src/app/auth/verify/page.tsx
+export default function VerifyPage() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <h1 className="text-3xl font-bold mb-4">Verify Your Email</h1>
+      <p className="max-w-md">
+        We sent a verification link to your email. Please check your inbox and click the link before signing in.
+      </p>
+    </div>
+  );
+}
+
+5. /client/src/app/auth/verified/page.tsx
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function VerifiedPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const timer = setTimeout(() => router.push("/auth/signin"), 3000);
+    return () => clearTimeout(timer);
+  }, [router]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-bold">Email Verified</h1>
+      <p>You can now sign in. Redirecting...</p>
+    </div>
+  );
+}
