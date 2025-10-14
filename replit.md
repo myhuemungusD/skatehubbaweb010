@@ -111,6 +111,15 @@ The application is designed for easy deployment on platforms like Replit, with a
 
 ## Recent Changes
 
+### 2025-10-14 - Refactored to Firebase-Only Authentication
+- **Removed Replit Auth**: Completely removed all Replit OAuth and backend session code
+- **Firebase-Only Auth**: Now using exclusively Firebase Authentication with email/password
+- **Updated Auth Hook**: Replaced `/api/auth/me` endpoint with Firebase `onAuthStateChanged()` listener
+- **Simplified Architecture**: No more dual auth systems - cleaner, simpler authentication flow
+- **Email Verification**: Required for access to protected routes (/map, /skate-game, /tutorial)
+- **Fixed Loading Issue**: App no longer stuck on infinite loading spinner
+- **ProtectedRoute**: Now uses Firebase auth state directly, no backend session checks
+
 ### 2025-01-25 - Integrated PostgreSQL Database with Neon
 - **Database Setup**: Successfully provisioned and configured Neon PostgreSQL database
 - **Schema Migration**: Pushed complete database schema including users, tutorial_steps, user_progress, and subscribers tables
