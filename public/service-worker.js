@@ -10,23 +10,38 @@ const PRECACHE_ASSETS = [
 
 // Install event - precache critical assets
 self.addEventListener('install', (event) => {
+  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting())
+      .then(cache => {
+        console.log('Service Worker caching assets');
+        return cache.addAll(PRECACHE_ASSETS);
+      })
+      .then(() => {
+        console.log('Service Worker installed, skipping waiting');
+        return self.skipWaiting();
+      })
+      .catch(err => console.error('Service Worker install failed:', err))
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
           .filter(name => name !== CACHE_NAME && name !== RUNTIME_CACHE)
-          .map(name => caches.delete(name))
+          .map(name => {
+            console.log('Deleting old cache:', name);
+            return caches.delete(name);
+          })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('Service Worker claiming clients');
+      return self.clients.claim();
+    })
   );
 });
 
