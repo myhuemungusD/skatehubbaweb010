@@ -4,12 +4,65 @@ import helmet from "helmet";
 
 const app = express();
 
-// Security and CORS
-app.use(helmet());
-app.use(cors({
-  origin: true,
-  credentials: true
+// Enhanced security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.google.com", "https://www.gstatic.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'", "https://*.firebaseapp.com", "https://*.googleapis.com", "https://*.replit.app", "https://*.replit.dev"],
+      fontSrc: ["'self'", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'self'", "https://www.google.com"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  noSniff: true,
+  xssFilter: true,
+  hidePoweredBy: true,
 }));
+
+// CORS configuration - whitelist specific domains
+const allowedOrigins = [
+  'http://localhost:5000',
+  'http://localhost:3000',
+  'https://skatehubba.com',
+  'https://www.skatehubba.com',
+  process.env.PRODUCTION_URL,
+  ...(process.env.REPLIT_DOMAINS?.split(',') || [])
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow any .replit.dev or localhost
+    if (process.env.NODE_ENV === 'development' && 
+        (origin.includes('.replit.dev') || origin.includes('localhost'))) {
+      return callback(null, true);
+    }
+    
+    // Check whitelist
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Reject
+    callback(new Error('CORS policy violation'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json());
 
 // Database, email, and auth integration

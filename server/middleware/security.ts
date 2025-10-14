@@ -13,6 +13,40 @@ export const emailSignupLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate limiting for authentication endpoints
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login attempts per window
+  message: {
+    error: 'Too many authentication attempts, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful logins
+});
+
+// Strict rate limiting for password reset
+export const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // Only 3 password reset requests per hour
+  message: {
+    error: 'Too many password reset attempts, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// General API rate limiting
+export const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute
+  message: {
+    error: 'Too many requests, please slow down.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Honeypot validation middleware
 export const validateHoneypot = (req: Request, res: Response, next: NextFunction) => {
   const { company } = req.body;

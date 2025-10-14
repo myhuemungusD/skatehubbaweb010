@@ -1,11 +1,12 @@
 import type { Express } from 'express';
 import { AuthService } from './service.ts';
 import { authenticateUser } from './middleware.ts';
+import { authLimiter, passwordResetLimiter } from '../middleware/security.ts';
 import admin from 'firebase-admin';
 
 export function setupAuthRoutes(app: Express) {
-  // Single login/register endpoint - Firebase ID token only
-  app.post('/api/auth/login', async (req, res) => {
+  // Single login/register endpoint - Firebase ID token only (with rate limiting)
+  app.post('/api/auth/login', authLimiter, async (req, res) => {
     try {
       const authHeader = req.headers.authorization ?? '';
 
