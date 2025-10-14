@@ -13,7 +13,7 @@ app.use(cors({
 app.use(express.json());
 
 // Database, email, and auth integration
-let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuth, isAuthenticated, setupAuthRoutes;
+let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuthRoutes;
 
 // Initialize database connection and auth
 async function initializeDatabase() {
@@ -23,7 +23,6 @@ async function initializeDatabase() {
     const storageModule = await import('./storage.ts');
     const emailModule = await import('./email.ts');
     const schemaModule = await import('../shared/schema.ts');
-    const authModule = await import('./replitAuth.ts');
     const firebaseAuthModule = await import('./auth/routes.ts');
     
     // Initialize Firebase Admin first
@@ -33,8 +32,6 @@ async function initializeDatabase() {
     storage = storageModule.storage;
     sendSubscriberNotification = emailModule.sendSubscriberNotification;
     NewSubscriberInput = schemaModule.NewSubscriberInput;
-    setupAuth = authModule.setupAuth;
-    isAuthenticated = authModule.isAuthenticated;
     setupAuthRoutes = firebaseAuthModule.setupAuthRoutes;
     
     console.log("🎯 Database integration loaded successfully");
@@ -153,32 +150,10 @@ async function startServer() {
     }
   }
   
-  // Setup Replit auth if available
-  if (setupAuth) {
-    try {
-      await setupAuth(app);
-      console.log("🔐 Replit Auth initialized");
-      
-      // Add /api/auth/user endpoint
-      app.get('/api/auth/user', isAuthenticated, async (req, res) => {
-        try {
-          const userId = req.user.claims.sub;
-          const user = await storage.getUser(userId);
-          res.json(user);
-        } catch (error) {
-          console.error("Error fetching user:", error);
-          res.status(500).json({ message: "Failed to fetch user" });
-        }
-      });
-    } catch (authError) {
-      console.warn("⚠️  Auth setup failed:", authError.message);
-    }
-  }
-  
   app.listen(PORT, () => {
     console.log(`🚀 SkateHubba API running on port ${PORT}`);
     console.log(`📧 Email signup endpoint: POST /api/subscribe`);
-    console.log(`🔐 Auth endpoints: /api/login, /api/logout, /api/auth/user`);
+    console.log(`🔥 Firebase Auth: ACTIVE`);
     console.log(`💾 Database integration: ${storage ? 'ACTIVE' : 'BASIC MODE'}`);
   });
 }
