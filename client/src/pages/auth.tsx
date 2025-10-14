@@ -42,7 +42,7 @@ export default function AuthPage() {
     },
   });
 
-  // Registration mutation - Firebase-first approach
+  // Registration mutation - Firebase-only with email verification
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterInput) => {
       // 1. Create Firebase user
@@ -54,46 +54,22 @@ export default function AuthPage() {
         displayName: `${data.firstName} ${data.lastName}`.trim()
       });
 
-      // 3. Get ID token and register with backend
-      const idToken = await firebaseUser.getIdToken();
-
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          isRegistration: true
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Registration failed');
-      }
-
-      const result = await response.json();
-      
-      // Store the session token in localStorage
-      if (result.tokens?.sessionJwt) {
-        localStorage.setItem('sessionToken', result.tokens.sessionJwt);
-      }
+      // 3. Send email verification (without custom URL to avoid domain allowlist issues)
+      const { sendEmailVerification } = await import('firebase/auth');
+      await sendEmailVerification(firebaseUser);
 
       trackEvent('sign_up', { method: 'firebase' });
-      return result;
+      return firebaseUser;
     },
     onSuccess: () => {
       toast({
-        title: "Account Created! 🎉",
-        description: "Your account has been created successfully! Welcome to SkateHubba.",
+        title: "Verification Email Sent! 📧",
+        description: "Check your email to verify your account before logging in.",
         variant: "default",
       });
       registerForm.reset();
-      // Force reload to refresh auth state
-      window.location.href = '/';
+      // Redirect to verify page
+      setLocation('/verify');
     },
     onError: (error: any) => {
       toast({
@@ -104,39 +80,22 @@ export default function AuthPage() {
     },
   });
 
-  // Login mutation - Firebase-only approach
+  // Login mutation - Firebase-only with email verification check
   const loginMutation = useMutation({
     mutationFn: async (data: LoginInput) => {
       // 1. Authenticate with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       const firebaseUser = userCredential.user;
 
-      // 2. Get ID token and authenticate with backend
-      const idToken = await firebaseUser.getIdToken();
-
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({}),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
-      }
-
-      const result = await response.json();
-      
-      // Store the session token in localStorage
-      if (result.tokens?.sessionJwt) {
-        localStorage.setItem('sessionToken', result.tokens.sessionJwt);
+      // 2. Check email verification
+      if (!firebaseUser.emailVerified) {
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
+        throw new Error("Please verify your email before logging in.");
       }
 
       trackEvent('login', { method: 'firebase' });
-      return result;
+      return firebaseUser;
     },
     onSuccess: () => {
       toast({
