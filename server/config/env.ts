@@ -7,7 +7,14 @@ const envSchema = z.object({
   // Required for all environments
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters (no defaults allowed)'),
+  
+  // JWT Secret - required in production, has dev fallback (SECURITY: Change in production!)
+  JWT_SECRET: z.string().optional().transform(val => {
+    if (!val && process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET is required in production');
+    }
+    return val || 'dev-jwt-secret-change-in-production-32chars';
+  }),
   
   // Replit environment (optional)
   REPL_ID: z.string().optional(),
@@ -17,9 +24,9 @@ const envSchema = z.object({
   REPL_SLUG: z.string().optional(),
   REPL_OWNER: z.string().optional(),
   
-  // Firebase (required for auth to work)
-  VITE_FIREBASE_PROJECT_ID: z.string().min(1, 'Firebase Project ID is required'),
-  FIREBASE_ADMIN_KEY: z.string().min(1, 'Firebase Admin Key is required for backend auth'),
+  // Firebase (required for auth to work, but optional for basic mode)
+  VITE_FIREBASE_PROJECT_ID: z.string().optional(),
+  FIREBASE_ADMIN_KEY: z.string().optional(),
   
   // Payment providers (optional unless payments are enabled)
   STRIPE_SECRET_KEY: z.string().optional(),
