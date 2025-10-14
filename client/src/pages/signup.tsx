@@ -20,10 +20,10 @@ export default function SignupPage() {
     try {
       await registerUser(email, password);
       toast({ 
-        title: "Account Created! 🎉", 
-        description: "Welcome to SkateHubba!" 
+        title: "Verification Email Sent! 📧", 
+        description: "Check your email to verify your account." 
       });
-      window.location.href = "/";
+      window.location.href = "/verify";
     } catch (err: any) {
       toast({ 
         title: "Registration Failed", 

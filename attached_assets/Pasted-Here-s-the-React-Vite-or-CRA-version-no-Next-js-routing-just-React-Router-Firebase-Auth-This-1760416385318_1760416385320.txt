@@ -1,0 +1,210 @@
+Here’s the React (Vite or CRA) version — no Next.js routing, just React Router + Firebase Auth.
+This setup enforces email verification and route protection.
+
+1. /src/lib/auth.js
+import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+
+export async function registerUser(email, password) {
+  const userCred = await createUserWithEmailAndPassword(auth, email, password);
+  await sendEmailVerification(userCred.user, {
+    url: `${window.location.origin}/verified`,
+  });
+  return userCred.user;
+}
+
+export async function loginUser(email, password) {
+  const userCred = await signInWithEmailAndPassword(auth, email, password);
+  if (!userCred.user.emailVerified) {
+    await signOut(auth);
+    throw new Error("Please verify your email before logging in.");
+  }
+  return userCred.user;
+}
+
+export async function logoutUser() {
+  await signOut(auth);
+}
+
+export function listenToAuth(callback) {
+  return onAuthStateChanged(auth, callback);
+}
+
+2. /src/pages/Signup.jsx
+import { useState } from "react";
+import { registerUser } from "../lib/auth";
+
+export default function Signup() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      await registerUser(email, password);
+      setMsg("Verification link sent to your email.");
+    } catch (err) {
+      setMsg(err.message);
+    }
+  }
+
+  return (
+    <div className="auth-container">
+      <h2>Sign Up</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+        <button type="submit">Sign Up</button>
+      </form>
+      <p>{msg}</p>
+    </div>
+  );
+}
+
+3. /src/pages/Login.jsx
+import { useState } from "react";
+import { loginUser } from "../lib/auth";
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState("");
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    try {
+      await loginUser(email, password);
+      window.location.href = "/map";
+    } catch (err) {
+      setMsg(err.message);
+    }
+  }
+
+  return (
+    <div className="auth-container">
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
+        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+        <button type="submit">Login</button>
+      </form>
+      <p>{msg}</p>
+    </div>
+  );
+}
+
+4. /src/pages/Verify.jsx
+export default function Verify() {
+  return (
+    <div className="verify-container">
+      <h2>Check Your Email</h2>
+      <p>We sent you a verification link. Click it to activate your account.</p>
+    </div>
+  );
+}
+
+5. /src/pages/Verified.jsx
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function Verified() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    setTimeout(() => navigate("/login"), 3000);
+  }, [navigate]);
+
+  return (
+    <div className="verify-container">
+      <h2>Email Verified</h2>
+      <p>You can now sign in. Redirecting...</p>
+    </div>
+  );
+}
+
+6. /src/components/ProtectedRoute.jsx
+import { useEffect, useState } from "react";
+import { listenToAuth } from "../lib/auth";
+import { Navigate } from "react-router-dom";
+
+export default function ProtectedRoute({ children }) {
+  const [user, setUser] = useState(undefined);
+
+  useEffect(() => {
+    const unsub = listenToAuth((u) => setUser(u));
+    return () => unsub();
+  }, []);
+
+  if (user === undefined) return null;
+  if (!user) return <Navigate to="/login" />;
+  if (!user.emailVerified) return <Navigate to="/verify" />;
+
+  return children;
+}
+
+7. Add to your App.jsx routes
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import Verify from "./pages/Verify";
+import Verified from "./pages/Verified";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Map from "./pages/Map";
+import Profile from "./pages/Profile";
+import Closet from "./pages/Closet";
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="/verified" element={<Verified />} />
+        <Route
+          path="/map"
+          element={
+            <ProtectedRoute>
+              <Map />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/closet"
+          element={
+            <ProtectedRoute>
+              <Closet />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
+  );
+}

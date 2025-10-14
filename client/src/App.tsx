@@ -16,12 +16,14 @@ import DonationPage from "./pages/donate";
 import AuthPage from "./pages/auth";
 import SignupPage from "./pages/signup";
 import SigninPage from "./pages/signin";
+import VerifyPage from "./pages/verify";
 import VerifyEmailPage from "./pages/verify-email";
 import VerifiedPage from "./pages/verified";
 import ShopPage from "./pages/shop";
 import ClosetPage from "./pages/closet";
 import MapPage from "./pages/map";
 import SkateGamePage from "./pages/skate-game";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { useEffect } from "react";
 
@@ -51,14 +53,16 @@ function AppRoutes() {
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
           <Route path="/closet" component={ClosetPage} />
-          <Route path="/map" component={MapPage} />
-          <Route path="/skate-game" component={SkateGamePage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/signup" component={SignupPage} />
           <Route path="/signin" component={SigninPage} />
+          <Route path="/verify" component={VerifyPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/verified" component={VerifiedPage} />
           <Route path="/tutorial" component={() => <AuthPage />} />
+          {/* Protected routes with email verification */}
+          <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
+          <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
           <Route component={NotFound} />
         </>
       ) : (
@@ -68,16 +72,18 @@ function AppRoutes() {
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
           <Route path="/closet" component={ClosetPage} />
-          <Route path="/map" component={MapPage} />
-          <Route path="/skate-game" component={SkateGamePage} />
-          <Route path="/tutorial" component={() => {
-            return user ? <Tutorial userId={user.id} /> : <NotFound />;
-          }} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/signup" component={SignupPage} />
           <Route path="/signin" component={SigninPage} />
+          <Route path="/verify" component={VerifyPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/verified" component={VerifiedPage} />
+          {/* Protected routes with email verification */}
+          <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
+          <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
+          <Route path="/tutorial" component={() => {
+            return user ? <ProtectedRoute><Tutorial userId={user.id} /></ProtectedRoute> : <NotFound />;
+          }} />
           <Route component={NotFound} />
         </>
       )}
