@@ -98,19 +98,17 @@ export default function SignupPage() {
             <div className="mt-6 text-center">
               <p className="text-gray-400">
                 Already have an account?{" "}
-                <Link href="/signin">
-                  <a className="text-orange-400 hover:text-orange-300 font-semibold" data-testid="link-to-signin">
-                    Sign In
-                  </a>
+                <Link href="/signin" className="text-orange-400 hover:text-orange-300 font-semibold" data-testid="link-to-signin">
+                  Sign In
                 </Link>
               </p>
             </div>
 
             <div className="mt-4 text-center">
               <Link href="/">
-                <Button variant="link" className="text-gray-400 hover:text-white" data-testid="link-back-home">
+                <span className="text-gray-400 hover:text-white cursor-pointer inline-block" data-testid="link-back-home">
                   ← Back to Home
-                </Button>
+                </span>
               </Link>
             </div>
           </CardContent>

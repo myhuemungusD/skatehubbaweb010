@@ -17,6 +17,7 @@ import AuthPage from "./pages/auth";
 import SignupPage from "./pages/signup";
 import SigninPage from "./pages/signin";
 import VerifyPage from "./pages/verify";
+import AuthVerifyPage from "./pages/auth-verify";
 import VerifyEmailPage from "./pages/verify-email";
 import VerifiedPage from "./pages/verified";
 import ShopPage from "./pages/shop";
@@ -57,6 +58,7 @@ function AppRoutes() {
           <Route path="/signup" component={SignupPage} />
           <Route path="/signin" component={SigninPage} />
           <Route path="/verify" component={VerifyPage} />
+          <Route path="/auth/verify" component={AuthVerifyPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/verified" component={VerifiedPage} />
           <Route path="/tutorial" component={() => <AuthPage />} />
@@ -76,6 +78,7 @@ function AppRoutes() {
           <Route path="/signup" component={SignupPage} />
           <Route path="/signin" component={SigninPage} />
           <Route path="/verify" component={VerifyPage} />
+          <Route path="/auth/verify" component={AuthVerifyPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/verified" component={VerifiedPage} />
           {/* Protected routes with email verification */}

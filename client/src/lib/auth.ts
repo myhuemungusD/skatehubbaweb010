@@ -5,9 +5,9 @@ export async function registerUser(email: string, password: string) {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const firebaseUser = userCredential.user;
   
-  // Send email verification
+  // Send email verification with Firebase action URL
   await sendEmailVerification(firebaseUser, {
-    url: `${window.location.origin}/verified`,
+    url: `${window.location.origin}/auth/verify`,
   });
   
   return firebaseUser;

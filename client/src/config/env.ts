@@ -8,7 +8,9 @@ const envSchema = z.object({
   VITE_SENTRY_DSN: z.string().optional(),
   
   VITE_FIREBASE_API_KEY: z.string().optional(),
+  VITE_FIREBASE_AUTH_DOMAIN: z.string().optional(),
   VITE_FIREBASE_PROJECT_ID: z.string().optional(),
+  VITE_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   VITE_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   VITE_FIREBASE_APP_ID: z.string().optional(),
   VITE_FIREBASE_MEASUREMENT_ID: z.string().optional(),
