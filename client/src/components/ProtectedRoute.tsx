@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { listenToAuth } from "../lib/auth";
+import { useAuth } from "../hooks/useAuth";
 import { Redirect } from "wouter";
 
 interface ProtectedRouteProps {
@@ -7,14 +6,9 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const [user, setUser] = useState<any>(undefined);
+  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    const unsub = listenToAuth((u) => setUser(u));
-    return () => unsub();
-  }, []);
-
-  if (user === undefined) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#181818] flex items-center justify-center">
         <div className="text-center">
