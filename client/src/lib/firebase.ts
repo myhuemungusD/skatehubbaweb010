@@ -30,10 +30,10 @@ if (typeof window !== 'undefined') {
 }
 
 let appCheck: any = null;
-if (env.PROD && typeof window !== 'undefined') {
+if (env.PROD && typeof window !== 'undefined' && env.VITE_RECAPTCHA_SITE_KEY) {
   try {
     appCheck = initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider("6Lf28bArAAAAAOP3vT4oL63nnC2xUYQ-UwHy2b_a"),
+      provider: new ReCaptchaV3Provider(env.VITE_RECAPTCHA_SITE_KEY),
       isTokenAutoRefreshEnabled: true
     });
   } catch (error) {

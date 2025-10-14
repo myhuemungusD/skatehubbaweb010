@@ -15,6 +15,8 @@ const envSchema = z.object({
   VITE_FIREBASE_APP_ID: z.string().optional(),
   VITE_FIREBASE_MEASUREMENT_ID: z.string().optional(),
   
+  VITE_RECAPTCHA_SITE_KEY: z.string().optional(), // ReCAPTCHA v3 site key for App Check
+  
   VITE_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   VITE_DONATE_STRIPE_URL: z.string().optional(),
   VITE_DONATE_PAYPAL_URL: z.string().optional(),
@@ -27,7 +29,12 @@ function validateEnv() {
     if (error instanceof z.ZodError) {
       const missing = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('\n');
       console.error(`Client environment validation failed:\n${missing}`);
+      // In production, fail hard instead of returning empty object
+      if (import.meta.env.PROD) {
+        throw new Error('Critical environment variables missing. Cannot start application.');
+      }
     }
+    // Development fallback only
     return envSchema.parse({});
   }
 }
