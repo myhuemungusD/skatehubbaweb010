@@ -24,12 +24,37 @@ declare global {
   }
 }
 
-// Middleware to authenticate requests - Firebase ID token only
+// Middleware to authenticate requests - Cookie-based session (preferred) or Firebase ID token
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Option 1: Check for HttpOnly session cookie (PREFERRED - XSS safe)
+    const sessionToken = req.cookies?.sessionToken;
+    
+    if (sessionToken) {
+      try {
+        // Verify session JWT and get user
+        const user = await AuthService.validateSession(sessionToken);
+        
+        if (!user) {
+          return res.status(401).json({ error: 'Invalid session' });
+        }
+
+        if (!user.isActive) {
+          return res.status(401).json({ error: 'Account is deactivated' });
+        }
+
+        req.currentUser = user;
+        return next();
+      } catch (sessionError) {
+        console.error('Session verification failed:', sessionError);
+        // Fall through to try Authorization header
+      }
+    }
+
+    // Option 2: Fallback to Authorization header (for backward compatibility)
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Firebase ID token required' });
+      return res.status(401).json({ error: 'Authentication required' });
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
