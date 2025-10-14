@@ -27,7 +27,6 @@ import {
 import crypto from "crypto";
 import validator from "validator";
 import { sendSubscriberNotification } from "./email";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { setupAuthRoutes } from "./auth/routes.ts";
 import OpenAI from "openai";
 import { initializeDatabase } from "./db";
@@ -148,10 +147,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   // Initialize database on startup
   await initializeDatabase();
 
-  // Auth middleware - Replit Auth
-  await setupAuth(app);
-
-  // Custom Authentication Routes
+  // Firebase Authentication Routes
   setupAuthRoutes(app);
 
   app.get('/api/health', (req: Request, res: Response) => {
@@ -162,16 +158,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     });
   });
 
-  app.get('/api/auth/user', isAuthenticated, async (req: Request & { user?: any }, res: Response) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Removed /api/auth/user - now using Firebase-only authentication
 
   // Tutorial Steps Routes
   app.get("/api/tutorial/steps", async (req: Request, res: Response) => {
@@ -205,7 +192,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   });
 
   // User Progress Routes
-  app.get("/api/users/:userId/progress", isAuthenticated, validateUserAccess, async (req: Request, res: Response) => {
+  app.get("/api/users/:userId/progress", async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
       const progress = await storage.getUserProgress(userId);
@@ -237,7 +224,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     }
   });
 
-  app.post("/api/users/:userId/progress", isAuthenticated, validateUserAccess, async (req, res) => {
+  app.post("/api/users/:userId/progress", async (req, res) => {
     try {
       const { userId } = req.params;
 
@@ -257,7 +244,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     }
   });
 
-  app.patch("/api/users/:userId/progress/:stepId", isAuthenticated, validateUserAccess, async (req, res) => {
+  app.patch("/api/users/:userId/progress/:stepId", async (req, res) => {
     try {
       const { userId } = req.params;
       const stepId = parseInt(req.params.stepId);
@@ -284,7 +271,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   });
 
   // User Onboarding Routes
-  app.get("/api/users/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/users/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const user = await storage.getUser(id);
@@ -299,7 +286,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     }
   });
 
-  app.patch("/api/users/:id/onboarding", isAuthenticated, async (req, res) => {
+  app.patch("/api/users/:id/onboarding", async (req, res) => {
     try {
       const { id } = req.params;
 
