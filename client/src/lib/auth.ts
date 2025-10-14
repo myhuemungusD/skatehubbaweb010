@@ -31,6 +31,7 @@ export async function loginUser(email: string, password: string) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({}),
+    credentials: 'include', // IMPORTANT: Send cookies with request
   });
   
   if (!response.ok) {
@@ -40,17 +41,27 @@ export async function loginUser(email: string, password: string) {
   
   const result = await response.json();
   
-  // Store session token
-  if (result.tokens?.sessionJwt) {
-    localStorage.setItem('sessionToken', result.tokens.sessionJwt);
-  }
+  // NOTE: Session token is now in HttpOnly cookie (not localStorage)
+  // Server automatically sets cookie, no client-side storage needed
   
   return result;
 }
 
 export async function logoutUser() {
+  // Call backend to clear HttpOnly cookie
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include', // IMPORTANT: Send cookies with request
+    });
+  } catch (error) {
+    console.error('Backend logout failed:', error);
+  }
+  
+  // Sign out from Firebase
   await signOut(auth);
-  localStorage.removeItem('sessionToken');
+  
+  // NOTE: No localStorage to clear - using HttpOnly cookies now
 }
 
 export function listenToAuth(callback: (user: any) => void) {
