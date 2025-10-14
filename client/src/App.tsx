@@ -1,34 +1,39 @@
 
+import { useEffect, lazy, Suspense } from "react";
 import { Router, Route, Switch } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { useAuth } from "./hooks/useAuth";
-import Landing from "./pages/landing";
-import NewLanding from "./pages/new-landing";
-import Home from "./pages/home";
-import UnifiedLanding from "./pages/unified-landing";
-import NotFound from "./pages/not-found";
-import Tutorial from "./pages/tutorial";
-import Demo from "./pages/demo";
-import DonationPage from "./pages/donate";
-import AuthPage from "./pages/auth";
-import SignupPage from "./pages/signup";
-import SigninPage from "./pages/signin";
-import VerifyPage from "./pages/verify";
-import AuthVerifyPage from "./pages/auth-verify";
-import VerifyEmailPage from "./pages/verify-email";
-import VerifiedPage from "./pages/verified";
-import ShopPage from "./pages/shop";
-import ClosetPage from "./pages/closet";
-import MapPage from "./pages/map";
-import SkateGamePage from "./pages/skate-game";
-import ProtectedRoute from "./components/ProtectedRoute";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
-import { useEffect } from "react";
+import { usePerformanceMonitor } from "./hooks/usePerformanceMonitor";
+
+// Eager load critical pages
+import UnifiedLanding from "./pages/unified-landing";
+import NotFound from "./pages/not-found";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+// Lazy load non-critical pages for better performance
+const Landing = lazy(() => import("./pages/landing"));
+const NewLanding = lazy(() => import("./pages/new-landing"));
+const Home = lazy(() => import("./pages/home"));
+const Tutorial = lazy(() => import("./pages/tutorial"));
+const Demo = lazy(() => import("./pages/demo"));
+const DonationPage = lazy(() => import("./pages/donate"));
+const AuthPage = lazy(() => import("./pages/auth"));
+const SignupPage = lazy(() => import("./pages/signup"));
+const SigninPage = lazy(() => import("./pages/signin"));
+const VerifyPage = lazy(() => import("./pages/verify"));
+const AuthVerifyPage = lazy(() => import("./pages/auth-verify"));
+const VerifyEmailPage = lazy(() => import("./pages/verify-email"));
+const VerifiedPage = lazy(() => import("./pages/verified"));
+const ShopPage = lazy(() => import("./pages/shop"));
+const ClosetPage = lazy(() => import("./pages/closet"));
+const MapPage = lazy(() => import("./pages/map"));
+const SkateGamePage = lazy(() => import("./pages/skate-game"));
 
 function AppRoutes() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -38,9 +43,10 @@ function AppRoutes() {
   }
 
   return (
-    <Switch>
-      {isLoading || !isAuthenticated ? (
-        <>
+    <Suspense fallback={<LoadingScreen />}>
+      <Switch>
+        {isLoading || !isAuthenticated ? (
+          <>
           <Route path="/" component={UnifiedLanding} />
           <Route path="/old" component={Landing} />
           <Route path="/new" component={NewLanding} />
@@ -85,11 +91,15 @@ function AppRoutes() {
           <Route component={NotFound} />
         </>
       )}
-    </Switch>
+      </Switch>
+    </Suspense>
   );
 }
 
 export default function App() {
+  // Monitor performance in development
+  usePerformanceMonitor();
+
   useEffect(() => {
     // Initialize Firebase Analytics on app start
     if (firebaseAnalytics) {
