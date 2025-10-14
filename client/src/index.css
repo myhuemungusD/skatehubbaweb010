@@ -181,11 +181,65 @@
   justify-content: center;
   position: relative;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .touch-target:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Larger touch targets on mobile */
+  .touch-target {
+    min-height: var(--touch-target-md);
+    min-width: var(--touch-target-md);
+  }
+  
+  /* Larger text for readability */
+  body {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Comfortable spacing */
+  .mobile-spacing {
+    padding: var(--space-4);
+  }
+  
+  /* Safe area insets for notch devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Prevent text size adjustment */
+  * {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    max-width: 90%;
+  }
+}
+
+/* Touch-friendly hover states */
+@media (hover: none) and (pointer: coarse) {
+  .interactive-lift:hover {
+    transform: none; /* Disable hover lift on touch devices */
+  }
+  
+  .interactive-lift:active {
+    transform: scale(0.98);
+  }
 }
 
 /* Enhanced Button System */

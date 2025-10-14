@@ -26,6 +26,7 @@ import MapPage from "./pages/map";
 import SkateGamePage from "./pages/skate-game";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { useEffect } from "react";
 
@@ -103,6 +104,7 @@ export default function App() {
           <AppRoutes />
         </Router>
         <Toaster />
+        <PWAInstallPrompt />
       </TooltipProvider>
     </QueryClientProvider>
   );
