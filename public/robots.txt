@@ -1,10 +1,20 @@
-
+# SkateHubba Robots.txt
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /verify
 
-# Sitemap
+# Sitemaps
 Sitemap: https://skatehubba.com/sitemap.xml
 
-# Disallow admin or sensitive areas (add as needed)
-# Disallow: /admin/
-# Disallow: /api/
+# Search Engine Specific
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Crawl delay for courtesy
+Crawl-delay: 1

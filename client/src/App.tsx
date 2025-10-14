@@ -8,8 +8,10 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { useAuth } from "./hooks/useAuth";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
+import { OrganizationStructuredData, WebAppStructuredData } from "./components/StructuredData";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { usePerformanceMonitor } from "./hooks/usePerformanceMonitor";
+import { useSkipLink } from "./hooks/useSkipLink";
 
 // Eager load critical pages
 import UnifiedLanding from "./pages/unified-landing";
@@ -99,6 +101,9 @@ function AppRoutes() {
 export default function App() {
   // Monitor performance in development
   usePerformanceMonitor();
+  
+  // Enable skip link for accessibility
+  useSkipLink();
 
   useEffect(() => {
     // Initialize Firebase Analytics on app start
@@ -110,6 +115,31 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <OrganizationStructuredData
+          data={{
+            name: "SkateHubba",
+            url: "https://skatehubba.com",
+            logo: "https://skatehubba.com/icon-512.png",
+            description: "Remote SKATE battles, legendary spot check-ins, and live lobbies. Join the ultimate skateboarding social platform.",
+            sameAs: [
+              "https://twitter.com/skatehubba_app",
+              "https://instagram.com/skatehubba",
+            ],
+          }}
+        />
+        <WebAppStructuredData
+          data={{
+            name: "SkateHubba",
+            url: "https://skatehubba.com",
+            description: "Stream. Connect. Skate. Your skateboarding social universe.",
+            applicationCategory: "SportsApplication",
+            operatingSystem: "Any",
+            offers: {
+              price: "0",
+              priceCurrency: "USD",
+            },
+          }}
+        />
         <Router>
           <AppRoutes />
         </Router>
