@@ -25,6 +25,7 @@ import ClosetPage from "./pages/closet";
 import MapPage from "./pages/map";
 import SkateGamePage from "./pages/skate-game";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { LoadingScreen } from "./components/LoadingScreen";
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { useEffect } from "react";
 
@@ -32,14 +33,7 @@ function AppRoutes() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#181818] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -85,7 +79,7 @@ function AppRoutes() {
           <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
           <Route path="/tutorial" component={() => {
-            return user ? <ProtectedRoute><Tutorial userId={user.id} /></ProtectedRoute> : <NotFound />;
+            return user ? <ProtectedRoute><Tutorial userId={user.uid} /></ProtectedRoute> : <NotFound />;
           }} />
           <Route component={NotFound} />
         </>
