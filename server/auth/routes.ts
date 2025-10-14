@@ -43,6 +43,15 @@ export function setupAuthRoutes(app: Express) {
         // Update last login
         await AuthService.updateLastLogin(user.id);
 
+        // Set HttpOnly cookie (XSS-safe, auto-sent with requests)
+        res.cookie('sessionToken', sessionJwt, {
+          httpOnly: true,       // JavaScript can't access (XSS protection)
+          secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+          sameSite: 'lax',      // CSRF protection
+          maxAge: 24 * 60 * 60 * 1000, // 24 hours
+          path: '/',
+        });
+
         return res.status(200).json({
           user: {
             id: user.id,
@@ -53,8 +62,8 @@ export function setupAuthRoutes(app: Express) {
             createdAt: user.createdAt,
             provider: 'firebase',
           },
-          tokens: { sessionJwt },
           strategy: 'firebase',
+          // NOTE: Token is in HttpOnly cookie, not returned in response for security
         });
       } catch (firebaseError) {
         console.error('Firebase ID token verification failed:', firebaseError);
@@ -92,11 +101,24 @@ export function setupAuthRoutes(app: Express) {
   // Logout endpoint
   app.post('/api/auth/logout', authenticateUser, async (req, res) => {
     try {
+      // Delete session from cookie or Authorization header
+      const sessionToken = req.cookies?.sessionToken;
       const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
+      
+      if (sessionToken) {
+        await AuthService.deleteSession(sessionToken);
+      } else if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7);
         await AuthService.deleteSession(token);
       }
+
+      // Clear the HttpOnly cookie
+      res.clearCookie('sessionToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+      });
 
       res.json({
         success: true,
