@@ -1,0 +1,87 @@
+Add under the imports
+import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
+
+✅ Insert this inside your component (below Google button)
+const [phone, setPhone] = useState("");
+const [otp, setOtp] = useState("");
+const [showOtp, setShowOtp] = useState(false);
+
+✅ Add functions
+const setupRecaptcha = () => {
+  if (!window.recaptchaVerifier) {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: () => console.log("reCAPTCHA verified"),
+      },
+      auth
+    );
+  }
+};
+
+const handleSendCode = async () => {
+  try {
+    setupRecaptcha();
+    const appVerifier = window.recaptchaVerifier;
+    const confirmation = await signInWithPhoneNumber(auth, phone, appVerifier);
+    window.confirmationResult = confirmation;
+    setShowOtp(true);
+  } catch (err: any) {
+    setError(err.message);
+  }
+};
+
+const handleVerifyCode = async () => {
+  try {
+    await window.confirmationResult.confirm(otp);
+    navigate("/map");
+  } catch (err: any) {
+    setError("Invalid code. Try again.");
+  }
+};
+
+✅ Add to JSX (below Google button)
+<div className="my-6 border-t border-neutral-700"></div>
+<h2 className="text-center text-orange-500 font-semibold mb-2">
+  Or sign in with phone
+</h2>
+
+<div className="space-y-3">
+  {!showOtp ? (
+    <>
+      <input
+        type="tel"
+        placeholder="+1 760 555 1234"
+        className="w-full p-3 rounded bg-neutral-900 border border-neutral-700 focus:outline-none"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+      />
+      <button
+        type="button"
+        onClick={handleSendCode}
+        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold p-3 rounded transition"
+      >
+        Send Code
+      </button>
+    </>
+  ) : (
+    <>
+      <input
+        type="text"
+        placeholder="Enter 6-digit code"
+        className="w-full p-3 rounded bg-neutral-900 border border-neutral-700 focus:outline-none"
+        value={otp}
+        onChange={(e) => setOtp(e.target.value)}
+      />
+      <button
+        type="button"
+        onClick={handleVerifyCode}
+        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold p-3 rounded transition"
+      >
+        Verify & Sign In
+      </button>
+    </>
+  )}
+  <div id="recaptcha-container"></div>
+</div>

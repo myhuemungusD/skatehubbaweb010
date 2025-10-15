@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loginUser, loginWithGoogle } from "../lib/auth";
+import { loginUser, loginWithGoogle, setupRecaptcha, sendPhoneVerification, verifyPhoneCode } from "../lib/auth";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
@@ -11,6 +11,10 @@ import { SiGoogle } from "react-icons/si";
 export default function SigninPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showOtp, setShowOtp] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -71,6 +75,50 @@ export default function SigninPage() {
       toast({ 
         title: "Google sign-in failed", 
         description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleSendCode() {
+    setIsLoading(true);
+    
+    try {
+      const recaptchaVerifier = setupRecaptcha("recaptcha-container");
+      const confirmation = await sendPhoneVerification(phone, recaptchaVerifier);
+      setConfirmationResult(confirmation);
+      setShowOtp(true);
+      toast({ 
+        title: "Code sent! 📱",
+        description: "Check your phone for the verification code."
+      });
+    } catch (err: any) {
+      toast({ 
+        title: "Failed to send code", 
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleVerifyCode() {
+    setIsLoading(true);
+    
+    try {
+      await verifyPhoneCode(confirmationResult, otp);
+      toast({ 
+        title: "Welcome back! 🛹",
+        description: "You've successfully signed in."
+      });
+      window.location.href = "/";
+    } catch (err: any) {
+      toast({ 
+        title: "Verification failed", 
+        description: "Invalid code. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -153,6 +201,69 @@ export default function SigninPage() {
               <SiGoogle className="w-5 h-5" />
               Sign in with Google
             </Button>
+
+            <div className="my-6 border-t border-gray-600"></div>
+
+            <h2 className="text-center text-orange-500 font-semibold mb-4">
+              Or sign in with phone
+            </h2>
+
+            <div className="space-y-3">
+              {!showOtp ? (
+                <>
+                  <Input
+                    type="tel"
+                    placeholder="+1 760 555 1234"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="bg-[#181818] border-gray-600 text-white placeholder:text-gray-500"
+                    data-testid="input-phone"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleSendCode}
+                    disabled={isLoading || !phone}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    data-testid="button-send-code"
+                  >
+                    {isLoading ? "Sending..." : "Send Code"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Input
+                    type="text"
+                    placeholder="Enter 6-digit code"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="bg-[#181818] border-gray-600 text-white placeholder:text-gray-500"
+                    data-testid="input-otp"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleVerifyCode}
+                    disabled={isLoading || !otp}
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    data-testid="button-verify-code"
+                  >
+                    {isLoading ? "Verifying..." : "Verify & Sign In"}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setShowOtp(false);
+                      setOtp("");
+                    }}
+                    variant="ghost"
+                    className="w-full text-gray-400 hover:text-white"
+                    data-testid="button-change-phone"
+                  >
+                    Change phone number
+                  </Button>
+                </>
+              )}
+              <div id="recaptcha-container"></div>
+            </div>
 
             <div className="mt-6 text-center">
               <p className="text-gray-400">
