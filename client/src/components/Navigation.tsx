@@ -13,7 +13,7 @@ export default function Navigation() {
     { path: "/closet", label: "Closet", icon: Package },
     { path: "/map", label: "Map", icon: Map },
     { path: "/skate-game", label: "S-K-A-T-E", icon: Gamepad2 },
-    { path: "/donate", label: "Donate", icon: DollarSign },
+    { path: "/donate", label: "Support", icon: DollarSign },
     { path: "/tutorial", label: "Tutorial", icon: BookOpen },
   ];
 
