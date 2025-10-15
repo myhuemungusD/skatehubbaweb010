@@ -9,7 +9,7 @@ export default function Navigation() {
 
   const navItems = [
     { path: "/", label: "Home", icon: Home },
-    { path: "/shop", label: "Shop", icon: ShoppingCart },
+    { path: "/shop", label: "Hubba Shop", icon: ShoppingCart },
     { path: "/closet", label: "Closet", icon: Package },
     { path: "/map", label: "Map", icon: Map },
     { path: "/skate-game", label: "Game", icon: Gamepad2 },
