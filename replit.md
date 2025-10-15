@@ -39,3 +39,67 @@ Preferred communication style: Simple, everyday language.
 - **Date Handling**: date-fns
 - **Build Tools**: Vite, esbuild, tsx
 - **Development & Linting**: TypeScript, Prettier, ESLint
+
+## Recent Changes
+
+### 2025-10-15 - Email Verification Code Cleanup & UX Fixes
+
+**Issue:** Duplicate auth files with incorrect URL overrides that could interfere with Firebase Console settings.
+
+**Changes Made:**
+
+1. **Removed Duplicate File:** 
+   - Deleted `client/src/lib/authUtils.ts` which had custom URL override that would prevent Firebase Console settings from working
+
+2. **Verified All sendEmailVerification Calls:**
+   - ✅ `lib/auth.ts` - No custom URL (uses Firebase Console settings)
+   - ✅ `lib/userService.ts` - No custom URL 
+   - ✅ `pages/auth.tsx` - No custom URL
+   - ✅ `pages/verify.tsx` - No custom URL
+
+3. **Fixed Toast Duration for Actions:**
+   - Increased duration to 15 seconds for toasts with action buttons
+   - Added `data-testid="button-toast-resend-email"` for testing
+   - Users now have sufficient time to click "Resend Email" action
+
+**Result:** All email verification calls now properly use the action URL configured in Firebase Console. No hardcoded URLs in the codebase that could cause domain conflicts.
+
+### 2025-10-15 - Fixed Sign-In Issue: Enhanced Email Verification UX
+
+**Root Cause:** Users were trying to sign in without verifying their email first. The authentication system was working correctly but needed better user guidance.
+
+**UX Improvements:**
+
+1. **Signup Page Enhancement:**
+   - Added prominent blue notice: "Email Verification Required"
+   - Clear message about needing to verify email before signing in
+
+2. **Enhanced Verify Page (/verify):**
+   - Displays user's email address prominently
+   - 3-step verification guide with visual icons
+   - "Resend Verification Email" button with rate-limit handling
+   - "Already Verified? Sign In" button
+
+3. **Improved Sign-In Error Messaging:**
+   - Targeted error: "Email Not Verified"
+   - Actionable guidance with "Resend Email" button
+   - 15-second toast duration for action buttons
+
+**User Flow:** Signup → /verify with instructions → helpful sign-in errors → easy resend options → seamless verification
+
+### 2025-10-14 - Production-Ready Pro-Level Polish
+
+Implemented comprehensive professional polish across 8 major areas:
+
+**UI/UX:** Smooth page transitions, loading skeletons, micro-interactions, professional toast system
+**Mobile + PWA:** Complete PWA with manifest, service worker, install prompts, touch optimizations
+**Performance:** Code splitting, lazy loading, performance monitoring (FCP, LCP, FID, CLS, TTFB)
+**Accessibility:** WCAG AA compliance, keyboard navigation, screen readers, focus management
+**SEO:** Structured data, enhanced robots.txt, Open Graph optimization
+
+### Previous Updates
+
+- **Firebase-Only Authentication:** Removed Replit OAuth, simplified to Firebase email/password with verification
+- **PostgreSQL Integration:** Neon database with Drizzle ORM for all data persistence
+- **Dynamic Tutorial System:** Interactive onboarding with progress tracking
+- **SkateHubba Branding:** Official website design with skateboarding theme
