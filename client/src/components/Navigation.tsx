@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
-import { Home, ShoppingCart, DollarSign, BookOpen, LogIn, User, Package, Map, Gamepad2 } from "lucide-react";
+import { Home, ShoppingCart, DollarSign, LogIn, User, Package, Map, Gamepad2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Navigation() {
@@ -11,10 +11,9 @@ export default function Navigation() {
     { path: "/", label: "Home", icon: Home },
     { path: "/shop", label: "Hubba Shop", icon: ShoppingCart },
     { path: "/closet", label: "Closet", icon: Package },
-    { path: "/map", label: "Map", icon: Map },
+    { path: "/map", label: "Check-In", icon: Map },
     { path: "/skate-game", label: "S-K-A-T-E", icon: Gamepad2 },
     { path: "/donate", label: "Support", icon: DollarSign },
-    { path: "/tutorial", label: "Tutorial", icon: BookOpen },
   ];
 
   return (
