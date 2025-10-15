@@ -25,11 +25,30 @@ export default function SigninPage() {
       });
       window.location.href = "/";
     } catch (err: any) {
-      toast({ 
-        title: "Login failed", 
-        description: err.message,
-        variant: "destructive"
-      });
+      const errorMessage = err.message;
+      
+      // Special handling for email verification error
+      if (errorMessage.includes("verify your email")) {
+        toast({ 
+          title: "Email Not Verified", 
+          description: "Please check your inbox and click the verification link. ",
+          variant: "destructive",
+          action: (
+            <button
+              onClick={() => window.location.href = "/verify"}
+              className="text-orange-400 underline font-semibold hover:text-orange-300"
+            >
+              Resend Email
+            </button>
+          )
+        });
+      } else {
+        toast({ 
+          title: "Login failed", 
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }

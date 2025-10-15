@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Link } from "wouter";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, AlertCircle } from "lucide-react";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -54,6 +54,18 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-blue-400 font-medium text-sm">Email Verification Required</p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    You'll need to verify your email before signing in. Check your inbox after signup!
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={handleSignup} className="space-y-4">
               <div className="space-y-2">
                 <div className="relative">
