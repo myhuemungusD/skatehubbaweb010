@@ -79,17 +79,25 @@ Preferred communication style: Simple, everyday language.
    - Created `sendPhoneVerification()` function to send SMS codes
    - Created `verifyPhoneCode()` function to confirm and authenticate
 
-2. **Authentication Flow:**
+2. **UI/UX Enhancement:**
+   - Added phone authentication section to `/signin` page
+   - Phone number input with international format placeholder (+1 760 555 1234)
+   - Green "Send Code" button for SMS verification
+   - Two-step flow: Enter phone → Enter OTP verification code
+   - "Change phone number" option to go back and edit number
+   - Invisible reCAPTCHA integration for bot protection
+
+3. **Authentication Flow:**
    - User enters phone number → reCAPTCHA verification → SMS sent
    - User enters verification code → Firebase confirms → Backend session created
    - Same secure session management (HttpOnly cookies) as email auth
 
-3. **Multi-Method Support:**
+4. **Multi-Method Support:**
    - Email/password with email verification
    - Phone number with SMS verification
-   - Future-ready for additional providers (Google, etc.)
+   - Google sign-in (one-click authentication)
 
-**Result:** Users can now choose between email or phone authentication, providing more flexibility and accessibility for sign-in methods.
+**Result:** Users can now choose between email, phone, or Google authentication, providing maximum flexibility and accessibility for sign-in methods.
 
 ### 2025-10-15 - Email Verification Code Cleanup & UX Fixes
 
