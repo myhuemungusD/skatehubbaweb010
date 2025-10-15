@@ -1,227 +1,41 @@
 # SkateHubba - Mobile Skateboarding Platform
 
 ## Overview
-
-SkateHubba is a modern web application designed as the ultimate mobile skateboarding platform. The project is built as a full-stack application with a React frontend and Express.js backend, featuring a skateboarding-themed design with social gaming elements.
+SkateHubba is a full-stack mobile skateboarding platform featuring a React frontend and an Express.js backend. It aims to be the ultimate social gaming hub for skateboarders, offering a unique blend of community features, interactive tutorials, and a skateboarding-themed design. The project focuses on a scalable architecture and a polished user experience.
 
 ## User Preferences
-
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite for fast development and optimized builds
-- **UI Framework**: Tailwind CSS with shadcn/ui component library
-- **Routing**: Wouter for lightweight client-side routing
-- **State Management**: TanStack React Query for server state management
-- **Form Handling**: React Hook Form with Zod validation
-- **Component System**: Radix UI primitives with custom styling
+### UI/UX Decisions
+- **Design Theme**: Dark-themed with orange accent colors, reflecting skateboarding culture.
+- **UI Framework**: Tailwind CSS with shadcn/ui and Radix UI primitives for accessible and customizable components.
+- **Polish & Accessibility**: Implemented professional-level polish including smooth page transitions, loading skeletons, micro-interactions, and a robust toast system. Focus on WCAG AA compliance with custom focus indicators, keyboard navigation, screen reader support, and reduced motion/high contrast modes.
+- **Mobile & PWA**: Full PWA implementation with install prompts, mobile-responsive optimizations (larger touch targets, safe area insets), and touch-friendly interactions.
+- **Performance**: Code splitting, Suspense boundaries, lazy loading images, and performance monitoring.
 
-### Backend Architecture
-- **Runtime**: Node.js with TypeScript (ESM modules)
-- **Framework**: Express.js for REST API
-- **Database ORM**: Drizzle ORM with PostgreSQL dialect
-- **Database Provider**: Neon Database (serverless PostgreSQL)
-- **Session Management**: connect-pg-simple for PostgreSQL session storage
-- **Development**: tsx for TypeScript execution in development
+### Technical Implementations
+- **Frontend**: React 18 with TypeScript, Vite for bundling, Wouter for routing, TanStack React Query for state management, and React Hook Form with Zod for form handling.
+- **Backend**: Node.js with TypeScript (ESM), Express.js for REST APIs, Drizzle ORM with Neon (serverless PostgreSQL) for database management, and `connect-pg-simple` for session storage.
+- **Monorepo**: Shared code (`/shared/`) between client and server for types, schemas, and utilities.
+- **Authentication**: Exclusively uses Firebase Authentication with email/password, including email verification and robust error handling.
+- **Data Persistence**: PostgreSQL database via Drizzle ORM for all application data, replacing in-memory storage.
+- **Tutorial System**: Dynamic onboarding tutorial with interactive guide, progress tracking, and dedicated API endpoints.
 
-### Build and Development
-- **Monorepo Structure**: Shared code between client and server
-- **Development Server**: Vite dev server with HMR and Express API proxy
-- **Production Build**: Client built to static files, server bundled with esbuild
-- **TypeScript**: Strict mode enabled across the entire codebase
-
-## Key Components
-
-### Directory Structure
-- `/client/` - React frontend application
-- `/server/` - Express.js backend API
-- `/shared/` - Shared types, schemas, and utilities
-- `/migrations/` - Database migration files
-
-### Frontend Components
-- **UI Components**: Complete shadcn/ui component library implementation
-- **Pages**: Home page with skateboarding-themed landing page, 404 error handling
-- **Hooks**: Custom hooks for mobile detection and toast notifications
-- **Styling**: Dark-themed design with orange accent colors matching skateboarding culture
-
-### Backend Components
-- **Storage Layer**: Abstracted storage interface with in-memory implementation
-- **Route Handler**: Placeholder structure for API endpoints
-- **Development Tools**: Request logging and error handling middleware
-
-## Data Flow
-
-### Database Schema
-- **Users Table**: Basic user management with username and password fields
-- **Validation**: Zod schemas for type-safe data validation
-- **ORM**: Drizzle ORM provides type-safe database operations
-
-### API Architecture
-- **REST Endpoints**: Prefixed with `/api` for clear separation
-- **Request Handling**: JSON body parsing and URL encoding support
-- **Error Handling**: Centralized error middleware with proper HTTP status codes
-- **Development Logging**: Request/response logging for debugging
-
-### Client-Server Communication
-- **HTTP Client**: Custom fetch wrapper with error handling
-- **Query Management**: TanStack React Query for caching and synchronization
-- **Authentication**: Cookie-based session management (prepared for implementation)
+### System Design Choices
+- **Directory Structure**: Clear separation between `/client/`, `/server/`, `/shared/`, and `/migrations/`.
+- **API Architecture**: REST endpoints prefixed with `/api`, JSON body parsing, centralized error handling, and development logging.
+- **Client-Server Communication**: Custom fetch wrapper, TanStack React Query for caching, and cookie-based session management.
+- **Deployment**: Designed for easy deployment on platforms like Replit, with distinct development and production configurations. Production build consists of static frontend files and a bundled Express.js backend.
 
 ## External Dependencies
 
-### Core Dependencies
 - **Database**: Neon Database (serverless PostgreSQL)
-- **UI Components**: Radix UI primitives for accessible components
-- **Styling**: Tailwind CSS for utility-first styling
-- **Form Validation**: Zod for runtime type checking
-- **Date Handling**: date-fns for date manipulation
-
-### Development Dependencies
-- **Build Tools**: Vite, esbuild, tsx for development and building
-- **TypeScript**: Full TypeScript support across frontend and backend
-- **Linting/Formatting**: Configuration ready for code quality tools
-
-### Replit Integration
-- **Development Banner**: Replit development environment integration
-- **Error Overlay**: Runtime error modal for development
-- **Cartographer**: Replit's code mapping tool (development only)
-
-## Deployment Strategy
-
-### Development Environment
-- **Hot Reload**: Vite HMR for frontend, tsx watch mode for backend
-- **Database**: Drizzle migrations with push command for schema updates
-- **Environment**: NODE_ENV-based environment detection
-
-### Production Build
-- **Frontend**: Static files generated by Vite build
-- **Backend**: Single bundled file using esbuild
-- **Database**: PostgreSQL connection via DATABASE_URL environment variable
-- **Startup**: Node.js execution of bundled server file
-
-### Configuration Management
-- **Environment Variables**: DATABASE_URL for database connection
-- **Build Scripts**: Separate scripts for development, building, and production
-- **Type Checking**: TypeScript compilation checking without emission
-
-The application is designed for easy deployment on platforms like Replit, with a clear separation between development and production configurations, and a scalable architecture that can grow with the skateboarding community features.
-
-## Recent Changes
-
-### 2025-10-14 - Refactored to Firebase-Only Authentication
-- **Removed Replit Auth**: Completely removed all Replit OAuth and backend session code
-- **Firebase-Only Auth**: Now using exclusively Firebase Authentication with email/password
-- **Updated Auth Hook**: Replaced `/api/auth/me` endpoint with Firebase `onAuthStateChanged()` listener
-- **Simplified Architecture**: No more dual auth systems - cleaner, simpler authentication flow
-- **Email Verification**: Required for access to protected routes (/map, /skate-game, /tutorial)
-- **Fixed Loading Issue**: App no longer stuck on infinite loading spinner
-- **ProtectedRoute**: Now uses Firebase auth state directly, no backend session checks
-
-### 2025-01-25 - Integrated PostgreSQL Database with Neon
-- **Database Setup**: Successfully provisioned and configured Neon PostgreSQL database
-- **Schema Migration**: Pushed complete database schema including users, tutorial_steps, user_progress, and subscribers tables
-- **Storage Layer Replacement**: Replaced MemStorage with DatabaseStorage using Drizzle ORM for type-safe database operations  
-- **Real Data Persistence**: All application data now persists in PostgreSQL instead of in-memory storage
-- **Database Connection**: Configured secure connection using DATABASE_URL environment variable
-- **API Integration**: All existing API endpoints now use database storage without breaking changes
-- **Tutorial System**: Default tutorial steps automatically initialized in database on first startup
-
-### 2025-01-25 - Implemented Dynamic Onboarding Tutorial with Interactive Skate Guide
-- **Backend Infrastructure**: Complete tutorial system with tutorial_steps, user_progress, and enhanced user tables
-- **API Endpoints**: Full REST API for tutorial management (/api/tutorial/steps, /api/users/:id/progress, /api/users/:id/onboarding)
-- **Interactive Tutorial Components**: Step-by-step guided experience with tap, swipe, and drag interactions
-- **Progress Tracking**: Detailed analytics on user interactions, completion times, and help usage
-- **Demo System**: Accessible demo page (/demo) with temporary user creation for testing
-- **5-Phase Tutorial Flow**: Welcome intro, map navigation, trenches upload, avatar customization, and challenge system
-- **Comprehensive UI**: Progress bars, step indicators, interactive elements, and completion rewards
-- **Home Page Integration**: Added "Try Tutorial Demo" buttons for easy access from main landing page
-
-### 2025-01-24 - Added SkateHubba Logo & Updated Messaging
-- Created unique skateboard-inspired SVG logo component with street art elements
-- Added prominent logo display in hero section and fixed navigation header
-- Updated all messaging to emphasize "Coming Soon" and "Free Beta Download"
-- Enhanced visual hierarchy with logo as the first prominent element
-
-### 2025-01-25 - Fixed Deployment Build Error  
-- Fixed incorrect file extensions in App.tsx import statements
-- Removed `.tsx` extensions from imports to resolve Vite build failures
-- Verified successful production build with `npm run build`
-- Build now generates optimized assets: CSS (63.28 kB), JS (284.57 kB)
-
-### 2025-01-25 - Transformed to Official SkateHubba.com Website
-- Completely redesigned home page to match provided HTML design template
-- Updated messaging to "Stream. Connect. Skate. Your Skateboarding Social Universe"
-- Added navigation with Features, Gallery, and Join sections
-- Implemented gallery section with skateboarding imagery
-- Added email signup form for community joining
-- Updated page title and meta descriptions for SEO optimization
-- Applied consistent dark theme styling (#181818 background, #fafafa text)
-- Enhanced with proper semantic HTML structure and accessibility features
-
-### 2025-10-14 - Production-Ready Pro-Level Polish Implementation
-Implemented comprehensive professional polish across 8 major areas with Apple-level precision:
-
-**Phase 1-2: UI/UX Foundation**
-- Smooth page transitions with fade/translateY animations (200ms, custom cubic-bezier easing)
-- Professional loading skeletons replacing basic spinners
-- Micro-interactions system: interactive-scale, interactive-lift, glow-on-hover effects
-- Enhanced button system with shadow effects and smooth state transitions
-- Professional toast system with Success/Error/Warning/Info variants and icons
-- EmptyState, LoadingEmptyState, ErrorEmptyState components for user-friendly states
-
-**Phase 3-4: Mobile + PWA**
-- Complete PWA implementation with manifest.json and service worker
-- Install prompt component with smart dismissal logic (30-second delay)
-- Mobile-responsive optimizations: larger touch targets (48px), safe area insets, iOS zoom prevention
-- Touch-friendly interactions with -webkit-tap-highlight-color and touch-action
-- Tablet-specific responsive breakpoints
-- LazyImage component with IntersectionObserver for performance
-
-**Phase 5-6: Performance Optimization**
-- Code splitting with React.lazy() for all non-critical pages
-- Suspense boundaries with LoadingScreen fallback
-- Performance monitoring hook tracking FCP, LCP, FID, CLS, TTFB metrics
-- Lazy loading images with intersection observer
-- Build optimization: 651.69 kB main bundle, 83.25 kB CSS
-
-**Phase 7-8: Accessibility (WCAG AA Compliant)**
-- Custom focus indicators with 3px orange outline and shadow halo
-- Keyboard navigation hooks: useKeyboardShortcuts, useFocusTrap
-- Screen reader announcer with ARIA live regions (polite/assertive modes)
-- Skip link for keyboard users ("Skip to main content")
-- Reduced motion support via prefers-reduced-motion media query
-- High contrast mode support with prefers-contrast
-- useRouteAnnouncer for accessible page navigation
-
-**Phase 9-10: SEO & Structured Data**
-- Enhanced robots.txt with proper disallow rules and crawl delay
-- Organization structured data (schema.org) for rich search results
-- WebApplication structured data with pricing and category info
-- Optimized Open Graph and Twitter Card meta tags
-- XML sitemap integration
-
-**Technical Implementation Details:**
-- Custom CSS variables for Apple-level design system
-- Animation curves: cubic-bezier(0.22, 1, 0.36, 1) for smooth easing
-- Touch targets: 44pt (sm), 56pt (md), 72pt (lg) minimum sizes
-- Focus management with :focus-visible pseudo-class
-- PWA shortcuts for Map and S.K.A.T.E Game
-- Service worker with network-first caching strategy
-
-**New Components Created:**
-- PageTransition, LoadingScreen, EmptyState, PWAInstallPrompt
-- LazyImage, StructuredData (Organization/WebApp)
-- EnhancedToast with variant system
-
-**New Hooks Created:**
-- usePerformanceMonitor, useKeyboardShortcuts, useFocusTrap
-- useAnnouncer, useRouteAnnouncer, useSkipLink
-- useMediaQuery, useIsMobile, useIsTablet, useIsDesktop, useIsTouchDevice
-
-**Browser Support:**
-- Modern browsers with IntersectionObserver, PerformanceObserver APIs
-- Progressive enhancement for older browsers
-- Graceful degradation for missing features
+- **Authentication**: Firebase Authentication
+- **UI Libraries**: Radix UI, shadcn/ui
+- **Styling**: Tailwind CSS
+- **Form Validation**: Zod
+- **Date Handling**: date-fns
+- **Build Tools**: Vite, esbuild, tsx
+- **Development & Linting**: TypeScript, Prettier, ESLint
