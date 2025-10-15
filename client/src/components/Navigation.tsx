@@ -26,27 +26,29 @@ export default function Navigation() {
           </div>
 
           <div className="flex items-center space-x-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location === item.path;
-              
-              return (
-                <Link key={item.path} href={item.path}>
-                  <Button
-                    variant="ghost"
-                    className={`${
-                      isActive
-                        ? "bg-[#ff6a00] text-black hover:bg-[#e55f00]"
-                        : "text-gray-300 hover:bg-neutral-800 hover:text-white"
-                    }`}
-                    data-testid={`button-nav-${item.label.toLowerCase()}`}
-                  >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {item.label}
-                  </Button>
-                </Link>
-              );
-            })}
+            {navItems
+              .filter((item) => !(item.path === "/" && location === "/"))
+              .map((item) => {
+                const Icon = item.icon;
+                const isActive = location === item.path;
+                
+                return (
+                  <Link key={item.path} href={item.path}>
+                    <Button
+                      variant="ghost"
+                      className={`${
+                        isActive
+                          ? "bg-[#ff6a00] text-black hover:bg-[#e55f00]"
+                          : "text-gray-300 hover:bg-neutral-800 hover:text-white"
+                      }`}
+                      data-testid={`button-nav-${item.label.toLowerCase()}`}
+                    >
+                      <Icon className="w-4 h-4 mr-2" />
+                      {item.label}
+                    </Button>
+                  </Link>
+                );
+              })}
 
             {!isAuthenticated ? (
               <Link href="/auth">
