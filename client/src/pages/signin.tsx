@@ -33,10 +33,12 @@ export default function SigninPage() {
           title: "Email Not Verified", 
           description: "Please check your inbox and click the verification link. ",
           variant: "destructive",
+          duration: 15000, // 15 seconds for action toasts
           action: (
             <button
               onClick={() => window.location.href = "/verify"}
               className="text-orange-400 underline font-semibold hover:text-orange-300"
+              data-testid="button-toast-resend-email"
             >
               Resend Email
             </button>
