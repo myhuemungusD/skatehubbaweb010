@@ -19,7 +19,7 @@ Preferred communication style: Simple, everyday language.
 - **Frontend**: React 18 with TypeScript, Vite for bundling, Wouter for routing, TanStack React Query for state management, and React Hook Form with Zod for form handling.
 - **Backend**: Node.js with TypeScript (ESM), Express.js for REST APIs, Drizzle ORM with Neon (serverless PostgreSQL) for database management, and `connect-pg-simple` for session storage.
 - **Monorepo**: Shared code (`/shared/`) between client and server for types, schemas, and utilities.
-- **Authentication**: Uses Firebase Authentication with multiple methods (email/password with verification, phone authentication with SMS). Includes robust error handling and secure session management.
+- **Authentication**: Uses Firebase Authentication with multiple methods (email/password with verification, phone authentication with SMS, Google sign-in). Includes robust error handling and secure session management.
 - **Data Persistence**: PostgreSQL database via Drizzle ORM for all application data, replacing in-memory storage.
 - **Tutorial System**: Dynamic onboarding tutorial with interactive guide, progress tracking, and dedicated API endpoints.
 
@@ -41,6 +41,31 @@ Preferred communication style: Simple, everyday language.
 - **Development & Linting**: TypeScript, Prettier, ESLint
 
 ## Recent Changes
+
+### 2025-10-15 - Added Google Sign-In
+
+**New Feature:** Integrated Google authentication as an additional sign-in method alongside email/password and phone authentication.
+
+**Implementation:**
+
+1. **Google Auth Integration:**
+   - Added `GoogleAuthProvider` and `signInWithPopup` imports to `lib/auth.ts`
+   - Created `loginWithGoogle()` function using Firebase Google authentication
+   - Seamless backend integration with same HttpOnly cookie session management
+
+2. **UI/UX Enhancement:**
+   - Added Google sign-in button to `/signin` page with clean divider
+   - White background button with Google icon for clear brand recognition
+   - SkateHubba-themed styling (orange/black color scheme maintained)
+   - Proper loading states and error handling
+
+3. **Multi-Provider Authentication:**
+   - ✅ Email/password with email verification
+   - ✅ Phone number with SMS verification
+   - ✅ Google sign-in (one-click authentication)
+   - All methods use the same secure session management
+
+**Result:** Users can now sign in with their Google account for faster, more convenient access while maintaining the same security standards across all authentication methods.
 
 ### 2025-10-15 - Added Phone Authentication Support
 
