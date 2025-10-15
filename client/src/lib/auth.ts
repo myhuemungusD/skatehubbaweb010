@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged, signInWithPhoneNumber, RecaptchaVerifier, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "./firebase";
 
 export async function registerUser(email: string, password: string) {
@@ -44,6 +44,33 @@ export async function loginUser(email: string, password: string) {
   // NOTE: Session token is now in HttpOnly cookie (not localStorage)
   // Server automatically sets cookie, no client-side storage needed
   
+  return result;
+}
+
+export async function loginWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  const userCredential = await signInWithPopup(auth, provider);
+  const firebaseUser = userCredential.user;
+  
+  // Get ID token and authenticate with backend
+  const idToken = await firebaseUser.getIdToken();
+  
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${idToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({}),
+    credentials: 'include',
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Login failed');
+  }
+  
+  const result = await response.json();
   return result;
 }
 
