@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import { auth } from "./firebase";
 
 export async function registerUser(email: string, password: string) {
@@ -66,4 +66,45 @@ export async function logoutUser() {
 
 export function listenToAuth(callback: (user: any) => void) {
   return onAuthStateChanged(auth, callback);
+}
+
+// Phone Authentication
+export function setupRecaptcha(elementId: string): RecaptchaVerifier {
+  return new RecaptchaVerifier(auth, elementId, {
+    size: 'invisible',
+    callback: () => {
+      // reCAPTCHA solved - will proceed with phone auth
+    }
+  });
+}
+
+export async function sendPhoneVerification(phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) {
+  const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+  return confirmationResult;
+}
+
+export async function verifyPhoneCode(confirmationResult: any, code: string) {
+  const userCredential = await confirmationResult.confirm(code);
+  const firebaseUser = userCredential.user;
+  
+  // Get ID token and authenticate with backend
+  const idToken = await firebaseUser.getIdToken();
+  
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${idToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({}),
+    credentials: 'include',
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Login failed');
+  }
+  
+  const result = await response.json();
+  return result;
 }

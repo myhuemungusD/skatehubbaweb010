@@ -19,7 +19,7 @@ Preferred communication style: Simple, everyday language.
 - **Frontend**: React 18 with TypeScript, Vite for bundling, Wouter for routing, TanStack React Query for state management, and React Hook Form with Zod for form handling.
 - **Backend**: Node.js with TypeScript (ESM), Express.js for REST APIs, Drizzle ORM with Neon (serverless PostgreSQL) for database management, and `connect-pg-simple` for session storage.
 - **Monorepo**: Shared code (`/shared/`) between client and server for types, schemas, and utilities.
-- **Authentication**: Exclusively uses Firebase Authentication with email/password, including email verification and robust error handling.
+- **Authentication**: Uses Firebase Authentication with multiple methods (email/password with verification, phone authentication with SMS). Includes robust error handling and secure session management.
 - **Data Persistence**: PostgreSQL database via Drizzle ORM for all application data, replacing in-memory storage.
 - **Tutorial System**: Dynamic onboarding tutorial with interactive guide, progress tracking, and dedicated API endpoints.
 
@@ -41,6 +41,30 @@ Preferred communication style: Simple, everyday language.
 - **Development & Linting**: TypeScript, Prettier, ESLint
 
 ## Recent Changes
+
+### 2025-10-15 - Added Phone Authentication Support
+
+**New Feature:** Expanded authentication methods to include phone number sign-in with SMS verification.
+
+**Implementation:**
+
+1. **Firebase Phone Auth Integration:**
+   - Added `signInWithPhoneNumber` and `RecaptchaVerifier` imports to `lib/auth.ts`
+   - Created `setupRecaptcha()` function with invisible reCAPTCHA
+   - Created `sendPhoneVerification()` function to send SMS codes
+   - Created `verifyPhoneCode()` function to confirm and authenticate
+
+2. **Authentication Flow:**
+   - User enters phone number → reCAPTCHA verification → SMS sent
+   - User enters verification code → Firebase confirms → Backend session created
+   - Same secure session management (HttpOnly cookies) as email auth
+
+3. **Multi-Method Support:**
+   - Email/password with email verification
+   - Phone number with SMS verification
+   - Future-ready for additional providers (Google, etc.)
+
+**Result:** Users can now choose between email or phone authentication, providing more flexibility and accessibility for sign-in methods.
 
 ### 2025-10-15 - Email Verification Code Cleanup & UX Fixes
 
