@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { loginUser } from "../lib/auth";
+import { loginUser, loginWithGoogle } from "../lib/auth";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Link } from "wouter";
 import { Mail, Lock } from "lucide-react";
+import { SiGoogle } from "react-icons/si";
 
 export default function SigninPage() {
   const [email, setEmail] = useState("");
@@ -51,6 +52,27 @@ export default function SigninPage() {
           variant: "destructive"
         });
       }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setIsLoading(true);
+    
+    try {
+      await loginWithGoogle();
+      toast({ 
+        title: "Welcome back! 🛹",
+        description: "You've successfully signed in with Google."
+      });
+      window.location.href = "/";
+    } catch (err: any) {
+      toast({ 
+        title: "Google sign-in failed", 
+        description: err.message,
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -115,6 +137,22 @@ export default function SigninPage() {
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
+
+            <div className="flex items-center my-6">
+              <div className="flex-grow border-t border-gray-600"></div>
+              <span className="mx-3 text-gray-400 text-sm">or</span>
+              <div className="flex-grow border-t border-gray-600"></div>
+            </div>
+
+            <Button
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full bg-white hover:bg-gray-100 text-black font-semibold flex items-center justify-center gap-2"
+              data-testid="button-signin-google"
+            >
+              <SiGoogle className="w-5 h-5" />
+              Sign in with Google
+            </Button>
 
             <div className="mt-6 text-center">
               <p className="text-gray-400">
