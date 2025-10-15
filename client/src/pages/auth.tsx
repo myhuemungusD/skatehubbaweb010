@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { SiGoogle } from "react-icons/si";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { trackEvent } from "../lib/analytics";
 import { Button } from "../components/ui/button";
@@ -21,6 +22,12 @@ export default function AuthPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showOtp, setShowOtp] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
 
   // Registration form
   const registerForm = useForm<RegisterInput>({
@@ -123,6 +130,122 @@ export default function AuthPage() {
     loginMutation.mutate(data);
   };
 
+  // Google Sign-In
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const firebaseUser = userCredential.user;
+
+      // Get ID token and authenticate with backend
+      const idToken = await firebaseUser.getIdToken();
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({}),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+
+      toast({ 
+        title: "Welcome! 🛹",
+        description: "You've successfully signed in with Google."
+      });
+      trackEvent('login', { method: 'google' });
+      window.location.href = "/";
+    } catch (err: any) {
+      toast({ 
+        title: "Google sign-in failed", 
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  // Phone Authentication
+  const setupRecaptcha = (elementId: string): RecaptchaVerifier => {
+    return new RecaptchaVerifier(auth, elementId, {
+      size: 'invisible',
+      callback: () => {
+        // reCAPTCHA solved
+      }
+    });
+  };
+
+  const handleSendCode = async () => {
+    setIsPhoneLoading(true);
+    try {
+      const recaptchaVerifier = setupRecaptcha("recaptcha-container");
+      const confirmation = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+      setConfirmationResult(confirmation);
+      setShowOtp(true);
+      toast({ 
+        title: "Code sent! 📱",
+        description: "Check your phone for the verification code."
+      });
+    } catch (err: any) {
+      toast({ 
+        title: "Failed to send code", 
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsPhoneLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    setIsPhoneLoading(true);
+    try {
+      const userCredential = await confirmationResult.confirm(otp);
+      const firebaseUser = userCredential.user;
+      
+      // Get ID token and authenticate with backend
+      const idToken = await firebaseUser.getIdToken();
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({}),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+
+      toast({ 
+        title: "Welcome! 🛹",
+        description: "You've successfully signed in."
+      });
+      trackEvent('login', { method: 'phone' });
+      window.location.href = "/";
+    } catch (err: any) {
+      toast({ 
+        title: "Verification failed", 
+        description: "Invalid code. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsPhoneLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#181818] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -212,7 +335,86 @@ export default function AuthPage() {
                   </Button>
                 </form>
 
-                <div className="text-center">
+                <div className="flex items-center my-6">
+                  <div className="flex-grow border-t border-gray-600"></div>
+                  <span className="mx-3 text-gray-400 text-sm">or</span>
+                  <div className="flex-grow border-t border-gray-600"></div>
+                </div>
+
+                <Button
+                  onClick={handleGoogleSignIn}
+                  disabled={isGoogleLoading || loginMutation.isPending}
+                  className="w-full bg-white hover:bg-gray-100 text-black font-semibold flex items-center justify-center gap-2"
+                  data-testid="button-google-signin"
+                >
+                  <SiGoogle className="w-5 h-5" />
+                  {isGoogleLoading ? "Signing in..." : "Sign in with Google"}
+                </Button>
+
+                <div className="my-6 border-t border-gray-600"></div>
+
+                <h3 className="text-center text-orange-500 font-semibold mb-4">
+                  Or sign in with phone
+                </h3>
+
+                <div className="space-y-3">
+                  {!showOtp ? (
+                    <>
+                      <Input
+                        type="tel"
+                        placeholder="+1 760 555 1234"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="bg-[#181818] border-gray-600 text-white placeholder:text-gray-500"
+                        data-testid="input-phone"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleSendCode}
+                        disabled={isPhoneLoading || !phone}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white"
+                        data-testid="button-send-code"
+                      >
+                        {isPhoneLoading ? "Sending..." : "Send Code"}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        type="text"
+                        placeholder="Enter 6-digit code"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        className="bg-[#181818] border-gray-600 text-white placeholder:text-gray-500"
+                        data-testid="input-otp"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleVerifyCode}
+                        disabled={isPhoneLoading || !otp}
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                        data-testid="button-verify-code"
+                      >
+                        {isPhoneLoading ? "Verifying..." : "Verify & Sign In"}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setShowOtp(false);
+                          setOtp("");
+                        }}
+                        variant="ghost"
+                        className="w-full text-gray-400 hover:text-white"
+                        data-testid="button-change-phone"
+                      >
+                        Change phone number
+                      </Button>
+                    </>
+                  )}
+                  <div id="recaptcha-container"></div>
+                </div>
+
+                <div className="text-center mt-4">
                   <Button variant="link" className="text-orange-400 hover:text-orange-300" data-testid="link-forgot-password">
                     Forgot your password?
                   </Button>
