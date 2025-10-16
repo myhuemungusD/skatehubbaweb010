@@ -129,12 +129,6 @@ export default function UnifiedLanding() {
             <SkateHubbaLogo />
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight bg-gradient-to-b from-white to-gray-300 bg-clip-text text-transparent" data-testid="text-hero-title">
-            Own Your Tricks.
-            <br />
-            <span className="text-orange-500">Play SKATE Anywhere.</span>
-          </h1>
-          
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
             The ultimate mobile skateboarding platform where your skills become collectibles and every spot tells a story.
           </p>
