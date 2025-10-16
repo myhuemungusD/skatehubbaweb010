@@ -21,7 +21,6 @@ export default function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-[#ff6a00]">SkateHubba</span>
           </div>
 
           <div className="flex items-center space-x-2">
