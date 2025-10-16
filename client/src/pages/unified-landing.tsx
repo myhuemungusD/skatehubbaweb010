@@ -167,17 +167,38 @@ export default function UnifiedLanding() {
             </Link>
           </div>
 
-          {/* Feature Preview Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+          {/* Feature Preview Cards - Premium SkateHubba Style */}
+          <div className="grid md:grid-cols-3 gap-8 mt-16 max-w-5xl mx-auto">
             {[
               { icon: Zap, title: "Remote S.K.A.T.E.", desc: "Challenge skaters worldwide" },
               { icon: MapPin, title: "Spot Check-ins", desc: "Discover and share locations" },
               { icon: Trophy, title: "Trick Collectibles", desc: "Mint your best moments" }
             ].map((feature, index) => (
-              <div key={index} className="bg-black/30 rounded-xl p-6 border border-gray-600/30 hover:border-orange-400/50 transition-all duration-300 hover:scale-105 fade-in-section">
-                <feature.icon className="h-8 w-8 text-orange-500 mb-4" />
-                <h4 className="text-lg font-semibold text-white mb-2">{feature.title}</h4>
-                <p className="text-gray-300 text-sm">{feature.desc}</p>
+              <div 
+                key={index} 
+                className="group relative bg-black/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 hover:border-orange-500/60 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 fade-in-section overflow-hidden"
+                data-testid={`card-feature-${index}`}
+              >
+                {/* Gradient glow effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 via-orange-500/0 to-orange-500/0 group-hover:from-orange-500/10 group-hover:via-orange-500/5 group-hover:to-transparent transition-all duration-500 rounded-2xl pointer-events-none" />
+                
+                {/* Icon with background glow */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full scale-150 group-hover:bg-orange-500/30 transition-all duration-500" />
+                  <div className="relative w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 transition-all duration-500">
+                    <feature.icon className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="relative">
+                  <h4 className="text-xl font-bold text-white mb-3 group-hover:text-orange-400 transition-colors duration-300">
+                    {feature.title}
+                  </h4>
+                  <p className="text-gray-400 text-base leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
