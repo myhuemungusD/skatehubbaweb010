@@ -129,7 +129,7 @@ export default function UnifiedLanding() {
             <SkateHubbaLogo />
           </div>
           
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: "'Permanent Marker', cursive" }} data-testid="text-hero-subtitle">
             The ultimate mobile skateboarding platform where your skills become collectibles and every spot tells a story.
           </p>
 
