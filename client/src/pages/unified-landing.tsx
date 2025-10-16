@@ -122,19 +122,19 @@ export default function UnifiedLanding() {
     <Background className="text-white min-h-screen">
       <Navigation />
 
-      {/* Hero Section with Progressive Disclosure */}
-      <Section className="pt-24 pb-16">
+      {/* Hero Section with Optimized Layout */}
+      <Section className="pt-20 pb-12">
         <div className="text-center" style={springAnimation.style}>
-          <div className="mb-8">
+          <div className="mb-4">
             <SkateHubbaLogo />
           </div>
           
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: "'Permanent Marker', cursive" }} data-testid="text-hero-subtitle">
+          <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed px-4" style={{ fontFamily: "'Permanent Marker', cursive" }} data-testid="text-hero-subtitle">
             The ultimate mobile skateboarding platform where your skills become collectibles and every spot tells a story.
           </p>
 
           {/* Social Proof Indicators */}
-          <div className="flex justify-center items-center gap-8 mb-12 text-sm text-gray-400">
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 mb-10 text-sm text-gray-400 px-4">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
               <span>Join 1,000+ skaters</span>
@@ -150,7 +150,7 @@ export default function UnifiedLanding() {
           </div>
 
           {/* Primary Auth Button */}
-          <div className="text-center">
+          <div className="text-center mb-12">
             <Link to="/auth">
               <button 
                 className="auth-button"
@@ -162,7 +162,7 @@ export default function UnifiedLanding() {
           </div>
 
           {/* Feature Preview Cards - Premium SkateHubba Style */}
-          <div className="grid md:grid-cols-3 gap-8 mt-16 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto px-4">
             {[
               { icon: Zap, title: "Remote S.K.A.T.E.", desc: "Challenge skaters worldwide" },
               { icon: MapPin, title: "Spot Check-ins", desc: "Discover and share locations" },
