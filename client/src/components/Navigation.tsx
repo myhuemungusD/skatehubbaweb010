@@ -17,14 +17,15 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="bg-neutral-900 border-b border-neutral-700 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-[#ff6a00]">SkateHubba</span>
-          </div>
+    <>
+      <nav className="bg-neutral-900 border-b border-neutral-700 sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl font-bold text-[#ff6a00]" style={{ fontFamily: "'Permanent Marker', cursive" }}>SkateHubba</span>
+            </div>
 
-          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
             {navItems
               .filter((item) => !(item.path === "/" && location === "/"))
               .map((item) => {
@@ -67,7 +68,7 @@ export default function Navigation() {
                   data-testid="button-nav-profile"
                 >
                   <User className="w-4 h-4 mr-2" />
-                  {user?.email || user?.firstName || "Profile"}
+                  {user?.email || "Profile"}
                 </Button>
                 <Button
                   variant="ghost"
@@ -86,5 +87,13 @@ export default function Navigation() {
         </div>
       </div>
     </nav>
+    
+    {/* Subtitle Banner */}
+    <div className="bg-black/40 border-b border-neutral-800 py-3 sticky top-16 z-40">
+      <p className="text-center text-sm md:text-base text-gray-200 px-4" style={{ fontFamily: "'Permanent Marker', cursive" }}>
+        The ultimate mobile skateboarding platform where your skills become collectibles and every spot tells a story.
+      </p>
+    </div>
+    </>
   );
 }

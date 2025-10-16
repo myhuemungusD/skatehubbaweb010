@@ -123,18 +123,14 @@ export default function UnifiedLanding() {
       <Navigation />
 
       {/* Hero Section with Optimized Layout */}
-      <Section className="pt-20 pb-12">
+      <Section className="pt-12 pb-12">
         <div className="text-center" style={springAnimation.style}>
-          <div className="mb-4">
+          <div className="mb-8">
             <SkateHubbaLogo />
           </div>
-          
-          <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed px-4" style={{ fontFamily: "'Permanent Marker', cursive" }} data-testid="text-hero-subtitle">
-            The ultimate mobile skateboarding platform where your skills become collectibles and every spot tells a story.
-          </p>
 
           {/* Social Proof Indicators */}
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 mb-10 text-sm text-gray-400 px-4">
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 mb-10 text-sm text-gray-400 px-4" style={{ fontFamily: "'Permanent Marker', cursive" }}>
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
               <span>Join 1,000+ skaters</span>
