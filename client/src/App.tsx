@@ -15,7 +15,6 @@ import { useSkipLink } from "./hooks/useSkipLink";
 
 // Eager load critical pages
 import UnifiedLanding from "./pages/unified-landing";
-import NotFound from "./pages/not-found";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Lazy load non-critical pages for better performance
@@ -68,7 +67,6 @@ function AppRoutes() {
           {/* Protected routes with email verification */}
           <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
-          <Route component={NotFound} />
         </>
       ) : (
         <>
@@ -88,9 +86,8 @@ function AppRoutes() {
           <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
           <Route path="/tutorial" component={() => {
-            return user ? <ProtectedRoute><Tutorial userId={user.uid} /></ProtectedRoute> : <NotFound />;
+            return user ? <ProtectedRoute><Tutorial userId={user.uid} /></ProtectedRoute> : <Home />;
           }} />
-          <Route component={NotFound} />
         </>
       )}
       </Switch>
