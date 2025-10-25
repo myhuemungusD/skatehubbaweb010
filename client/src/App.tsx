@@ -13,6 +13,7 @@ import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { usePerformanceMonitor } from "./hooks/usePerformanceMonitor";
 import { useSkipLink } from "./hooks/useSkipLink";
 import { AISkateChat } from "./components/AISkateChat";
+import { FeedbackButton } from "./components/FeedbackButton";
 
 // Eager load critical pages
 import UnifiedLanding from "./pages/unified-landing";
@@ -147,6 +148,7 @@ export default function App() {
         <Toaster />
         <PWAInstallPrompt />
         <AISkateChat />
+        <FeedbackButton />
       </TooltipProvider>
     </QueryClientProvider>
   );

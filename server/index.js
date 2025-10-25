@@ -66,7 +66,7 @@ app.use(cors({
 app.use(express.json());
 
 // Database, email, and auth integration
-let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuthRoutes;
+let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuthRoutes, feedback, insertFeedbackSchema;
 
 // Initialize database connection and auth
 async function initializeDatabase() {
@@ -86,6 +86,8 @@ async function initializeDatabase() {
     sendSubscriberNotification = emailModule.sendSubscriberNotification;
     NewSubscriberInput = schemaModule.NewSubscriberInput;
     setupAuthRoutes = firebaseAuthModule.setupAuthRoutes;
+    feedback = schemaModule.feedback;
+    insertFeedbackSchema = schemaModule.insertFeedbackSchema;
     
     console.log("🎯 Database integration loaded successfully");
     
@@ -186,6 +188,58 @@ app.post("/api/subscribe", async (req, res) => {
   }
 });
 
+// Feedback endpoint
+app.post("/api/feedback", async (req, res) => {
+  try {
+    const { type, message } = req.body;
+    
+    // Basic validation even without database
+    if (!message || message.trim().length === 0) {
+      return res.status(400).json({
+        ok: false,
+        error: "Feedback message is required"
+      });
+    }
+    
+    const user = req.user;
+    
+    // Database integration if available
+    if (db && insertFeedbackSchema && feedback) {
+      const validatedData = insertFeedbackSchema.parse({
+        userId: user?.uid || null,
+        userEmail: user?.email || null,
+        type: type || 'general',
+        message,
+      });
+
+      const [result] = await db.insert(feedback).values(validatedData).returning();
+
+      console.log(`📝 Feedback saved: Type=${type || 'general'}, User=${user?.email || 'Anonymous'} [ID: ${result.id}]`);
+      
+      return res.json({ 
+        ok: true, 
+        message: 'Feedback submitted successfully',
+        id: result.id 
+      });
+    } else {
+      // Fallback mode without database
+      console.log(`📝 Feedback received (no DB): Type=${type || 'general'}, User=${user?.email || 'Anonymous'}`);
+      console.log(`   Message: ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}`);
+      
+      return res.status(503).json({ 
+        ok: false, 
+        error: "Feedback service temporarily unavailable. Please try again later." 
+      });
+    }
+  } catch (error) {
+    console.error('Feedback submission error:', error);
+    res.status(400).json({ 
+      ok: false, 
+      error: error.message || 'Failed to submit feedback' 
+    });
+  }
+});
+
 // Start server with database and auth initialization
 const PORT = process.env.PORT || 5000;
 
@@ -203,9 +257,26 @@ async function startServer() {
     }
   }
   
-  app.listen(PORT, () => {
-    console.log(`🚀 SkateHubba API running on port ${PORT}`);
+  // Create HTTP server
+  const { createServer } = await import('http');
+  const server = createServer(app);
+  
+  // Setup Vite middleware in development mode
+  if (process.env.NODE_ENV === 'development') {
+    const { setupVite } = await import('./vite.ts');
+    await setupVite(app, server);
+    console.log('⚡ Vite dev server integrated');
+  } else {
+    // In production, serve static files
+    const { serveStatic } = await import('./vite.ts');
+    serveStatic(app);
+    console.log('📦 Serving static files from dist/public');
+  }
+  
+  server.listen(PORT, () => {
+    console.log(`🚀 SkateHubba running on port ${PORT}`);
     console.log(`📧 Email signup endpoint: POST /api/subscribe`);
+    console.log(`📝 Feedback endpoint: POST /api/feedback`);
     console.log(`🔥 Firebase Auth: ACTIVE`);
     console.log(`💾 Database integration: ${storage ? 'ACTIVE' : 'BASIC MODE'}`);
   });

@@ -147,6 +147,16 @@ export const authSessions = pgTable("auth_sessions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const feedback = pgTable("feedback", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  userEmail: varchar("user_email", { length: 255 }),
+  type: varchar("type", { length: 50 }).notNull(), // 'bug', 'feature', 'improvement', 'general'
+  message: text("message").notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("new"), // 'new', 'reviewed', 'resolved'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertTutorialStepSchema = createInsertSchema(tutorialSteps).omit({
   id: true,
 });
@@ -168,6 +178,12 @@ export const insertSubscriberSchema = createInsertSchema(subscribers).omit({
 });
 
 export const insertDonationSchema = createInsertSchema(donations);
+
+export const insertFeedbackSchema = createInsertSchema(feedback).omit({
+  id: true,
+  createdAt: true,
+  status: true,
+});
 
 // Auth validation schemas
 export const registerSchema = z.object({
@@ -212,6 +228,8 @@ export type CustomUser = typeof customUsers.$inferSelect;
 export type InsertCustomUser = typeof customUsers.$inferInsert;
 export type AuthSession = typeof authSessions.$inferSelect;
 export type InsertAuthSession = typeof authSessions.$inferInsert;
+export type Feedback = typeof feedback.$inferSelect;
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
