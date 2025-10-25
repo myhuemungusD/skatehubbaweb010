@@ -487,7 +487,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     }
   });
 
-  // OpenAI Assistant route
+  // OpenAI Assistant route (legacy)
   app.post("/api/assistant", async (req, res) => {
     try {
       const { persona = "filmer", messages = [] } = req.body || {};
@@ -509,6 +509,50 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     } catch (e) {
       console.error(e);
       res.status(500).json({ ok: false, error: "Assistant error" });
+    }
+  });
+
+  // Beagle AI Chat route
+  app.post("/api/ai/chat", async (req, res) => {
+    try {
+      if (!openai) {
+        return res.status(503).json({ 
+          ok: false, 
+          error: "AI chat is currently unavailable" 
+        });
+      }
+
+      const { messages = [] } = req.body || {};
+
+      const systemPrompt = `You are Beagle, an enthusiastic AI skate buddy for SkateHubba™. 
+You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHubba app features.
+- Keep responses short, friendly, and use skate slang naturally
+- Be encouraging and positive
+- Help users with app features (check-ins, AR tricks, leaderboards, etc.)
+- Share skateboarding tips and trick advice
+- Never claim to be a real person or affiliated with real brands
+- Use emojis occasionally to keep it fun 🛹
+- Keep responses under 150 words`;
+
+      const resp = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages.slice(-12) // Last 12 messages for context
+        ],
+        temperature: 0.8,
+        max_tokens: 200
+      });
+
+      const answer = resp.choices?.[0]?.message || { 
+        role: "assistant", 
+        content: "Hey! I'm here to help with all things skateboarding! 🛹" 
+      };
+      
+      res.json({ ok: true, reply: answer });
+    } catch (e) {
+      console.error("AI Chat error:", e);
+      res.status(500).json({ ok: false, error: "Chat error - try again in a moment!" });
     }
   });
 

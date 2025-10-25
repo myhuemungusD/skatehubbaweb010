@@ -12,6 +12,7 @@ import { OrganizationStructuredData, WebAppStructuredData } from "./components/S
 import { analytics as firebaseAnalytics } from "./lib/firebase";
 import { usePerformanceMonitor } from "./hooks/usePerformanceMonitor";
 import { useSkipLink } from "./hooks/useSkipLink";
+import { AISkateChat } from "./components/AISkateChat";
 
 // Eager load critical pages
 import UnifiedLanding from "./pages/unified-landing";
@@ -142,6 +143,7 @@ export default function App() {
         </Router>
         <Toaster />
         <PWAInstallPrompt />
+        <AISkateChat />
       </TooltipProvider>
     </QueryClientProvider>
   );
