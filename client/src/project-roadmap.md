@@ -26,7 +26,7 @@ This document tracks frontend, backend, and integration status for every core fe
 | **Game of SKATE (Remote Challenge)** | ⚠️ Partial UI | 🟡 Video challenge WIP | Add real-time lobby + timer logic |
 | **Own Your Trick Feature** | 🟡 Design ready | ⚠️ Not linked | Integrate with AR unlock system |
 | **AI Skate Buddy (Beagle)** | ✅ Complete | ✅ Complete | Chat modal with OpenAI API integration working |
-| **Legendary Spot Leaderboard** | ❌ Missing | ⚠️ Concept | Create leaderboard screen + scoring logic |
+| **Legendary Spot Leaderboard** | ✅ Complete | ✅ Complete | Leaderboard page with rankings, stats, and podium display |
 | **Live Streaming / Spectator Lobby** | ⚠️ Placeholder | ❌ Missing | Add WebRTC or streaming API |
 | **Hologram Trick Replay (AR)** | ✅ Complete (`ARTrickViewer.tsx`) | ✅ Complete | Geo-unlock integrated, AR viewer with WebXR support |
 | **Spot-Locked Unlock Logic** | ✅ Complete | ✅ Complete | UI state managed via Zustand with 24hr expiry |

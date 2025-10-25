@@ -36,6 +36,7 @@ const ShopPage = lazy(() => import("./pages/shop"));
 const ClosetPage = lazy(() => import("./pages/closet"));
 const MapPage = lazy(() => import("./pages/map"));
 const SkateGamePage = lazy(() => import("./pages/skate-game"));
+const LeaderboardPage = lazy(() => import("./pages/leaderboard"));
 
 function AppRoutes() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -68,6 +69,7 @@ function AppRoutes() {
           {/* Protected routes with email verification */}
           <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
+          <Route path="/leaderboard" component={() => <ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
         </>
       ) : (
         <>
@@ -86,6 +88,7 @@ function AppRoutes() {
           {/* Protected routes with email verification */}
           <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
+          <Route path="/leaderboard" component={() => <ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
           <Route path="/tutorial" component={() => {
             return user ? <ProtectedRoute><Tutorial userId={user.uid} /></ProtectedRoute> : <Home />;
           }} />
