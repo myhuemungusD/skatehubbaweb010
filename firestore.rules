@@ -1,6 +1,264 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
+    
+    // =========================================================================
+    // HELPER FUNCTIONS
+    // =========================================================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if data has required fields
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+    
+    // Validate string field
+    function isValidString(field, minLen, maxLen) {
+      return request.resource.data[field] is string
+        && request.resource.data[field].size() >= minLen
+        && request.resource.data[field].size() <= maxLen;
+    }
+    
+    // Validate timestamp is recent (within last 5 minutes)
+    function isRecentTimestamp(field) {
+      return request.resource.data[field] is timestamp
+        && request.resource.data[field] >= request.time - duration.value(5, 'm')
+        && request.resource.data[field] <= request.time + duration.value(1, 'm');
+    }
+    
+    // Check if user is participant in a game
+    function isGameParticipant(gameData) {
+      return isAuthenticated() 
+        && (gameData.player1Id == request.auth.uid || gameData.player2Id == request.auth.uid);
+    }
+    
+    // =========================================================================
+    // USER PROFILES
+    // =========================================================================
+    
+    match /users/{userId} {
+      // Users can read their own profile and public profiles of others
+      allow read: if isAuthenticated();
+      
+      // Users can only create/update their own profile
+      allow create: if isOwner(userId)
+        && hasRequiredFields(['userId', 'displayName', 'createdAt'])
+        && isValidString('displayName', 1, 50)
+        && request.resource.data.userId == userId
+        && isRecentTimestamp('createdAt');
+      
+      allow update: if isOwner(userId)
+        // Users cannot change their userId or createdAt
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.createdAt == resource.data.createdAt
+        // Validate updatable fields if they exist
+        && (!('displayName' in request.resource.data) || isValidString('displayName', 1, 50))
+        && (!('photoURL' in request.resource.data) || isValidString('photoURL', 0, 2000))
+        && (!('bio' in request.resource.data) || isValidString('bio', 0, 500))
+        && (!('skillLevel' in request.resource.data) || request.resource.data.skillLevel in ['beginner', 'intermediate', 'advanced', 'pro'])
+        // Allow updatedAt field
+        && (!('updatedAt' in request.resource.data) || request.resource.data.updatedAt is timestamp);
+      
+      allow delete: if isOwner(userId);
+    }
+    
+    // =========================================================================
+    // CHAT MESSAGES (AI Skate Buddy)
+    // =========================================================================
+    
+    match /chat_messages/{messageId} {
+      // Users can read their own messages
+      allow read: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid;
+      
+      // Users can ONLY create user-role messages (not assistant messages)
+      // Assistant messages are created by the server via Admin SDK
+      // NOTE: Rate limiting must be handled server-side (Cloud Functions or backend API)
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && hasRequiredFields(['userId', 'message', 'role', 'createdAt'])
+        && isValidString('message', 1, 5000)
+        // SECURITY FIX: Only allow 'user' role from client
+        && request.resource.data.role == 'user'
+        && isRecentTimestamp('createdAt')
+        // SECURITY FIX: Enforce messageId starts with userId for ownership
+        && messageId.matches('^' + request.auth.uid + '_.*');
+      
+      // Users can update their own user messages (for editing)
+      allow update: if isOwner(resource.data.userId)
+        && resource.data.role == 'user' // Can only edit user messages
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.createdAt == resource.data.createdAt
+        && isValidString('message', 1, 5000)
+        // Allow updatedAt field
+        && (!('updatedAt' in request.resource.data) || request.resource.data.updatedAt is timestamp);
+      
+      // Users can delete their own user messages only
+      allow delete: if isOwner(resource.data.userId) && resource.data.role == 'user';
+    }
+    
+    // =========================================================================
+    // GAME SESSIONS (Real-time SKATE Games)
+    // =========================================================================
+    
+    match /game_sessions/{gameId} {
+      // Players can read games they're participating in
+      allow read: if isAuthenticated() 
+        && (resource.data.player1Id == request.auth.uid 
+            || resource.data.player2Id == request.auth.uid);
+      
+      // Create new game session
+      allow create: if isAuthenticated()
+        && hasRequiredFields(['player1Id', 'player2Id', 'currentTurn', 'status', 'createdAt'])
+        && (request.resource.data.player1Id == request.auth.uid 
+            || request.resource.data.player2Id == request.auth.uid)
+        && request.resource.data.player1Id != request.resource.data.player2Id
+        && request.resource.data.status == 'waiting'
+        && request.resource.data.currentTurn in [request.resource.data.player1Id, request.resource.data.player2Id]
+        && isRecentTimestamp('createdAt');
+      
+      // Update game session (take turn)
+      allow update: if isAuthenticated()
+        && isGameParticipant(resource.data)
+        // Can only update if it's your turn or you're accepting/rejecting
+        && (
+          (resource.data.currentTurn == request.auth.uid && resource.data.status == 'active')
+          || (request.auth.uid == resource.data.player2Id && resource.data.status == 'waiting')
+        )
+        // Cannot change player IDs or creation time
+        && request.resource.data.player1Id == resource.data.player1Id
+        && request.resource.data.player2Id == resource.data.player2Id
+        && request.resource.data.createdAt == resource.data.createdAt
+        // Valid status transitions
+        && request.resource.data.status in ['waiting', 'active', 'completed', 'abandoned']
+        // Allow updatedAt field
+        && (!('updatedAt' in request.resource.data) || request.resource.data.updatedAt is timestamp);
+      
+      // Delete game (abandon)
+      allow delete: if isAuthenticated()
+        && isGameParticipant(resource.data);
+    }
+    
+    // =========================================================================
+    // NOTIFICATIONS
+    // =========================================================================
+    
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid;
+      
+      // Only server can create notifications (via Admin SDK)
+      allow create: if false;
+      
+      // Users can mark their own notifications as read
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.createdAt == resource.data.createdAt
+        // Only allow updating 'read' and 'readAt' fields
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt'])
+        && request.resource.data.read is bool
+        && (!('readAt' in request.resource.data) || request.resource.data.readAt is timestamp);
+      
+      // Users can delete their own notifications
+      allow delete: if isOwner(resource.data.userId);
+    }
+    
+    // =========================================================================
+    // ACTIVE CHECK-INS (Live Spot Activity)
+    // =========================================================================
+    
+    match /active_checkins/{checkinId} {
+      // Anyone can read active check-ins to see who's at spots
+      allow read: if isAuthenticated();
+      
+      // Users can check in to a spot
+      // SECURITY FIX: Enforce checkinId format to enable proper rate limiting
+      allow create: if isAuthenticated()
+        && hasRequiredFields(['userId', 'spotId', 'checkedInAt'])
+        && request.resource.data.userId == request.auth.uid
+        && isValidString('spotId', 1, 100)
+        && isRecentTimestamp('checkedInAt')
+        // SECURITY FIX: Enforce checkinId format userId_spotId
+        && checkinId == request.auth.uid + '_' + request.resource.data.spotId
+        // Optional fields validation
+        && (!('latitude' in request.resource.data) || request.resource.data.latitude is number)
+        && (!('longitude' in request.resource.data) || request.resource.data.longitude is number)
+        && (!('displayName' in request.resource.data) || isValidString('displayName', 1, 50));
+      
+      // Users can update their own check-in (check out)
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.spotId == resource.data.spotId
+        && request.resource.data.checkedInAt == resource.data.checkedInAt
+        // Allow updating checkedOutAt
+        && (!('checkedOutAt' in request.resource.data) || request.resource.data.checkedOutAt is timestamp);
+      
+      // Users can delete their own check-ins
+      allow delete: if isOwner(resource.data.userId);
+    }
+    
+    // =========================================================================
+    // CHALLENGE VOTES (Real-time Voting)
+    // =========================================================================
+    
+    match /challenge_votes/{voteId} {
+      // Anyone can read votes
+      allow read: if isAuthenticated();
+      
+      // Users can create a vote
+      // SECURITY FIX: Enforce voteId format to prevent duplicate votes
+      allow create: if isAuthenticated()
+        && hasRequiredFields(['userId', 'challengeId', 'submissionId', 'voteType', 'createdAt'])
+        && request.resource.data.userId == request.auth.uid
+        && isValidString('challengeId', 1, 100)
+        && isValidString('submissionId', 1, 100)
+        && request.resource.data.voteType in ['upvote', 'downvote']
+        && isRecentTimestamp('createdAt')
+        // SECURITY FIX: Enforce voteId format userId_submissionId to prevent duplicate votes
+        && voteId == request.auth.uid + '_' + request.resource.data.submissionId;
+      
+      // Users can update their own vote (change upvote to downvote or vice versa)
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.challengeId == resource.data.challengeId
+        && request.resource.data.submissionId == resource.data.submissionId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.voteType in ['upvote', 'downvote']
+        && request.resource.data.voteType != resource.data.voteType
+        // Allow updatedAt field
+        && (!('updatedAt' in request.resource.data) || request.resource.data.updatedAt is timestamp);
+      
+      // Users can delete their own votes
+      allow delete: if isOwner(resource.data.userId);
+    }
+    
+    // =========================================================================
+    // LIVE LEADERBOARD
+    // =========================================================================
+    
+    match /leaderboard_live/{userId} {
+      // Everyone can read the leaderboard
+      allow read: if isAuthenticated();
+      
+      // Only server can write leaderboard data (via Admin SDK)
+      allow create, update, delete: if false;
+    }
+    
+    // =========================================================================
+    // LEGACY COLLECTIONS (from previous implementation)
+    // =========================================================================
+    
     // Enhanced signup security with comprehensive validation
     match /signups/{doc} {
       allow create: if
@@ -9,28 +267,21 @@ service cloud.firestore {
         && request.resource.data.email.size() > 3
         && request.resource.data.email.size() < 254
         && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
-
         // Source validation - only allow specific sources
         && request.resource.data.source in ['site', 'app', 'landing']
-
         // Timestamp validation - must be recent (within 5 minutes)
         && request.resource.data.createdAt == request.time
-
         // Rate limiting - prevent rapid submissions
         && (
-          !exists(/databases/$(database)/documents/signups/$(request.auth.uid))
+          !exists(/databases/$(db)/documents/signups/$(request.auth.uid))
           || resource.data.createdAt < request.time - duration.value(1, 'm')
         )
-
         // Honeypot validation - company field should not exist or be empty
         && (!('company' in request.resource.data) || request.resource.data.company == '')
-
         // Required fields only
         && request.resource.data.keys().hasOnly(['email', 'source', 'createdAt', 'userAgent', 'timestamp'])
-
         // UserAgent validation (optional but recommended)
         && (!('userAgent' in request.resource.data) || request.resource.data.userAgent is string)
-
         // Timestamp validation (if provided)
         && (!('timestamp' in request.resource.data) || request.resource.data.timestamp is number);
 
@@ -48,6 +299,10 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // =========================================================================
+    // DEFAULT DENY
+    // =========================================================================
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

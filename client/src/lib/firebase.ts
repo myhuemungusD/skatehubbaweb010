@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { getFirestore } from "firebase/firestore";
 import { env } from '../config/env';
 
 if (typeof window !== 'undefined') {
@@ -23,6 +24,9 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Auth with explicit persistence
 const auth = getAuth(app);
+
+// Initialize Firestore
+const db = getFirestore(app);
 
 // Set explicit persistence to avoid Safari/iframe issues
 if (typeof window !== 'undefined') {
@@ -53,4 +57,4 @@ if (typeof window !== 'undefined' &&
   }).catch(() => {});
 }
 
-export { app, auth, analytics };
+export { app, auth, db, analytics };
