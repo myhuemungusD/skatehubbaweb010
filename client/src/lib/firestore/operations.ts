@@ -49,17 +49,17 @@ export async function createDocument<T extends Record<string, any>>(
   }
 }
 
-export async function updateDocument<T extends Record<string, any>>(
+export async function updateDocument(
   collectionPath: FirestoreCollection,
   documentId: string,
-  data: Partial<T>,
+  data: Record<string, any>,
   options: { addTimestamp?: boolean } = { addTimestamp: false }
 ): Promise<void> {
   const docRef = doc(db, collectionPath, documentId);
   const updateData = options.addTimestamp 
     ? { ...data, updatedAt: serverTimestamp() }
     : data;
-  await updateDoc(docRef as any, updateData);
+  await updateDoc(docRef, updateData);
 }
 
 export async function deleteDocument(
