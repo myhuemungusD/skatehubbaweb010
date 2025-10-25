@@ -530,6 +530,84 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
     }
   });
 
+  // Spot Check-In with Geo-Verification
+  app.post("/api/spots/check-in", async (req, res) => {
+    try {
+      const { spotId, userId, latitude, longitude } = req.body;
+
+      if (!spotId || !userId || latitude === undefined || longitude === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields: spotId, userId, latitude, longitude"
+        });
+      }
+
+      // Mock spot data (in production this would come from database/Firestore)
+      const mockSpots: Record<string, { lat: number; lng: number; name: string }> = {
+        'spot-1': { lat: 40.7128, lng: -74.0060, name: 'Downtown Rails' },
+        'spot-2': { lat: 40.7589, lng: -73.9851, name: 'City Plaza Stairs' },
+        'spot-3': { lat: 40.7829, lng: -73.9654, name: 'Riverside Park' },
+        'spot-4': { lat: 40.7489, lng: -73.9680, name: 'Industrial Ledges' },
+      };
+
+      const spot = mockSpots[spotId];
+      if (!spot) {
+        return res.status(404).json({
+          success: false,
+          message: "Spot not found"
+        });
+      }
+
+      // Calculate distance using Haversine formula
+      const R = 6371e3; // Earth radius in meters
+      const φ1 = (latitude * Math.PI) / 180;
+      const φ2 = (spot.lat * Math.PI) / 180;
+      const Δφ = ((spot.lat - latitude) * Math.PI) / 180;
+      const Δλ = ((spot.lng - longitude) * Math.PI) / 180;
+
+      const a =
+        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c; // Distance in meters
+
+      const MAX_CHECKIN_DISTANCE = 30; // 30 meters as per roadmap
+
+      if (distance > MAX_CHECKIN_DISTANCE) {
+        return res.status(403).json({
+          success: false,
+          message: `You must be within ${MAX_CHECKIN_DISTANCE}m of ${spot.name} to check in. You are ${Math.round(distance)}m away.`,
+          distance: Math.round(distance)
+        });
+      }
+
+      // Grant 24-hour access
+      const now = Date.now();
+      const expiresAt = now + (24 * 60 * 60 * 1000); // 24 hours
+
+      const access = {
+        spotId,
+        accessGrantedAt: now,
+        expiresAt,
+        trickId: `trick_${spotId}_${Date.now()}`,
+        hologramUrl: `/tricks/holograms/${spotId}.glb`
+      };
+
+      res.json({
+        success: true,
+        message: `Successfully checked in at ${spot.name}!`,
+        access,
+        distance: Math.round(distance)
+      });
+    } catch (error) {
+      console.error("Check-in error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error during check-in"
+      });
+    }
+  });
+
   
 
   const httpServer = createServer(app);
