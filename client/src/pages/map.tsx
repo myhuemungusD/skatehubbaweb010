@@ -8,6 +8,8 @@ import { MapPin, Users, CheckCircle, Star, Navigation as NavigationIcon } from '
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/use-toast';
 import { apiRequest, queryClient } from '../lib/queryClient';
+import { ARCheckInButton } from '../components/ARCheckInButton';
+import { ARTrickViewer } from '../components/ARTrickViewer';
 
 interface SkateSpot {
   id: string;
@@ -77,42 +79,6 @@ export default function MapPage() {
       description: 'Variety of ledge heights with perfect wax. Watch for security.',
     },
   ];
-
-  const checkInMutation = useMutation({
-    mutationFn: async (spotId: string) => {
-      return await apiRequest('/api/checkin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spotId, userId: user?.uid }),
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Checked In!',
-        description: 'Successfully checked in at this spot.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/checkins'] });
-    },
-    onError: () => {
-      toast({
-        title: 'Error',
-        description: 'Failed to check in. Please try again.',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const handleCheckIn = (spotId: string) => {
-    if (!isAuthenticated) {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to check in at spots.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    checkInMutation.mutate(spotId);
-  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -256,15 +222,18 @@ export default function MapPage() {
                       </div>
                     </div>
 
-                    <Button
-                      onClick={() => handleCheckIn(selectedSpot.id)}
-                      disabled={checkInMutation.isPending}
-                      className="w-full bg-[#ff6a00] hover:bg-[#e55f00] text-white"
-                      data-testid="button-check-in"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      {checkInMutation.isPending ? 'Checking In...' : 'Check In at This Spot'}
-                    </Button>
+                    <ARCheckInButton
+                      spotId={selectedSpot.id}
+                      spotName={selectedSpot.name}
+                      spotLat={selectedSpot.lat}
+                      spotLng={selectedSpot.lng}
+                      className="w-full"
+                    />
+
+                    <ARTrickViewer
+                      spotId={selectedSpot.id}
+                      spotName={selectedSpot.name}
+                    />
 
                     <div className="text-center">
                       <p className="text-sm text-gray-400">

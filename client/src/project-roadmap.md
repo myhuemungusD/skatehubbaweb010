@@ -19,8 +19,8 @@ This document tracks frontend, backend, and integration status for every core fe
 | **Home Menu + Navigation** | ✅ Done | ✅ Done | Polish animations and responsiveness |
 | **Authentication (Firebase)** | ✅ Working | ✅ Working | Add email verification and profile sync |
 | **Spot Map (Leaflet)** | ✅ Map live | ✅ Firestore connected | Add dynamic filters and clustering |
-| **Check-In System (Geo)** | ⚠️ Partial UI | 🟢 Cloud Function ready (`verifyUserAtSpot`) | Build full check-in button and toast feedback |
-| **AR Mode (Spot View)** | ⚠️ Prototype | 🟡 In progress | Add camera permission flow and toggle UX |
+| **Check-In System (Geo)** | ✅ Complete | ✅ API endpoint ready (`/api/spots/check-in`) | Geo-verification with 30m radius working |
+| **AR Mode (Spot View)** | ✅ Complete | ✅ Complete | Camera permissions, AR toggle, and 2D fallback implemented |
 | **Closet / Profile Customization** | ✅ Layout done | ⚠️ Mock data only | Link avatar + style to Firestore user profile |
 | **Hubba Shop** | ✅ UI shell | ⚠️ No Stripe backend | Connect Stripe test mode + live products |
 | **Game of SKATE (Remote Challenge)** | ⚠️ Partial UI | 🟡 Video challenge WIP | Add real-time lobby + timer logic |
@@ -28,8 +28,8 @@ This document tracks frontend, backend, and integration status for every core fe
 | **AI Skate Buddy (Beagle)** | ⚠️ Concept only | ❌ Missing | Build chat modal + OpenAI API route |
 | **Legendary Spot Leaderboard** | ❌ Missing | ⚠️ Concept | Create leaderboard screen + scoring logic |
 | **Live Streaming / Spectator Lobby** | ⚠️ Placeholder | ❌ Missing | Add WebRTC or streaming API |
-| **Hologram Trick Replay (AR)** | ⚠️ Planned (`ARTrickViewer.tsx`) | ⚠️ Model logic pending | Link to geo-unlock + optimize load |
-| **Spot-Locked Unlock Logic** | ⚠️ Button incomplete | 🟢 Cloud Function ready | Integrate UI state + animation |
+| **Hologram Trick Replay (AR)** | ✅ Complete (`ARTrickViewer.tsx`) | ✅ Complete | Geo-unlock integrated, AR viewer with WebXR support |
+| **Spot-Locked Unlock Logic** | ✅ Complete | ✅ Complete | UI state managed via Zustand with 24hr expiry |
 | **Notifications (Firebase FCM)** | ❌ Missing | ⚠️ Setup incomplete | Add push + in-app alerts |
 | **Pro User Badges** | ⚠️ Placeholder | ⚠️ Needs backend field | Add verification icons and Firestore flag |
 
