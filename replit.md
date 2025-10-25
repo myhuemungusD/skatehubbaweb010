@@ -6,6 +6,9 @@ SkateHubba is a full-stack mobile skateboarding platform featuring a React front
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Project Documentation
+- **CHANGELOG.md**: Tracks all completed features from project-roadmap.md. Each time a feature is marked complete (✅), append a new dated section with completed features and next targets. Keep chronologically ordered (newest on top).
+
 ## System Architecture
 
 ### UI/UX Decisions
@@ -41,6 +44,42 @@ Preferred communication style: Simple, everyday language.
 - **Development & Linting**: TypeScript, Prettier, ESLint
 
 ## Recent Changes
+
+### 2025-10-25 - Completed Core AR & Social Features
+
+**New Features:** Built three major platform features completing the core gameplay and social loop.
+
+**Implementation:**
+
+1. **AR Check-In System with Geo-Verification:**
+   - Created `ARCheckInButton.tsx` component with 30-meter radius geo-verification
+   - Built backend API endpoint `/api/spots/check-in` for location validation
+   - Integrated toast feedback and real-time check-in status updates
+   - Created `useSpotAccess.ts` Zustand store for managing check-in state with 24-hour expiry
+
+2. **AR Trick Viewer (Hologram Replay):**
+   - Created `ARTrickViewer.tsx` component with WebXR support for AR viewing
+   - Implemented locked/unlocked states based on check-in status
+   - Added AR mode toggle with camera permissions handling
+   - Integrated with spot unlock system for seamless gameplay loop
+
+3. **AI Skate Buddy Chat (Beagle):**
+   - Built `AISkateChat.tsx` global chat modal accessible anywhere in app
+   - Integrated OpenAI API for skateboarding-themed AI assistant
+   - Created backend `/api/ai/chat` endpoint with streaming support
+   - Implemented auto-scrolling messages and typing indicators
+
+4. **Legendary Spot Leaderboard:**
+   - Created full leaderboard page at `/leaderboard` with routing
+   - Built podium display for top 3 skaters with gradient cards and trophy icons
+   - Implemented full rankings table with stats: points, check-ins, spots, tricks, streaks
+   - Mobile-responsive design matching SkateHubba theme
+
+5. **Project Documentation:**
+   - Created `CHANGELOG.md` to track all completed features chronologically
+   - Updated `project-roadmap.md` marking 5 features as ✅ Complete
+
+**Result:** Core AR gameplay loop is now functional end-to-end. Users can check in at spots, unlock AR tricks, chat with AI, and compete on leaderboards. All features integrated and ready for production use.
 
 ### 2025-10-15 - Added Google Sign-In
 
