@@ -41,7 +41,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (mobile apps, Postman, curl, same-origin)
     if (!origin) return callback(null, true);
     
     // In development, allow any .replit.dev or localhost
@@ -50,12 +50,24 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow .replit.app domains (production)
+    if (origin.includes('.replit.app')) {
+      return callback(null, true);
+    }
+    
     // Check whitelist
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     
-    // Reject
+    // Fallback: allow in development mode to avoid blocking
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('CORS: Allowing origin in development:', origin);
+      return callback(null, true);
+    }
+    
+    // Reject only in production
+    console.error('CORS: Rejecting origin:', origin);
     callback(new Error('CORS policy violation'));
   },
   credentials: true,
