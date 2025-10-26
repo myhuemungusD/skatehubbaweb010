@@ -306,6 +306,14 @@ export async function registerRoutes(app: express.Application): Promise<void> {
   // Stripe payment routes with enhanced security
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
+      // Check if Stripe is configured
+      if (!stripe) {
+        console.error("Stripe not configured - STRIPE_SECRET_KEY missing");
+        return res.status(503).json({ 
+          error: "Payment service not configured. Please contact support." 
+        });
+      }
+
       const clientIP = req.ip || req.connection.remoteAddress;
       const userAgent = req.get('User-Agent');
 
