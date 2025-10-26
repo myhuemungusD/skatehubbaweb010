@@ -1,0 +1,33 @@
+name: Lighthouse
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Detect package manager
+        id: pm
+        run: |
+          if [ -f pnpm-lock.yaml ]; then echo "pm=pnpm" >> $GITHUB_OUTPUT; else echo "pm=npm" >> $GITHUB_OUTPUT; fi
+      - name: Setup pnpm
+        if: steps.pm.outputs.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - name: Install deps
+        run: |
+          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then pnpm install --frozen-lockfile; else npm ci; fi
+      - name: Build site
+        run: (npm run -s build || npx -y vite build)
+      - name: Serve preview
+        run: npx -y http-server ./dist -p 4173 & sleep 3
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            http://127.0.0.1:4173/
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true

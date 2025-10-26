@@ -1,0 +1,51 @@
+name: CI
+on:
+  push: { branches: [ main ] }
+  pull_request:
+jobs:
+  build_lint_typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Detect package manager
+        id: pm
+        run: |
+          if [ -f pnpm-lock.yaml ]; then echo "pm=pnpm" >> $GITHUB_OUTPUT; else echo "pm=npm" >> $GITHUB_OUTPUT; fi
+      - name: Setup pnpm
+        if: steps.pm.outputs.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - name: Install deps
+        run: |
+          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then pnpm install --frozen-lockfile; else npm ci; fi
+      - name: Typecheck
+        run: |
+          (npm run -s typecheck || npx -y typescript tsc --noEmit) || { echo "🔴 Type-check failed. Fix TS errors (run: npx tsc --noEmit)."; exit 1; }
+      - name: Lint
+        run: |
+          (npm run -s lint || npx -y eslint@latest . --max-warnings=0) || { echo "🔴 Lint failed. Fix with: npx eslint . --fix"; exit 1; }
+      - name: Build
+        run: |
+          (npm run -s build || npx -y vite build) || { echo "🔴 Build failed. Check Vite errors."; exit 1; }
+      - name: Upload build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+  rules_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block insecure Firestore/Storage rules
+        run: |
+          bad=0
+          for f in firestore.rules storage.rules; do
+            if [ -f "$f" ] && grep -nE "allow\s+read,\s*write:\s*if\s*true" "$f"; then bad=1; fi
+          done
+          if [ $bad -eq 1 ]; then
+            echo "🔴 Insecure rule detected: 'allow read, write: if true' — tighten access." && exit 1
+          fi
