@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { applyActionCode, getAuth } from "firebase/auth";
-import { auth } from "../lib/firebase";
 import { Card, CardContent } from "../components/ui/card";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -15,10 +14,21 @@ export default function AuthVerifyPage() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
+        // Import auth dynamically to catch initialization errors
+        const { auth } = await import("../lib/firebase");
+        
+        if (!auth) {
+          setStatus("error");
+          setMessage("Firebase authentication not configured. Please contact support.");
+          return;
+        }
+
         // Get the action code from URL query params
         const urlParams = new URLSearchParams(window.location.search);
         const mode = urlParams.get('mode');
         const oobCode = urlParams.get('oobCode');
+
+        console.log('Verification attempt:', { mode, hasCode: !!oobCode });
 
         if (mode === 'verifyEmail' && oobCode) {
           // Apply the verification code
