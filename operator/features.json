@@ -1,0 +1,23 @@
+{
+  "tasks": [
+    {
+      "name": "Enable Google Sign-In",
+      "script": "scripts/setup-oauth.mjs",
+      "description": "Ensures Firebase Auth and Google Cloud credentials are configured"
+    },
+    {
+      "name": "Verify Firestore Security Rules",
+      "script": "scripts/check-firestore-rules.mjs"
+    },
+    {
+      "name": "UI Component Sync",
+      "script": "scripts/sync-ui.mjs",
+      "description": "Scans src/components for missing imports or lazy-loaded routes"
+    },
+    {
+      "name": "Live PWA Audit",
+      "script": "scripts/audit-pwa.mjs",
+      "description": "Checks service worker, manifest, and offline cache"
+    }
+  ]
+}
