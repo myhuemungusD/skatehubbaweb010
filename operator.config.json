@@ -1,0 +1,32 @@
+{
+  "project": "SkateHubba",
+  "repo": "myhuemungusD/skatehubbaweb010",
+  "environments": {
+    "development": {
+      "platform": "replit",
+      "build": "npm run dev",
+      "deploy": "replit publish"
+    },
+    "production": {
+      "platform": "vercel",
+      "build": "npm run build",
+      "deploy": "vercel --prod"
+    }
+  },
+  "services": {
+    "firebase": {
+      "auth": true,
+      "firestore": true,
+      "storage": true,
+      "analytics": true
+    },
+    "stripe": {
+      "enabled": true
+    }
+  },
+  "actions": {
+    "test_ui": "npm run test:ui",
+    "lint": "npm run check",
+    "push_to_github": "git add . && git commit -m 'operator sync' && git push origin main"
+  }
+}
