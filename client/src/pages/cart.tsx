@@ -10,7 +10,11 @@ export default function CartPage() {
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="mx-auto max-w-4xl p-6">
         <div className="mb-8">
-          <Link href="/shop" className="text-orange-500 hover:text-orange-400 mb-4 inline-block">
+          <Link 
+            href="/shop" 
+            className="text-orange-500 hover:text-orange-400 mb-4 inline-block"
+            data-testid="link-back-to-shop"
+          >
             ← Back to Shop
           </Link>
           <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -20,12 +24,13 @@ export default function CartPage() {
         </div>
 
         {snap.items.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="text-center py-20" data-testid="cart-page-empty">
             <ShoppingCart className="w-24 h-24 mx-auto text-gray-600 mb-6" />
             <p className="text-xl text-gray-400 mb-6">Your cart is empty.</p>
             <Link 
               href="/shop" 
               className="inline-block bg-orange-600 hover:bg-orange-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+              data-testid="link-continue-shopping"
             >
               Continue Shopping
             </Link>
@@ -67,6 +72,7 @@ export default function CartPage() {
                             onClick={() => setQty(i.id, i.quantity - 1)}
                             className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
                             aria-label="Decrease quantity"
+                            data-testid={`button-decrease-quantity-${i.id}`}
                           >
                             <Minus className="w-4 h-4" />
                           </button>
@@ -82,12 +88,13 @@ export default function CartPage() {
                             onClick={() => setQty(i.id, i.quantity + 1)}
                             className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
                             aria-label="Increase quantity"
+                            data-testid={`button-increase-quantity-${i.id}`}
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-center font-semibold hidden sm:table-cell">
+                      <td className="py-4 px-6 text-center font-semibold hidden sm:table-cell" data-testid={`cart-item-total-${i.id}`}>
                         ${(i.price * i.quantity).toFixed(2)}
                       </td>
                       <td className="py-4 px-6 text-center">

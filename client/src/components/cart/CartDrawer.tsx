@@ -34,7 +34,10 @@ export default function CartDrawer() {
         <ShoppingCart className="w-5 h-5" />
         <span className="hidden sm:inline">Cart</span>
         {snap.count > 0 && (
-          <span className="absolute -top-2 -right-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-orange-600 text-white text-xs font-bold px-1.5">
+          <span 
+            className="absolute -top-2 -right-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-orange-600 text-white text-xs font-bold px-1.5"
+            data-testid="cart-badge-count"
+          >
             {snap.count}
           </span>
         )}
@@ -46,6 +49,7 @@ export default function CartDrawer() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setOpen(false)}
             aria-hidden
+            data-testid="cart-drawer-overlay"
           />
           <div
             ref={panelRef}
@@ -63,13 +67,14 @@ export default function CartDrawer() {
                 onClick={() => setOpen(false)} 
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label="Close cart"
+                data-testid="button-close-cart-drawer"
               >
                 <X className="w-5 h-5 text-white" />
               </button>
             </div>
 
             {snap.items.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12" data-testid="cart-drawer-empty">
                 <ShoppingCart className="w-16 h-16 mx-auto text-gray-600 mb-4" />
                 <p className="text-gray-400">Your cart is empty.</p>
               </div>
@@ -102,6 +107,7 @@ export default function CartDrawer() {
                             onClick={() => setQty(i.id, i.quantity - 1)}
                             className="p-1 hover:bg-gray-700 rounded transition-colors"
                             aria-label="Decrease quantity"
+                            data-testid={`button-decrease-quantity-${i.id}`}
                           >
                             <Minus className="w-4 h-4 text-white" />
                           </button>
@@ -117,6 +123,7 @@ export default function CartDrawer() {
                             onClick={() => setQty(i.id, i.quantity + 1)}
                             className="p-1 hover:bg-gray-700 rounded transition-colors"
                             aria-label="Increase quantity"
+                            data-testid={`button-increase-quantity-${i.id}`}
                           >
                             <Plus className="w-4 h-4 text-white" />
                           </button>
@@ -129,7 +136,7 @@ export default function CartDrawer() {
                 <div className="border-t border-gray-700 pt-4">
                   <div className="flex justify-between text-lg mb-6">
                     <span className="text-gray-400">Subtotal</span>
-                    <span className="font-bold text-white">${snap.subtotal.toFixed(2)}</span>
+                    <span className="font-bold text-white" data-testid="cart-drawer-subtotal">${snap.subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex gap-3">
                     <button 
