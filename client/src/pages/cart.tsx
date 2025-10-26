@@ -131,16 +131,16 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => alert(`Proceeding to payment. Subtotal: $${snap.subtotal.toFixed(2)}\n\nStripe integration coming soon!`)}
-                className="w-full rounded-lg bg-orange-600 hover:bg-orange-700 text-white px-6 py-4 text-lg font-semibold transition-colors"
+              <Link
+                href="/checkout"
+                className="block w-full text-center rounded-lg bg-orange-600 hover:bg-orange-700 text-white px-6 py-4 text-lg font-semibold transition-colors"
                 data-testid="button-pay-now"
               >
                 Proceed to Payment
-              </button>
+              </Link>
               
               <p className="text-center text-sm text-gray-400 mt-4">
-                Stripe checkout integration coming soon 🛹
+                🔒 Secure payment powered by Stripe
               </p>
             </div>
           </>

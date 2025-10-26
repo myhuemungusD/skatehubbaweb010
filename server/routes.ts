@@ -652,7 +652,81 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
     }
   });
 
-  
+  // Stripe payment endpoint for shopping cart checkout
+  // SECURITY: Server-side price calculation to prevent client tampering
+  app.post("/api/create-shop-payment-intent", async (req: Request, res: Response) => {
+    try {
+      if (!stripe) {
+        return res.status(500).json({ message: "Stripe is not configured" });
+      }
+
+      const clientIP = req.ip || req.connection.remoteAddress;
+      const { items } = req.body;
+
+      // Validate items array
+      if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ message: "Invalid cart items" });
+      }
+
+      // Authoritative product pricing - THIS IS THE SOURCE OF TRUTH
+      const productPrices: Record<string, number> = {
+        "skatehubba-tee": 29.99,
+        "trick-pack": 49.99,
+        "pro-badge": 14.99,
+      };
+
+      // Calculate total server-side from authoritative prices
+      let totalAmount = 0;
+      const validatedItems = [];
+
+      for (const item of items) {
+        if (!item.id || !item.quantity || typeof item.quantity !== 'number') {
+          return res.status(400).json({ message: "Invalid item format" });
+        }
+
+        const price = productPrices[item.id];
+        if (price === undefined) {
+          return res.status(400).json({ message: `Invalid product ID: ${item.id}` });
+        }
+
+        if (item.quantity < 1 || item.quantity > 99 || !Number.isInteger(item.quantity)) {
+          return res.status(400).json({ message: "Invalid quantity" });
+        }
+
+        totalAmount += price * item.quantity;
+        validatedItems.push({ id: item.id, quantity: item.quantity, price });
+      }
+
+      // Validate total amount
+      if (totalAmount < 0.50 || totalAmount > 10000) {
+        return res.status(400).json({ message: "Amount must be between $0.50 and $10,000" });
+      }
+
+      // Log payment attempt for security monitoring
+      console.log(`Shop payment attempt: $${totalAmount.toFixed(2)} from IP: ${clientIP}, items: ${validatedItems.length}`);
+
+      // Create a PaymentIntent with the server-calculated amount
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(totalAmount * 100), // Convert to cents
+        currency: "usd",
+        description: `SkateHubba Shop - ${validatedItems.length} items`,
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          items: JSON.stringify(validatedItems),
+          ip: clientIP || "unknown",
+        },
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error("Stripe payment intent error:", error);
+      res.status(500).json({ 
+        message: "Error creating payment intent: " + (error.message || "Unknown error")
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

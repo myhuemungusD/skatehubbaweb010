@@ -35,6 +35,8 @@ const VerifyEmailPage = lazy(() => import("./pages/verify-email"));
 const VerifiedPage = lazy(() => import("./pages/verified"));
 const ShopPage = lazy(() => import("./pages/shop"));
 const CartPage = lazy(() => import("./pages/cart"));
+const CheckoutPage = lazy(() => import("./pages/checkout"));
+const OrderConfirmationPage = lazy(() => import("./pages/order-confirmation"));
 const ClosetPage = lazy(() => import("./pages/closet"));
 const MapPage = lazy(() => import("./pages/map"));
 const SkateGamePage = lazy(() => import("./pages/skate-game"));
@@ -60,6 +62,8 @@ function AppRoutes() {
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
           <Route path="/cart" component={CartPage} />
+          <Route path="/checkout" component={CheckoutPage} />
+          <Route path="/order-confirmation" component={OrderConfirmationPage} />
           <Route path="/closet" component={ClosetPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/signup" component={SignupPage} />
@@ -81,6 +85,8 @@ function AppRoutes() {
           <Route path="/donate" component={DonationPage} />
           <Route path="/shop" component={ShopPage} />
           <Route path="/cart" component={CartPage} />
+          <Route path="/checkout" component={CheckoutPage} />
+          <Route path="/order-confirmation" component={OrderConfirmationPage} />
           <Route path="/closet" component={ClosetPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/signup" component={SignupPage} />
