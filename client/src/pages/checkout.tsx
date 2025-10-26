@@ -124,8 +124,11 @@ export default function Checkout() {
     // Create PaymentIntent as soon as the page loads
     const createPaymentIntent = async (retryCount = 0) => {
       try {
+        // Convert dollars to cents (Stripe requires integer cents)
+        const amountInCents = Math.round(snap.subtotal * 100);
+        
         const response = await apiRequest("POST", "/api/create-payment-intent", {
-          amount: snap.subtotal,
+          amount: amountInCents,
           currency: "usd",
           description: `SkateHubba Shop - ${snap.items.length} item(s)`
         });

@@ -57,8 +57,8 @@
     <meta name="msvalidate.01" content="" />
     <meta name="google-site-verification" content="" />
 
-    <!-- Firebase Auth CSP -->
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://apis.google.com https://*.googleapis.com https://*.gstatic.com https://*.replit.dev https://*.repl.co;">
+    <!-- Firebase Auth & Stripe CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.google.com https://www.gstatic.com; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://apis.google.com https://*.googleapis.com https://*.gstatic.com https://*.replit.dev https://*.repl.co https://api.stripe.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.google.com;">
 
     <!-- Performance optimizations -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" as="style" type="text/css" crossorigin>
