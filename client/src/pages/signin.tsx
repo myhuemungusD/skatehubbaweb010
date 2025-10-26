@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ConfirmationResult } from "firebase/auth";
 import { loginUser, loginWithGoogle, setupRecaptcha, sendPhoneVerification, verifyPhoneCode } from "../lib/auth";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -14,7 +15,7 @@ export default function SigninPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtp, setShowOtp] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -84,19 +85,19 @@ export default function SigninPage() {
 
   async function handleSendCode() {
     setIsLoading(true);
-    
+
     try {
-      const recaptchaVerifier = setupRecaptcha("recaptcha-container");
+      const recaptchaVerifier = await setupRecaptcha("recaptcha-container");
       const confirmation = await sendPhoneVerification(phone, recaptchaVerifier);
       setConfirmationResult(confirmation);
       setShowOtp(true);
-      toast({ 
+      toast({
         title: "Code sent! 📱",
         description: "Check your phone for the verification code."
       });
     } catch (err: any) {
-      toast({ 
-        title: "Failed to send code", 
+      toast({
+        title: "Failed to send code",
         description: err.message,
         variant: "destructive"
       });
@@ -107,18 +108,22 @@ export default function SigninPage() {
 
   async function handleVerifyCode() {
     setIsLoading(true);
-    
+
     try {
+      if (!confirmationResult) {
+        throw new Error("Request a verification code before entering the OTP.");
+      }
+
       await verifyPhoneCode(confirmationResult, otp);
-      toast({ 
+      toast({
         title: "Welcome back! 🛹",
         description: "You've successfully signed in."
       });
       window.location.href = "/";
     } catch (err: any) {
-      toast({ 
-        title: "Verification failed", 
-        description: "Invalid code. Please try again.",
+      toast({
+        title: "Verification failed",
+        description: err instanceof Error ? err.message : "Invalid code. Please try again.",
         variant: "destructive"
       });
     } finally {

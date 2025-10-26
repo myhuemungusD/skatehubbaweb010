@@ -5,8 +5,8 @@ import { useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import type { ConfirmationResult } from "firebase/auth";
+import { registerUser, loginUser, loginWithGoogle, setupRecaptcha, sendPhoneVerification, verifyPhoneCode } from "../lib/auth";
 import { trackEvent } from "../lib/analytics";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -25,7 +25,7 @@ export default function AuthPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtp, setShowOtp] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isPhoneLoading, setIsPhoneLoading] = useState(false);
 
@@ -52,18 +52,10 @@ export default function AuthPage() {
   // Registration mutation - Firebase-only with email verification
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterInput) => {
-      // 1. Create Firebase user
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      const firebaseUser = userCredential.user;
-
-      // 2. Update Firebase profile
-      await updateProfile(firebaseUser, {
-        displayName: `${data.firstName} ${data.lastName}`.trim()
+      const firebaseUser = await registerUser(data.email, data.password, {
+        firstName: data.firstName,
+        lastName: data.lastName,
       });
-
-      // 3. Send email verification (without custom URL to avoid domain allowlist issues)
-      const { sendEmailVerification } = await import('firebase/auth');
-      await sendEmailVerification(firebaseUser);
 
       trackEvent('sign_up', { method: 'firebase' });
       return firebaseUser;
@@ -90,19 +82,9 @@ export default function AuthPage() {
   // Login mutation - Firebase-only with email verification check
   const loginMutation = useMutation({
     mutationFn: async (data: LoginInput) => {
-      // 1. Authenticate with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      const firebaseUser = userCredential.user;
-
-      // 2. Check email verification
-      if (!firebaseUser.emailVerified) {
-        const { signOut } = await import('firebase/auth');
-        await signOut(auth);
-        throw new Error("Please verify your email before logging in.");
-      }
-
+      const result = await loginUser(data.email, data.password);
       trackEvent('login', { method: 'firebase' });
-      return firebaseUser;
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -134,29 +116,8 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const firebaseUser = userCredential.user;
-
-      // Get ID token and authenticate with backend
-      const idToken = await firebaseUser.getIdToken();
-      
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({}),
-        credentials: 'include',
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
-      }
-
-      toast({ 
+      await loginWithGoogle();
+      toast({
         title: "Welcome! 🛹",
         description: "You've successfully signed in with Google."
       });
@@ -173,24 +134,14 @@ export default function AuthPage() {
     }
   };
 
-  // Phone Authentication
-  const setupRecaptcha = (elementId: string): RecaptchaVerifier => {
-    return new RecaptchaVerifier(auth, elementId, {
-      size: 'invisible',
-      callback: () => {
-        // reCAPTCHA solved
-      }
-    });
-  };
-
   const handleSendCode = async () => {
     setIsPhoneLoading(true);
     try {
-      const recaptchaVerifier = setupRecaptcha("recaptcha-container");
-      const confirmation = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+      const recaptchaVerifier = await setupRecaptcha("recaptcha-container");
+      const confirmation = await sendPhoneVerification(phone, recaptchaVerifier);
       setConfirmationResult(confirmation);
       setShowOtp(true);
-      toast({ 
+      toast({
         title: "Code sent! 📱",
         description: "Check your phone for the verification code."
       });
@@ -208,37 +159,21 @@ export default function AuthPage() {
   const handleVerifyCode = async () => {
     setIsPhoneLoading(true);
     try {
-      const userCredential = await confirmationResult.confirm(otp);
-      const firebaseUser = userCredential.user;
-      
-      // Get ID token and authenticate with backend
-      const idToken = await firebaseUser.getIdToken();
-      
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({}),
-        credentials: 'include',
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
+      if (!confirmationResult) {
+        throw new Error("Request a verification code before entering the OTP.");
       }
 
-      toast({ 
+      await verifyPhoneCode(confirmationResult, otp);
+      toast({
         title: "Welcome! 🛹",
         description: "You've successfully signed in."
       });
       trackEvent('login', { method: 'phone' });
       window.location.href = "/";
     } catch (err: any) {
-      toast({ 
-        title: "Verification failed", 
-        description: "Invalid code. Please try again.",
+      toast({
+        title: "Verification failed",
+        description: err instanceof Error ? err.message : "Invalid code. Please try again.",
         variant: "destructive"
       });
     } finally {
