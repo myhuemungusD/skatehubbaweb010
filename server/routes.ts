@@ -1,5 +1,4 @@
 import express, { type Request, type Response, type NextFunction } from "express";
-import { createServer, type Server } from "http";
 import { z } from "zod";
 import { subscribeLimit } from "./index";
 import { Resend } from "resend";
@@ -143,12 +142,9 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request, res: Response, n
   }
 };
 
-export async function registerRoutes(app: express.Application): Promise<Server> {
-  // Initialize database on startup
-  await initializeDatabase();
-
-  // Firebase Authentication Routes
-  setupAuthRoutes(app);
+export async function registerRoutes(app: express.Application): Promise<void> {
+  // Database is initialized in server/index.js, no need to do it again
+  // Firebase Auth routes are set up in server/index.js, no need to do it again
 
   app.get('/api/health', (req: Request, res: Response) => {
     res.status(200).json({
@@ -651,9 +647,4 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
       });
     }
   });
-
-  
-
-  const httpServer = createServer(app);
-  return httpServer;
 }
