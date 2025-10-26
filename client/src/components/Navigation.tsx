@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
 import { Home, ShoppingCart, DollarSign, LogIn, User, Package, Map, Gamepad2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import CartDrawer from "./cart/CartDrawer";
 
 export default function Navigation() {
   const [location] = useLocation();
@@ -49,6 +50,8 @@ export default function Navigation() {
                   </Link>
                 );
               })}
+
+            <CartDrawer />
 
             {!isAuthenticated ? (
               <Link href="/auth">

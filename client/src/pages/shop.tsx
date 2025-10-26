@@ -1,7 +1,7 @@
-import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import Navigation from "../components/Navigation";
-import { ShoppingCart, Package, Shirt, Award } from "lucide-react";
+import { Package, Shirt, Award } from "lucide-react";
+import AddToCartButton from "../components/cart/AddToCartButton";
 
 export default function ShopPage() {
   return (
@@ -30,10 +30,12 @@ export default function ShopPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold text-[#24d52b]">$29.99</span>
-                <Button className="bg-[#ff6a00] hover:bg-[#e55f00] text-black" data-testid="button-add-to-cart-1">
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Add to Cart
-                </Button>
+                <AddToCartButton 
+                  id="skatehubba-tee"
+                  name="SkateHubba Tee"
+                  price={29.99}
+                  quantity={1}
+                />
               </div>
             </CardContent>
           </Card>
@@ -49,10 +51,12 @@ export default function ShopPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold text-[#24d52b]">$49.99</span>
-                <Button className="bg-[#ff6a00] hover:bg-[#e55f00] text-black" data-testid="button-add-to-cart-2">
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Add to Cart
-                </Button>
+                <AddToCartButton 
+                  id="trick-pack"
+                  name="Trick Pack"
+                  price={49.99}
+                  quantity={1}
+                />
               </div>
             </CardContent>
           </Card>
@@ -68,10 +72,12 @@ export default function ShopPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold text-[#24d52b]">$14.99</span>
-                <Button className="bg-[#ff6a00] hover:bg-[#e55f00] text-black" data-testid="button-add-to-cart-3">
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Add to Cart
-                </Button>
+                <AddToCartButton 
+                  id="pro-badge"
+                  name="Pro Badge"
+                  price={14.99}
+                  quantity={1}
+                />
               </div>
             </CardContent>
           </Card>
