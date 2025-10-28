@@ -1,11 +1,10 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { subscribeLimit } from "./index";
 import { Resend } from "resend";
-import { db, eq } from "./db";
-import { users, insertUserSchema, selectUserSchema, tutorialSteps, userProgress } from "../shared/schema";
-import { hashPassword, comparePassword } from "./storage";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import { users, tutorialSteps, userProgress } from "../shared/schema";
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -88,7 +87,7 @@ const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json({ error: "Invalid or missing API key" });
   }
 
-  const providedKey = Buffer.from(apiKey, 'utf8');
+  const providedKey = Buffer.from(Array.isArray(apiKey) ? apiKey[0] : apiKey, 'utf8');
   const validKey = Buffer.from(env.ADMIN_API_KEY, 'utf8');
 
   if (!crypto.timingSafeEqual(providedKey, validKey)) {
@@ -127,7 +126,7 @@ const validateUserAccess = (req: Request & { user?: any }, res: Response, next: 
 // Remove old authentication - now using Replit Auth
 
 // Request validation middleware
-const validateRequest = (schema: z.ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+const validateRequest = (schema: z.ZodSchema) => (req: Request & { validatedBody?: any }, res: Response, next: NextFunction) => {
   try {
     const result = schema.safeParse(req.body);
     if (!result.success) {
@@ -148,7 +147,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   await initializeDatabase();
 
   // Firebase Authentication Routes
-  setupAuthRoutes(app);
+  setupAuthRoutes(app as any);
 
   app.get('/api/health', (req: Request, res: Response) => {
     res.status(200).json({
@@ -340,6 +339,10 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
       // Generate idempotency key for payment safety
       const idempotencyKey = crypto.randomUUID();
 
+      if (!stripe) {
+        return res.status(503).json({ error: "Payment service is currently unavailable" });
+      }
+
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: currency.toLowerCase(),
@@ -372,6 +375,11 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   app.get("/api/payment-intent/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      
+      if (!stripe) {
+        return res.status(503).json({ error: "Payment service is currently unavailable" });
+      }
+      
       const paymentIntent = await stripe.paymentIntents.retrieve(id);
 
       res.json({
@@ -396,6 +404,10 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
 
       if (!paymentIntentId || !firstName) {
         return res.status(400).json({ error: "Payment intent ID and first name are required" });
+      }
+
+      if (!stripe) {
+        return res.status(503).json({ error: "Payment service is currently unavailable" });
       }
 
       // Verify payment with Stripe
@@ -459,7 +471,7 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
         isActive: true, // service-level default
       });
 
-      await sendSubscriberNotification(email, firstName || "");
+      await sendSubscriberNotification({ email, firstName: firstName || "" });
 
       return res.status(201).json({ 
         ok: true, 
@@ -490,6 +502,10 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   // OpenAI Assistant route (legacy)
   app.post("/api/assistant", async (req, res) => {
     try {
+      if (!openai) {
+        return res.status(503).json({ ok: false, error: "AI service is currently unavailable" });
+      }
+
       const { persona = "filmer", messages = [] } = req.body || {};
 
       const system =
@@ -677,7 +693,7 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
 
       // Calculate total server-side from authoritative prices
       let totalAmount = 0;
-      const validatedItems = [];
+      const validatedItems: Array<{ id: string; quantity: number; price: number }> = [];
 
       for (const item of items) {
         if (!item.id || !item.quantity || typeof item.quantity !== 'number') {
@@ -704,6 +720,10 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
 
       // Log payment attempt for security monitoring
       console.log(`Shop payment attempt: $${totalAmount.toFixed(2)} from IP: ${clientIP}, items: ${validatedItems.length}`);
+
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service is currently unavailable" });
+      }
 
       // Create a PaymentIntent with the server-calculated amount
       const paymentIntent = await stripe.paymentIntents.create({
