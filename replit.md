@@ -45,6 +45,25 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### 2025-10-28 - Fixed Graffiti Font & PWA Icons + Firestore Real-Time Features
+
+**Font Issue Resolution:**
+- Fixed JSON parsing errors caused by missing PWA icon files (icon-192.png, icon-512.png, favicon files)
+- Generated SkateHubba graffiti-style app icon and created all required icon formats
+- Removed `font-orbitron` and `font-inter` class overrides throughout the app
+- Restored Permanent Marker graffiti font as default across all pages and components
+- Updated SkateHubbaLogo.tsx to use Permanent Marker instead of system-ui fonts
+
+**Firestore Real-Time Integration (Architect-Approved ✅):**
+- Created `useChatStore.ts` - Zustand store for real-time chat messages with Firestore
+- Created `usePresenceStore.ts` - User presence tracking with 5-minute activity window and stale session cleanup
+- Created `useFirestoreListeners.ts` - Auto-manage Firestore listeners with 2-minute heartbeat
+- Fixed presence expiry bug by computing freshness window on each snapshot
+- Dual database architecture: PostgreSQL for core data, Firestore for real-time features
+- Production-ready with proper error handling, TypeScript types, and connection state tracking
+
+**Result:** Clean logs, graffiti style restored throughout, real-time features ready for production.
+
 ### 2025-10-25 - Completed Core AR & Social Features
 
 **New Features:** Built three major platform features completing the core gameplay and social loop.

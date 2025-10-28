@@ -9,7 +9,7 @@
             document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
 
           return (
-            <BackgroundCarousel className="text-white font-inter">
+            <BackgroundCarousel className="text-white">
               {/* Navigation */}
               <Navigation />
 
@@ -17,7 +17,7 @@
               <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 bg-gradient-to-b from-black/70 to-black/90">
                 <div className="absolute inset-0 bg-[url('/graffiti-wall.jpg')] bg-cover bg-center opacity-40" />
                 <div className="relative z-10 max-w-5xl mx-auto space-y-8">
-                  <h1 className="text-6xl md:text-7xl font-extrabold font-orbitron tracking-tight leading-tight">
+                  <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-tight">
                     Own Your Tricks.
                     <br />
                     <span className="text-orange-500">Play SKATE Anywhere.</span>
@@ -45,7 +45,7 @@
 
               {/* SOCIAL PROOF */}
               <section className="py-20 bg-black text-center border-t border-orange-500/10">
-                <h2 className="text-3xl font-orbitron mb-6 text-orange-400">
+                <h2 className="text-3xl mb-6 text-orange-400">
                   Join 1,000+ Skaters
                 </h2>
                 <p className="text-gray-400 max-w-2xl mx-auto text-lg">
@@ -62,7 +62,7 @@
 
               {/* FEATURE GRID */}
               <section className="py-28 bg-gradient-to-b from-zinc-900 to-black text-white border-t border-orange-500/10">
-                <h2 className="text-4xl font-orbitron text-center mb-16 text-orange-400">
+                <h2 className="text-4xl text-center mb-16 text-orange-400">
                   What Makes SkateHubba Different
                 </h2>
 
@@ -105,7 +105,7 @@
 
               {/* COLLECTIBLES */}
               <section className="py-28 bg-black border-t border-orange-500/10 text-center">
-                <h2 className="text-4xl md:text-5xl font-orbitron font-bold mb-8 text-orange-400">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 text-orange-400">
                   Mint Your Moments.
                 </h2>
                 <p className="text-gray-300 max-w-3xl mx-auto text-lg mb-10">
