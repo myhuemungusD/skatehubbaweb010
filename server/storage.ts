@@ -1,8 +1,8 @@
 import {
-  users, tutorialSteps, userProgress, subscribers, products, orders,
+  users, tutorialSteps, userProgress, subscribers, products, orders, spots,
   type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber,
-  type Product, type InsertProduct, type Order, type InsertOrder
+  type Product, type InsertProduct, type Order, type InsertOrder, type Spot, type InsertSpot
 } from "../shared/schema.ts";
 import { CreateSubscriber } from "./storage/types.ts";
 import { db } from "./db";
@@ -51,6 +51,11 @@ export interface IStorage {
   getOrders(userId?: string): Promise<Order[]>;
   getOrder(id: number): Promise<Order | undefined>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+
+  // Spot methods
+  getAllSpots(): Promise<Spot[]>;
+  getSpot(spotId: string): Promise<Spot | undefined>;
+  createSpot(spot: InsertSpot): Promise<Spot>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -352,6 +357,30 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     return updatedOrder || undefined;
+  }
+
+  // Spot methods
+  async getAllSpots(): Promise<Spot[]> {
+    return await db
+      .select()
+      .from(spots)
+      .orderBy(spots.id);
+  }
+
+  async getSpot(spotId: string): Promise<Spot | undefined> {
+    const [spot] = await db
+      .select()
+      .from(spots)
+      .where(eq(spots.id, spotId));
+    return spot || undefined;
+  }
+
+  async createSpot(spot: InsertSpot): Promise<Spot> {
+    const [newSpot] = await db
+      .insert(spots)
+      .values(spot as any)
+      .returning();
+    return newSpot;
   }
 }
 

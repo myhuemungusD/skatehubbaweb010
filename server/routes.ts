@@ -609,6 +609,30 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
     }
   });
 
+  // Spots endpoints
+  app.get("/api/spots", async (req: Request, res: Response) => {
+    try {
+      const spots = await storage.getAllSpots();
+      res.json(spots);
+    } catch (error) {
+      console.error("Error fetching spots:", error);
+      res.status(500).json({ error: "Failed to fetch spots" });
+    }
+  });
+
+  app.get("/api/spots/:spotId", async (req: Request, res: Response) => {
+    try {
+      const spot = await storage.getSpot(req.params.spotId);
+      if (!spot) {
+        return res.status(404).json({ error: "Spot not found" });
+      }
+      res.json(spot);
+    } catch (error) {
+      console.error("Error fetching spot:", error);
+      res.status(500).json({ error: "Failed to fetch spot" });
+    }
+  });
+
   // Spot Check-In with Geo-Verification
   app.post("/api/spots/check-in", async (req, res) => {
     try {
@@ -621,15 +645,8 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
         });
       }
 
-      // Mock spot data (in production this would come from database/Firestore)
-      const mockSpots: Record<string, { lat: number; lng: number; name: string }> = {
-        'spot-1': { lat: 40.7128, lng: -74.0060, name: 'Downtown Rails' },
-        'spot-2': { lat: 40.7589, lng: -73.9851, name: 'City Plaza Stairs' },
-        'spot-3': { lat: 40.7829, lng: -73.9654, name: 'Riverside Park' },
-        'spot-4': { lat: 40.7489, lng: -73.9680, name: 'Industrial Ledges' },
-      };
-
-      const spot = mockSpots[spotId];
+      // Fetch spot from database
+      const spot = await storage.getSpot(spotId);
       if (!spot) {
         return res.status(404).json({
           success: false,
@@ -637,12 +654,16 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
         });
       }
 
+      // Get lat/lng from database (stored as double precision)
+      const spotLat = spot.lat;
+      const spotLng = spot.lng;
+
       // Calculate distance using Haversine formula
       const R = 6371e3; // Earth radius in meters
       const φ1 = (latitude * Math.PI) / 180;
-      const φ2 = (spot.lat * Math.PI) / 180;
-      const Δφ = ((spot.lat - latitude) * Math.PI) / 180;
-      const Δλ = ((spot.lng - longitude) * Math.PI) / 180;
+      const φ2 = (spotLat * Math.PI) / 180;
+      const Δφ = ((spotLat - latitude) * Math.PI) / 180;
+      const Δλ = ((spotLng - longitude) * Math.PI) / 180;
 
       const a =
         Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +

@@ -37,7 +37,7 @@ export const sanitizedStringSchema = z.string()
   .transform((str) => (str as string).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
 
 
-import { pgTable, text, serial, integer, boolean, timestamp, json, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, varchar, index, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { sql } from "drizzle-orm";
 
@@ -188,6 +188,22 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Skate spots table for map
+export const spots = pgTable("spots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  lat: real("lat").notNull(),
+  lng: real("lng").notNull(),
+  address: varchar("address", { length: 500 }),
+  description: text("description"),
+  tags: varchar("tags", { length: 500 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  tier: varchar("tier", { length: 50 }), // 'legendary', 'pro', 'intermediate', 'beginner'
+  checkinCount: integer("checkin_count").default(0),
+  totalVisitors: integer("total_visitors").default(0),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const insertTutorialStepSchema = createInsertSchema(tutorialSteps).omit({
   id: true,
 });
@@ -222,6 +238,11 @@ export const insertProductSchema = createInsertSchema(products).omit({
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSpotSchema = createInsertSchema(spots).omit({
   id: true,
   createdAt: true,
 });
@@ -275,6 +296,8 @@ export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type Spot = typeof spots.$inferSelect;
+export type InsertSpot = z.infer<typeof insertSpotSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
