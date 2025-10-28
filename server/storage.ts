@@ -1,7 +1,8 @@
 import {
-  users, tutorialSteps, userProgress, subscribers,
+  users, tutorialSteps, userProgress, subscribers, products, orders,
   type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
-  type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber
+  type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber,
+  type Product, type InsertProduct, type Order, type InsertOrder
 } from "../shared/schema.ts";
 import { CreateSubscriber } from "./storage/types.ts";
 import { db } from "./db";
@@ -39,6 +40,17 @@ export interface IStorage {
   }): Promise<any>;
   updateDonationStatus(paymentIntentId: string, status: string): Promise<any>;
   getRecentDonors(limit?: number): Promise<{ firstName: string; createdAt: Date }[]>;
+
+  // Product methods
+  getAllProducts(): Promise<Product[]>;
+  getProduct(productId: string): Promise<Product | undefined>;
+  createProduct(product: InsertProduct): Promise<Product>;
+
+  // Order methods
+  createOrder(order: InsertOrder): Promise<Order>;
+  getOrders(userId?: string): Promise<Order[]>;
+  getOrder(id: number): Promise<Order | undefined>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -275,6 +287,71 @@ export class DatabaseStorage implements IStorage {
       .where(eq(schema.donations.status, "succeeded"))
       .orderBy(desc(schema.donations.createdAt))
       .limit(limit);
+  }
+
+  // Product methods
+  async getAllProducts(): Promise<Product[]> {
+    return await db
+      .select()
+      .from(products)
+      .where(eq(products.isActive, true))
+      .orderBy(products.id);
+  }
+
+  async getProduct(productId: string): Promise<Product | undefined> {
+    const [product] = await db
+      .select()
+      .from(products)
+      .where(eq(products.productId, productId));
+    return product || undefined;
+  }
+
+  async createProduct(product: InsertProduct): Promise<Product> {
+    const [newProduct] = await db
+      .insert(products)
+      .values(product as any)
+      .returning();
+    return newProduct;
+  }
+
+  // Order methods
+  async createOrder(order: InsertOrder): Promise<Order> {
+    const [newOrder] = await db
+      .insert(orders)
+      .values(order as any)
+      .returning();
+    return newOrder;
+  }
+
+  async getOrders(userId?: string): Promise<Order[]> {
+    if (userId) {
+      return await db
+        .select()
+        .from(orders)
+        .where(eq(orders.userId, userId))
+        .orderBy(desc(orders.createdAt));
+    }
+    return await db
+      .select()
+      .from(orders)
+      .orderBy(desc(orders.createdAt));
+  }
+
+  async getOrder(id: number): Promise<Order | undefined> {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, id));
+    return order || undefined;
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder || undefined;
   }
 }
 

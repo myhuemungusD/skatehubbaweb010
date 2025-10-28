@@ -20,7 +20,7 @@ All notable feature completions and improvements to SkateHubba are documented in
 ### Completed Features
 - **User Feedback System** – Built complete feedback collection system with floating feedback button, dialog UI with type selector (bug/feature/general/other), PostgreSQL database storage, and graceful degradation when database unavailable. Unified server architecture to serve frontend and backend on same port, eliminating proxy requirements.
 - **Legendary Spot Leaderboard** – Built full leaderboard page with podium display for top 3 skaters, complete rankings table showing points/check-ins/spots/tricks/streaks, and mobile-responsive design with SkateHubba theme.
-- **AI Skate Buddy (Beagle)** – Implemented global AI chat modal powered by OpenAI, featuring skateboarding-themed assistant accessible from anywhere in the app with auto-scrolling messages and typing indicators.
+- **AI Skate Buddy (Hesher)** – Implemented global AI chat modal powered by OpenAI, featuring skateboarding-themed assistant accessible from anywhere in the app with auto-scrolling messages and typing indicators.
 - **AR Check-In System** – Created geo-verification check-in button with 30-meter radius validation, integrated with backend API endpoint and toast feedback notifications.
 - **AR Trick Viewer (Hologram Replay)** – Built AR hologram viewer with WebXR support that unlocks after successful check-in, featuring locked/unlocked states and AR mode toggle.
 - **Spot-Locked Unlock Logic** – Implemented Zustand store for managing check-in state with 24-hour access expiry and spot unlock status persistence.

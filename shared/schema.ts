@@ -157,6 +157,37 @@ export const feedback = pgTable("feedback", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Shop products table
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  productId: varchar("product_id", { length: 100 }).notNull().unique(), // e.g., 'skatehubba-tee'
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  price: integer("price").notNull(), // price in cents
+  imageUrl: varchar("image_url", { length: 500 }),
+  icon: varchar("icon", { length: 50 }), // icon name from lucide-react
+  category: varchar("category", { length: 100 }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Shop orders table
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  userEmail: varchar("user_email", { length: 255 }),
+  items: json("items").$type<Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+  }>>().notNull(),
+  total: integer("total").notNull(), // total in cents
+  status: varchar("status", { length: 50 }).notNull().default("pending"), // 'pending', 'completed', 'failed'
+  paymentIntentId: varchar("payment_intent_id", { length: 255 }).unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertTutorialStepSchema = createInsertSchema(tutorialSteps).omit({
   id: true,
 });
@@ -183,6 +214,16 @@ export const insertFeedbackSchema = createInsertSchema(feedback).omit({
   id: true,
   createdAt: true,
   status: true,
+});
+
+export const insertProductSchema = createInsertSchema(products).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  createdAt: true,
 });
 
 // Auth validation schemas
@@ -230,6 +271,10 @@ export type AuthSession = typeof authSessions.$inferSelect;
 export type InsertAuthSession = typeof authSessions.$inferInsert;
 export type Feedback = typeof feedback.$inferSelect;
 export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;

@@ -547,7 +547,7 @@ export async function registerRoutes(app: express.Application): Promise<void> {
     }
   });
 
-  // Beagle AI Chat route
+  // Hesher AI Chat route
   app.post("/api/ai/chat", async (req, res) => {
     try {
       if (!openai) {
@@ -559,7 +559,7 @@ export async function registerRoutes(app: express.Application): Promise<void> {
 
       const { messages = [] } = req.body || {};
 
-      const systemPrompt = `You are Beagle, an enthusiastic AI skate buddy for SkateHubba™. 
+      const systemPrompt = `You are Hesher, an enthusiastic AI skate buddy for SkateHubba™. 
 You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHubba app features.
 - Keep responses short, friendly, and use skate slang naturally
 - Be encouraging and positive
@@ -687,6 +687,30 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
     }
   });
 
+  // Product endpoints
+  app.get("/api/products", async (req: Request, res: Response) => {
+    try {
+      const products = await storage.getAllProducts();
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      res.status(500).json({ error: "Failed to fetch products" });
+    }
+  });
+
+  app.get("/api/products/:productId", async (req: Request, res: Response) => {
+    try {
+      const product = await storage.getProduct(req.params.productId);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      res.status(500).json({ error: "Failed to fetch product" });
+    }
+  });
+
   // Stripe payment endpoint for shopping cart checkout
   // SECURITY: Server-side price calculation to prevent client tampering
   app.post("/api/create-shop-payment-intent", async (req: Request, res: Response) => {
@@ -696,30 +720,27 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
       }
 
       const clientIP = req.ip || req.connection.remoteAddress;
-      const { items } = req.body;
+      const { items, userId, userEmail } = req.body;
 
       // Validate items array
       if (!Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ message: "Invalid cart items" });
       }
 
-      // Authoritative product pricing - THIS IS THE SOURCE OF TRUTH
-      const productPrices: Record<string, number> = {
-        "skatehubba-tee": 29.99,
-        "trick-pack": 49.99,
-        "pro-badge": 14.99,
-      };
+      // Fetch products from database for authoritative pricing
+      const products = await storage.getAllProducts();
+      const productPriceMap = new Map(products.map(p => [p.productId, p.price / 100])); // Convert cents to dollars
 
-      // Calculate total server-side from authoritative prices
+      // Calculate total server-side from database prices
       let totalAmount = 0;
-      const validatedItems: Array<{ id: string; quantity: number; price: number }> = [];
+      const validatedItems: Array<{ id: string; name: string; quantity: number; price: number }> = [];
 
       for (const item of items) {
         if (!item.id || !item.quantity || typeof item.quantity !== 'number') {
           return res.status(400).json({ message: "Invalid item format" });
         }
 
-        const price = productPrices[item.id];
+        const price = productPriceMap.get(item.id);
         if (price === undefined) {
           return res.status(400).json({ message: `Invalid product ID: ${item.id}` });
         }
@@ -728,8 +749,17 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
           return res.status(400).json({ message: "Invalid quantity" });
         }
 
-        totalAmount += price * item.quantity;
-        validatedItems.push({ id: item.id, quantity: item.quantity, price });
+        // Get product name from database
+        const productInfo = products.find(p => p.productId === item.id);
+        const itemTotal = price * item.quantity;
+        totalAmount += itemTotal;
+        
+        validatedItems.push({ 
+          id: item.id, 
+          name: productInfo?.name || item.id,
+          quantity: item.quantity, 
+          price 
+        });
       }
 
       // Validate total amount
@@ -754,9 +784,26 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
         },
         metadata: {
           items: JSON.stringify(validatedItems),
+          userId: userId || "",
+          userEmail: userEmail || "",
           ip: clientIP || "unknown",
         },
       });
+
+      // Record order in database
+      try {
+        await storage.createOrder({
+          userId: userId || undefined,
+          userEmail: userEmail || undefined,
+          items: validatedItems,
+          total: Math.round(totalAmount * 100), // Store in cents
+          status: "pending",
+          paymentIntentId: paymentIntent.id,
+        });
+      } catch (orderError) {
+        console.error("Failed to record order:", orderError);
+        // Continue anyway - payment intent created
+      }
 
       res.json({ clientSecret: paymentIntent.client_secret });
     } catch (error: any) {
@@ -766,7 +813,4 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
       });
     }
   });
-
-  const httpServer = createServer(app);
-  return httpServer;
 }

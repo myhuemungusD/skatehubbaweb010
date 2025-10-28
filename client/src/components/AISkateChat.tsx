@@ -27,7 +27,7 @@ export function AISkateChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Yo! I'm Beagle, your AI skate buddy! 🛹 Ask me anything about tricks, spots, or the app!",
+      content: "Yo! I'm Hesher, your AI skate buddy! 🛹 Ask me anything about tricks, spots, or the app!",
     },
   ]);
   const [input, setInput] = useState('');
@@ -58,7 +58,7 @@ export function AISkateChat() {
       } else {
         toast({
           title: 'Chat Error',
-          description: data.error || 'Failed to get response from Beagle.',
+          description: data.error || 'Failed to get response from Hesher.',
           variant: 'destructive',
         });
       }
@@ -114,7 +114,7 @@ export function AISkateChat() {
             </div>
             <div>
               <CardTitle className="text-white text-lg flex items-center gap-2">
-                Beagle AI
+                Hesher AI
                 <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
                   ONLINE
                 </Badge>
@@ -170,7 +170,7 @@ export function AISkateChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask Beagle anything..."
+            placeholder="Ask Hesher anything..."
             className="flex-1 bg-neutral-800 border-gray-700 text-white placeholder:text-gray-500"
             disabled={chatMutation.isPending}
             data-testid="input-chat"

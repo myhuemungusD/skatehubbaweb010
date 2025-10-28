@@ -63,7 +63,7 @@ Preferred communication style: Simple, everyday language.
    - Added AR mode toggle with camera permissions handling
    - Integrated with spot unlock system for seamless gameplay loop
 
-3. **AI Skate Buddy Chat (Beagle):**
+3. **AI Skate Buddy Chat (Hesher):**
    - Built `AISkateChat.tsx` global chat modal accessible anywhere in app
    - Integrated OpenAI API for skateboarding-themed AI assistant
    - Created backend `/api/ai/chat` endpoint with streaming support

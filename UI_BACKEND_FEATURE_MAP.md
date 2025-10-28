@@ -256,7 +256,7 @@
 
 ---
 
-## 9. AI SKATE BUDDY (BEAGLE)
+## 9. AI SKATE BUDDY (HESHER)
 
 ### UI Implementation
 - ✅ AI Skate Chat component (`client/src/components/AISkateChat.tsx`)
@@ -264,7 +264,7 @@
 - ✅ Chat interface
 
 ### Backend Endpoints
-- ✅ `POST /api/ai/chat` - Beagle AI chat
+- ✅ `POST /api/ai/chat` - Hesher AI chat
 - ✅ `POST /api/assistant` - Legacy OpenAI assistant
 
 ### Connection Status
