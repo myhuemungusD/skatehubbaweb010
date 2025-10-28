@@ -30,11 +30,9 @@ import { setupAuthRoutes } from "./auth/routes.ts";
 import OpenAI from "openai";
 import { initializeDatabase } from "./db";
 
-const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
-}) : null;
-
-const openai = env.OPENAI_API_KEY ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
+// Stripe and OpenAI will be initialized inside registerRoutes to allow test env overrides
+let stripe: Stripe | null = null;
+let openai: OpenAI | null = null;
 
 // Security validation functions
 const sanitizeString = (str: string): string => {
@@ -143,6 +141,27 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request & { validatedBody
 };
 
 export async function registerRoutes(app: express.Application): Promise<Server> {
+  // Initialize Stripe with validation (done here to allow test env override)
+  if (env.STRIPE_SECRET_KEY) {
+    if (!env.STRIPE_SECRET_KEY.startsWith('sk_')) {
+      console.error('❌ CRITICAL: STRIPE_SECRET_KEY appears to be a publishable key (should start with sk_, not pk_)');
+      console.error('   Please update STRIPE_SECRET_KEY with your secret key from Stripe Dashboard');
+    } else {
+      stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+        apiVersion: "2024-06-20",
+      });
+      console.log('✅ Stripe initialized with secret key');
+    }
+  } else {
+    console.warn('⚠️  STRIPE_SECRET_KEY not set - payment features disabled');
+  }
+  
+  // Initialize OpenAI if configured
+  openai = env.OPENAI_API_KEY ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
+  if (openai) {
+    console.log('✅ OpenAI initialized');
+  }
+
   // Initialize database on startup
   await initializeDatabase();
 

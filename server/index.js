@@ -9,14 +9,14 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.google.com", "https://www.gstatic.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.google.com", "https://www.gstatic.com", "https://js.stripe.com"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://*.firebaseapp.com", "https://*.googleapis.com", "https://*.replit.app", "https://*.replit.dev"],
+      connectSrc: ["'self'", "https://*.firebaseapp.com", "https://*.googleapis.com", "https://*.replit.app", "https://*.replit.dev", "https://*.stripe.com"],
       fontSrc: ["'self'", "data:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'self'", "https://www.google.com"],
+      frameSrc: ["'self'", "https://www.google.com", "https://js.stripe.com", "https://*.stripe.com"],
     },
   },
   hsts: {
@@ -78,7 +78,7 @@ app.use(cors({
 app.use(express.json());
 
 // Database, email, and auth integration
-let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuthRoutes, feedback, insertFeedbackSchema;
+let db, storage, sendSubscriberNotification, NewSubscriberInput, setupAuthRoutes, feedback, insertFeedbackSchema, registerRoutes;
 
 // Initialize database connection and auth
 async function initializeDatabase() {
@@ -89,6 +89,7 @@ async function initializeDatabase() {
     const emailModule = await import('./email.ts');
     const schemaModule = await import('../shared/schema.ts');
     const firebaseAuthModule = await import('./auth/routes.ts');
+    const routesModule = await import('./routes.ts');
     
     // Initialize Firebase Admin first
     await import('./admin.ts');
@@ -100,6 +101,7 @@ async function initializeDatabase() {
     setupAuthRoutes = firebaseAuthModule.setupAuthRoutes;
     feedback = schemaModule.feedback;
     insertFeedbackSchema = schemaModule.insertFeedbackSchema;
+    registerRoutes = routesModule.registerRoutes;
     
     console.log("🎯 Database integration loaded successfully");
     
@@ -269,6 +271,16 @@ async function startServer() {
       console.log("🔥 Firebase Auth routes initialized");
     } catch (firebaseAuthError) {
       console.warn("⚠️  Firebase Auth setup failed:", firebaseAuthError.message);
+    }
+  }
+  
+  // Setup all other routes (Stripe payments, tutorials, donations, etc.)
+  if (registerRoutes) {
+    try {
+      await registerRoutes(app);
+      console.log("💳 Payment & feature routes initialized");
+    } catch (routesError) {
+      console.warn("⚠️  Routes setup failed:", routesError.message);
     }
   }
   
