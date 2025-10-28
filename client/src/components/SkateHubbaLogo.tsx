@@ -72,7 +72,7 @@ export default function SkateHubbaLogo({ className = "", size = "md" }: SkateHub
           y="32"
           fill="currentColor"
           className="text-white font-black"
-          style={{ fontSize: '24px', fontFamily: "'Bangers', cursive", letterSpacing: '2px' }}
+          style={{ fontSize: '24px', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}
         >
           SKATE
         </text>
@@ -81,7 +81,7 @@ export default function SkateHubbaLogo({ className = "", size = "md" }: SkateHub
           y="58"
           fill="currentColor"
           className="text-skatehubba-primary font-black"
-          style={{ fontSize: '24px', fontFamily: "'Bangers', cursive", letterSpacing: '2px' }}
+          style={{ fontSize: '24px', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px' }}
         >
           HUBBA
         </text>

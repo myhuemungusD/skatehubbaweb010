@@ -423,7 +423,7 @@ select:focus-visible,
     @apply bg-background text-foreground;
     background-color: var(--skatehubba-dark-bg);
     color: var(--skatehubba-light-text);
-    font-family: 'Bangers', cursive;
+    font-family: 'Bebas Neue', sans-serif;
   }
 }
 
