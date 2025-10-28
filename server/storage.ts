@@ -1,8 +1,9 @@
 import {
-  users, tutorialSteps, userProgress, subscribers, products, orders, spots,
+  users, tutorialSteps, userProgress, subscribers, products, orders, spots, games, gameTurns,
   type User, type UpsertUser, type TutorialStep, type InsertTutorialStep,
   type UserProgress, type InsertUserProgress, type UpdateUserProgress, type Subscriber,
-  type Product, type InsertProduct, type Order, type InsertOrder, type Spot, type InsertSpot
+  type Product, type InsertProduct, type Order, type InsertOrder, type Spot, type InsertSpot,
+  type Game, type InsertGame, type GameTurn, type InsertGameTurn
 } from "../shared/schema.ts";
 import { CreateSubscriber } from "./storage/types.ts";
 import { db } from "./db";
@@ -56,6 +57,19 @@ export interface IStorage {
   getAllSpots(): Promise<Spot[]>;
   getSpot(spotId: string): Promise<Spot | undefined>;
   createSpot(spot: InsertSpot): Promise<Spot>;
+
+  // Game methods
+  getAllGames(): Promise<Game[]>;
+  getGame(gameId: string): Promise<Game | undefined>;
+  getGamesByPlayer(playerId: string): Promise<Game[]>;
+  createGame(game: InsertGame): Promise<Game>;
+  joinGame(gameId: string, player2Id: string, player2Name: string): Promise<Game | undefined>;
+  updateGame(gameId: string, updates: Partial<Game>): Promise<Game | undefined>;
+  submitTrick(gameId: string, playerId: string, playerName: string, trick: string): Promise<{ game: Game; turnAdded: boolean }>;
+  
+  // Game turn methods
+  getGameTurns(gameId: string): Promise<GameTurn[]>;
+  createGameTurn(turn: InsertGameTurn): Promise<GameTurn>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -381,6 +395,126 @@ export class DatabaseStorage implements IStorage {
       .values(spot as any)
       .returning();
     return newSpot;
+  }
+
+  // Game methods
+  async getAllGames(): Promise<Game[]> {
+    return await db
+      .select()
+      .from(games)
+      .orderBy(desc(games.createdAt));
+  }
+
+  async getGame(gameId: string): Promise<Game | undefined> {
+    const [game] = await db
+      .select()
+      .from(games)
+      .where(eq(games.id, gameId));
+    return game || undefined;
+  }
+
+  async getGamesByPlayer(playerId: string): Promise<Game[]> {
+    const { or } = await import('drizzle-orm');
+    return await db
+      .select()
+      .from(games)
+      .where(
+        or(
+          eq(games.player1Id, playerId),
+          eq(games.player2Id, playerId)
+        )
+      )
+      .orderBy(desc(games.createdAt));
+  }
+
+  async createGame(game: InsertGame): Promise<Game> {
+    const [newGame] = await db
+      .insert(games)
+      .values(game as any)
+      .returning();
+    return newGame;
+  }
+
+  async joinGame(gameId: string, player2Id: string, player2Name: string): Promise<Game | undefined> {
+    const [updatedGame] = await db
+      .update(games)
+      .set({
+        player2Id,
+        player2Name,
+        status: 'active',
+        currentTurn: player2Id, // Player 2 starts first turn
+        updatedAt: new Date(),
+      })
+      .where(and(eq(games.id, gameId), eq(games.status, 'waiting')))
+      .returning();
+    return updatedGame || undefined;
+  }
+
+  async updateGame(gameId: string, updates: Partial<Game>): Promise<Game | undefined> {
+    const [updatedGame] = await db
+      .update(games)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(games.id, gameId))
+      .returning();
+    return updatedGame || undefined;
+  }
+
+  async submitTrick(gameId: string, playerId: string, playerName: string, trick: string): Promise<{ game: Game; turnAdded: boolean }> {
+    // Get current game state
+    const game = await this.getGame(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    // Validate it's the player's turn
+    if (game.currentTurn !== playerId) {
+      throw new Error('Not your turn');
+    }
+
+    // Get current turn number
+    const turns = await this.getGameTurns(gameId);
+    const turnNumber = turns.length + 1;
+
+    // Create turn record
+    await this.createGameTurn({
+      gameId,
+      playerId,
+      playerName,
+      turnNumber,
+      trickDescription: trick,
+      result: 'landed',
+    });
+
+    // Determine next turn and update game state
+    const opponentId = game.player1Id === playerId ? game.player2Id : game.player1Id;
+    
+    const updatedGame = await this.updateGame(gameId, {
+      currentTurn: opponentId || undefined,
+      lastTrickDescription: trick,
+      lastTrickBy: playerId,
+    });
+
+    return {
+      game: updatedGame || game,
+      turnAdded: true,
+    };
+  }
+
+  // Game turn methods
+  async getGameTurns(gameId: string): Promise<GameTurn[]> {
+    return await db
+      .select()
+      .from(gameTurns)
+      .where(eq(gameTurns.gameId, gameId))
+      .orderBy(gameTurns.turnNumber);
+  }
+
+  async createGameTurn(turn: InsertGameTurn): Promise<GameTurn> {
+    const [newTurn] = await db
+      .insert(gameTurns)
+      .values(turn as any)
+      .returning();
+    return newTurn;
   }
 }
 

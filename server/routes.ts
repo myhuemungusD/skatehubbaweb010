@@ -834,4 +834,151 @@ You're knowledgeable about skateboarding culture, tricks, spots, and the SkateHu
       });
     }
   });
+
+  // ==========================================
+  // S.K.A.T.E. GAME ENDPOINTS
+  // ==========================================
+
+  // Get all games for the current player
+  app.get("/api/games", async (req: Request, res: Response) => {
+    try {
+      const userId = req.query.userId as string;
+      
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+
+      const games = await storage.getGamesByPlayer(userId);
+      res.json(games);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+      res.status(500).json({ error: "Failed to fetch games" });
+    }
+  });
+
+  // Create a new game
+  app.post("/api/games/create", async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+
+      // Get user info from Firebase or use userId as name fallback
+      const playerName = userId.split('@')[0] || userId;
+
+      const newGame = await storage.createGame({
+        player1Id: userId,
+        player1Name: playerName,
+        status: 'waiting',
+      });
+
+      res.status(201).json(newGame);
+    } catch (error) {
+      console.error("Error creating game:", error);
+      res.status(500).json({ error: "Failed to create game" });
+    }
+  });
+
+  // Join an existing game
+  app.post("/api/games/:gameId/join", async (req: Request, res: Response) => {
+    try {
+      const { gameId } = req.params;
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+
+      // Check if game exists and is waiting
+      const game = await storage.getGame(gameId);
+      if (!game) {
+        return res.status(404).json({ error: "Game not found" });
+      }
+
+      if (game.status !== 'waiting') {
+        return res.status(400).json({ error: "Game is not available to join" });
+      }
+
+      if (game.player1Id === userId) {
+        return res.status(400).json({ error: "Cannot join your own game" });
+      }
+
+      // Get player name
+      const playerName = userId.split('@')[0] || userId;
+
+      const updatedGame = await storage.joinGame(gameId, userId, playerName);
+      
+      if (!updatedGame) {
+        return res.status(400).json({ error: "Failed to join game" });
+      }
+
+      res.json(updatedGame);
+    } catch (error) {
+      console.error("Error joining game:", error);
+      res.status(500).json({ error: "Failed to join game" });
+    }
+  });
+
+  // Submit a trick
+  app.post("/api/games/:gameId/trick", async (req: Request, res: Response) => {
+    try {
+      const { gameId } = req.params;
+      const { userId, trick } = req.body;
+
+      if (!userId || !trick) {
+        return res.status(400).json({ error: "userId and trick are required" });
+      }
+
+      // Validate trick description
+      if (trick.trim().length === 0) {
+        return res.status(400).json({ error: "Trick description cannot be empty" });
+      }
+
+      if (trick.length > 500) {
+        return res.status(400).json({ error: "Trick description too long (max 500 characters)" });
+      }
+
+      // Get player name
+      const playerName = userId.split('@')[0] || userId;
+
+      const result = await storage.submitTrick(gameId, userId, playerName, trick.trim());
+
+      res.json(result.game);
+    } catch (error: any) {
+      console.error("Error submitting trick:", error);
+      
+      if (error.message === 'Game not found') {
+        return res.status(404).json({ error: "Game not found" });
+      }
+      if (error.message === 'Not your turn') {
+        return res.status(403).json({ error: "It's not your turn" });
+      }
+      
+      res.status(500).json({ error: "Failed to submit trick" });
+    }
+  });
+
+  // Get game details including turn history
+  app.get("/api/games/:gameId", async (req: Request, res: Response) => {
+    try {
+      const { gameId } = req.params;
+
+      const game = await storage.getGame(gameId);
+      if (!game) {
+        return res.status(404).json({ error: "Game not found" });
+      }
+
+      const turns = await storage.getGameTurns(gameId);
+
+      res.json({
+        ...game,
+        turns,
+      });
+    } catch (error) {
+      console.error("Error fetching game details:", error);
+      res.status(500).json({ error: "Failed to fetch game details" });
+    }
+  });
 }

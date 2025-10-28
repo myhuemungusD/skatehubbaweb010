@@ -22,13 +22,15 @@ import { apiRequest, queryClient } from '../lib/queryClient';
 
 interface Game {
   id: string;
-  player1: string;
-  player2: string;
+  player1Id: string;
+  player1Name: string;
+  player2Id?: string | null;
+  player2Name?: string | null;
   status: 'waiting' | 'active' | 'completed';
-  currentTurn: string;
-  player1Letters: string;
-  player2Letters: string;
-  winner?: string;
+  currentTurn?: string | null;
+  player1Letters?: string | null;
+  player2Letters?: string | null;
+  winnerId?: string | null;
   createdAt: string;
 }
 
@@ -38,55 +40,22 @@ export default function SkateGamePage() {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [trickDescription, setTrickDescription] = useState('');
 
-  const activeGames: Game[] = [
-    {
-      id: 'game-1',
-      player1: 'Mike',
-      player2: 'Sarah',
-      status: 'active',
-      currentTurn: 'Mike',
-      player1Letters: 'SK',
-      player2Letters: 'S',
-      createdAt: '2024-10-02T10:30:00Z',
+  // Fetch real games from backend
+  const { data: allGames = [], isLoading } = useQuery<Game[]>({
+    queryKey: ['/api/games', user?.uid],
+    queryFn: async () => {
+      if (!user?.uid) return [];
+      const response = await fetch(`/api/games?userId=${user.uid}`);
+      if (!response.ok) throw new Error('Failed to fetch games');
+      return response.json();
     },
-    {
-      id: 'game-2',
-      player1: 'Tony',
-      player2: 'Emma',
-      status: 'active',
-      currentTurn: 'Emma',
-      player1Letters: 'SKAT',
-      player2Letters: 'SKA',
-      createdAt: '2024-10-02T09:15:00Z',
-    },
-  ];
+    enabled: isAuthenticated && !!user?.uid,
+  });
 
-  const waitingGames: Game[] = [
-    {
-      id: 'game-3',
-      player1: 'Jake',
-      player2: '',
-      status: 'waiting',
-      currentTurn: '',
-      player1Letters: '',
-      player2Letters: '',
-      createdAt: '2024-10-02T11:00:00Z',
-    },
-  ];
-
-  const completedGames: Game[] = [
-    {
-      id: 'game-4',
-      player1: 'Alex',
-      player2: 'Jordan',
-      status: 'completed',
-      currentTurn: '',
-      player1Letters: 'SKATE',
-      player2Letters: 'SKAT',
-      winner: 'Jordan',
-      createdAt: '2024-10-01T14:20:00Z',
-    },
-  ];
+  // Filter games by status
+  const activeGames = allGames.filter(g => g.status === 'active');
+  const waitingGames = allGames.filter(g => g.status === 'waiting');
+  const completedGames = allGames.filter(g => g.status === 'completed');
 
   const createGameMutation = useMutation({
     mutationFn: async () => {
@@ -269,8 +238,15 @@ export default function SkateGamePage() {
             </TabsList>
 
             <TabsContent value="active" className="mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {activeGames.map((game) => (
+              {isLoading ? (
+                <div className="text-center py-12 text-gray-400">Loading games...</div>
+              ) : activeGames.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">No active games. Create or join a game to start playing!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {activeGames.map((game) => (
                   <Card
                     key={game.id}
                     className="bg-black/60 border-gray-600 backdrop-blur-sm"
@@ -280,29 +256,31 @@ export default function SkateGamePage() {
                       <CardTitle className="text-[#fafafa] flex items-center justify-between">
                         <span className="flex items-center gap-2">
                           <Users className="w-5 h-5 text-[#ff6a00]" />
-                          {game.player1} vs {game.player2}
+                          {game.player1Name} vs {game.player2Name}
                         </span>
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
                           Active
                         </Badge>
                       </CardTitle>
                       <CardDescription className="text-gray-300">
-                        Current turn: <span className="text-[#ff6a00] font-semibold">{game.currentTurn}</span>
+                        Current turn: <span className="text-[#ff6a00] font-semibold">
+                          {game.currentTurn === game.player1Id ? game.player1Name : game.player2Name}
+                        </span>
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-gray-400 mb-2">{game.player1}</p>
-                          {getLettersDisplay(game.player1Letters)}
+                          <p className="text-sm text-gray-400 mb-2">{game.player1Name}</p>
+                          {getLettersDisplay(game.player1Letters || '')}
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400 mb-2">{game.player2}</p>
-                          {getLettersDisplay(game.player2Letters)}
+                          <p className="text-sm text-gray-400 mb-2">{game.player2Name}</p>
+                          {getLettersDisplay(game.player2Letters || '')}
                         </div>
                       </div>
 
-                      {game.currentTurn === user?.email?.split('@')[0] && (
+                      {game.currentTurn === user?.uid && (
                         <div className="space-y-2">
                           <Input
                             placeholder="Describe your trick (e.g., kickflip down 5 stair)"
@@ -342,14 +320,22 @@ export default function SkateGamePage() {
                         View Details
                       </Button>
                     </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="waiting" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {waitingGames.map((game) => (
+              {isLoading ? (
+                <div className="text-center py-12 text-gray-400">Loading games...</div>
+              ) : waitingGames.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">No waiting games available</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {waitingGames.map((game) => (
                   <Card
                     key={game.id}
                     className="bg-black/60 border-gray-600 backdrop-blur-sm"
@@ -361,7 +347,7 @@ export default function SkateGamePage() {
                         Waiting for Player
                       </CardTitle>
                       <CardDescription className="text-gray-300">
-                        Created by: {game.player1}
+                        Created by: {game.player1Name}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -375,14 +361,22 @@ export default function SkateGamePage() {
                         Join Game
                       </Button>
                     </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="completed" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {completedGames.map((game) => (
+              {isLoading ? (
+                <div className="text-center py-12 text-gray-400">Loading games...</div>
+              ) : completedGames.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">No completed games yet</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {completedGames.map((game) => (
                   <Card
                     key={game.id}
                     className="bg-black/60 border-gray-600 backdrop-blur-sm"
@@ -392,7 +386,7 @@ export default function SkateGamePage() {
                       <CardTitle className="text-[#fafafa] flex items-center justify-between">
                         <span className="flex items-center gap-2">
                           <Trophy className="w-5 h-5 text-[#24d52b]" />
-                          {game.player1} vs {game.player2}
+                          {game.player1Name} vs {game.player2Name}
                         </span>
                         <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">
                           Completed
@@ -401,25 +395,26 @@ export default function SkateGamePage() {
                       <CardDescription className="text-gray-300">
                         Winner: <span className="text-[#24d52b] font-semibold flex items-center gap-1">
                           <Crown className="w-4 h-4" />
-                          {game.winner}
+                          {game.winnerId === game.player1Id ? game.player1Name : game.player2Name}
                         </span>
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-gray-400 mb-2">{game.player1}</p>
-                          {getLettersDisplay(game.player1Letters)}
+                          <p className="text-sm text-gray-400 mb-2">{game.player1Name}</p>
+                          {getLettersDisplay(game.player1Letters || '')}
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400 mb-2">{game.player2}</p>
-                          {getLettersDisplay(game.player2Letters)}
+                          <p className="text-sm text-gray-400 mb-2">{game.player2Name}</p>
+                          {getLettersDisplay(game.player2Letters || '')}
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
