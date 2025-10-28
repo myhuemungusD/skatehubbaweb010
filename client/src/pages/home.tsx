@@ -125,7 +125,7 @@
                 id="signup"
                 className="py-24 bg-gradient-to-b from-orange-600/10 to-black text-center border-t border-orange-400/10"
               >
-                <h2 className="text-4xl font-orbitron mb-6 text-orange-400">
+                <h2 className="text-4xl mb-6 text-orange-400">
                   Get Early Access
                 </h2>
                 <p className="text-gray-400 max-w-xl mx-auto mb-8">
@@ -139,7 +139,7 @@
               {/* COMMUNITY */}
               <section className="py-20 bg-black border-t border-orange-500/10 text-center">
                 <DonorRecognition />
-                <h3 className="text-2xl font-orbitron text-orange-400 mb-4">
+                <h3 className="text-2xl text-orange-400 mb-4">
                   Follow the Movement
                 </h3>
                 <div className="flex flex-wrap justify-center gap-6 text-lg text-orange-400">
