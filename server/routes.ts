@@ -140,20 +140,23 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request & { validatedBody
   }
 };
 
-export async function registerRoutes(app: express.Application): Promise<Server> {
-  // Initialize Stripe with validation (done here to allow test env override)
-  if (env.STRIPE_SECRET_KEY) {
-    if (!env.STRIPE_SECRET_KEY.startsWith('sk_')) {
-      console.error('❌ CRITICAL: STRIPE_SECRET_KEY appears to be a publishable key (should start with sk_, not pk_)');
+export async function registerRoutes(app: express.Application): Promise<void> {
+  // Initialize Stripe (done here to allow test env override)
+  // Test framework may use TESTING_STRIPE_SECRET_KEY
+  const stripeKey = env.TESTING_STRIPE_SECRET_KEY || env.STRIPE_SECRET_KEY;
+  
+  if (stripeKey) {
+    if (!stripeKey.startsWith('sk_')) {
+      console.error('❌ CRITICAL: Stripe key appears to be a publishable key (should start with sk_, not pk_)');
       console.error('   Please update STRIPE_SECRET_KEY with your secret key from Stripe Dashboard');
     } else {
-      stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+      stripe = new Stripe(stripeKey, {
         apiVersion: "2024-06-20",
       });
       console.log('✅ Stripe initialized with secret key');
     }
   } else {
-    console.warn('⚠️  STRIPE_SECRET_KEY not set - payment features disabled');
+    console.warn('⚠️  Stripe not configured - payment features disabled');
   }
   
   // Initialize OpenAI if configured
@@ -161,9 +164,6 @@ export async function registerRoutes(app: express.Application): Promise<Server> 
   if (openai) {
     console.log('✅ OpenAI initialized');
   }
-
-  // Initialize database on startup
-  await initializeDatabase();
 
   // Firebase Authentication Routes
   setupAuthRoutes(app as any);
