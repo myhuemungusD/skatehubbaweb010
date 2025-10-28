@@ -1,19 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AuthService } from './service.ts';
 import type { CustomUser } from '../../shared/schema.ts';
-import admin from 'firebase-admin';
-import { env } from '../config/env';
-
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      projectId: env.VITE_FIREBASE_PROJECT_ID,
-    });
-    console.log('Firebase Admin SDK initialized');
-  } catch (error) {
-    console.warn('Firebase Admin initialization failed:', error);
-  }
-}
+import { admin } from '../admin.ts';
 
 // Extend Express Request type to include user
 declare global {

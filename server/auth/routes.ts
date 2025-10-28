@@ -2,7 +2,7 @@ import type { Express } from 'express';
 import { AuthService } from './service.ts';
 import { authenticateUser } from './middleware.ts';
 import { authLimiter, passwordResetLimiter } from '../middleware/security.ts';
-import admin from 'firebase-admin';
+import { admin } from '../admin.ts';
 
 export function setupAuthRoutes(app: Express) {
   // Single login/register endpoint - Firebase ID token only (with rate limiting)
