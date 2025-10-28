@@ -247,6 +247,49 @@ export const insertSpotSchema = createInsertSchema(spots).omit({
   createdAt: true,
 });
 
+// S.K.A.T.E. Games table
+export const games = pgTable("games", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  player1Id: varchar("player1_id", { length: 255 }).notNull(),
+  player1Name: varchar("player1_name", { length: 255 }).notNull(),
+  player2Id: varchar("player2_id", { length: 255 }),
+  player2Name: varchar("player2_name", { length: 255 }),
+  status: varchar("status", { length: 50 }).notNull().default("waiting"), // 'waiting', 'active', 'completed'
+  currentTurn: varchar("current_turn", { length: 255 }),
+  player1Letters: varchar("player1_letters", { length: 5 }).default(""),
+  player2Letters: varchar("player2_letters", { length: 5 }).default(""),
+  winnerId: varchar("winner_id", { length: 255 }),
+  lastTrickDescription: text("last_trick_description"),
+  lastTrickBy: varchar("last_trick_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+// Game turns/history table
+export const gameTurns = pgTable("game_turns", {
+  id: serial("id").primaryKey(),
+  gameId: varchar("game_id", { length: 255 }).notNull(),
+  playerId: varchar("player_id", { length: 255 }).notNull(),
+  playerName: varchar("player_name", { length: 255 }).notNull(),
+  turnNumber: integer("turn_number").notNull(),
+  trickDescription: text("trick_description").notNull(),
+  result: varchar("result", { length: 50 }).notNull(), // 'landed', 'missed', 'challenged'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertGameSchema = createInsertSchema(games).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+});
+
+export const insertGameTurnSchema = createInsertSchema(gameTurns).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Auth validation schemas
 export const registerSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
