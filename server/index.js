@@ -121,6 +121,9 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+// Health check endpoint for monitoring
+app.get('/healthz', (_req, res) => res.status(200).json({ ok: true, ts: Date.now() }));
+
 // Email signup endpoint - the money maker with full database integration
 app.post("/api/subscribe", async (req, res) => {
   try {

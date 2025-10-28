@@ -1,0 +1,153 @@
+You are working in this repo. Do not ask questions—just implement.
+
+GOAL
+Set up continuous monitoring for https://skatehubba.com with:
+1) A /healthz endpoint in the app.
+2) A GitHub Actions workflow that pings /healthz every 5 minutes, runs Lighthouse (non‑blocking), gathers diagnostics on failure, optionally notifies a webhook, and auto‑opens a GitHub Issue.
+
+TASKS
+
+A) Add a /healthz endpoint (choose framework automatically):
+- If Next.js (App Router): create app/api/healthz/route.ts with:
+------------------------------------------------------------
+export const runtime = 'nodejs';
+export async function GET() {
+  // plug real checks later (DB, env, 3rd‑party)
+  return Response.json({ ok: true, ts: Date.now() }, { status: 200 });
+}
+------------------------------------------------------------
+- If Next.js (Pages Router): pages/api/healthz.ts:
+------------------------------------------------------------
+import type { NextApiRequest, NextApiResponse } from 'next';
+export default function handler(_req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).json({ ok: true, ts: Date.now() });
+}
+------------------------------------------------------------
+- If Express: add to the server file (e.g., src/server.ts or index.js):
+------------------------------------------------------------
+app.get('/healthz', (_req, res) => res.status(200).json({ ok: true, ts: Date.now() }));
+------------------------------------------------------------
+
+B) Ensure scripts exist in package.json (add if missing; do not remove other scripts):
+------------------------------------------------------------
+"scripts": {
+  "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+  "typecheck": "tsc --noEmit",
+  "build": "next build"
+}
+------------------------------------------------------------
+(If not a Next.js app, keep lint/typecheck and leave build as-is.)
+
+C) Add GitHub Actions workflow at .github/workflows/site-agent.yml:
+------------------------------------------------------------
+name: Site Agent
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: site-agent
+  cancel-in-progress: false
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Uptime check
+        id: up
+        run: |
+          set -euo pipefail
+          URL="https://skatehubba.com/healthz"
+          start=$(date +%s%3N)
+          CODE=$(curl -sS -o /tmp/body -w "%{http_code}" "$URL" || echo 000)
+          dur=$(( $(date +%s%3N) - start ))
+          echo "code=$CODE" >> $GITHUB_OUTPUT
+          echo "dur=$dur"  >> $GITHUB_OUTPUT
+          {
+            echo "### Uptime"
+            echo "URL: $URL"
+            echo "HTTP: $CODE"
+            echo "Time: ${dur}ms"
+          } > agent-report.md
+          test "$CODE" -ge 200 && test "$CODE" -lt 400 || exit 1
+          test "$dur" -le 4000 || exit 1
+
+      - name: Lighthouse (non-blocking)
+        continue-on-error: true
+        run: |
+          npm --yes i -g @lhci/cli
+          lhci autorun --collect.url=https://skatehubba.com --upload.target=temporary-public-storage \
+            || echo "Lighthouse run failed" >> agent-report.md
+
+      - name: Diagnostics
+        if: failure()
+        run: |
+          sudo apt-get update >/dev/null
+          sudo apt-get install -y dnsutils >/dev/null
+          {
+            echo ""
+            echo "## Diagnostics ($(date -u))"
+            echo "DNS:"; dig +short skatehubba.com || true
+            echo ""
+            echo "TLS:"
+            echo | openssl s_client -servername skatehubba.com -connect skatehubba.com:443 2>/dev/null \
+              | openssl x509 -noout -issuer -subject -dates || true
+            echo ""
+            echo "HTTP HEAD:"; curl -I https://skatehubba.com || true
+            echo ""
+            echo "Tracepath:"; tracepath -m 10 skatehubba.com || true
+          } >> agent-report.md
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-report
+          path: agent-report.md
+
+      - name: Notify webhook
+        if: failure() && secrets.NOTIFY_WEBHOOK != ''
+        env:
+          WEBHOOK: ${{ secrets.NOTIFY_WEBHOOK }}
+          CODE: ${{ steps.up.outputs.code }}
+          DUR:  ${{ steps.up.outputs.dur }}
+        run: |
+          curl -sS -X POST -H 'Content-Type: application/json' \
+            --data "{\"text\":\"skatehubba.com monitor FAILED (code:${CODE}, ${DUR}ms). Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\"}" \
+            "$WEBHOOK" || true
+
+      - name: File GitHub Issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('agent-report.md','utf8');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 skatehubba.com monitor failed – run ${context.runId}`,
+              body,
+              labels: ['incident','ops']
+            });
+------------------------------------------------------------
+
+D) Commit and push:
+- Create a new branch `chore/site-agent`, commit all changes with message:
+  "chore(monitor): add /healthz and scheduled site agent"
+- Open a pull request to main.
+
+E) After push, show me:
+- The path(s) of the new endpoint file(s).
+- Confirmation that `.github/workflows/site-agent.yml` exists.
+- A one‑line curl check you ran locally against /healthz (or, if not runnable locally, the exact URL to test in the browser).
+- A link to the created PR.
+
+NOTES
+- Optional notifications: set a repo secret `NOTIFY_WEBHOOK` (Slack/Discord incoming webhook URL). If unset, the notify step is skipped.
+- Do not change unrelated files.
