@@ -77,13 +77,14 @@ export const usePresenceStore = create<PresenceState>((set, get) => ({
   },
 
   listenToPresence: () => {
-    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-    
     const q = query(collection(db, "user_presence"));
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
+        // Calculate freshness window on each snapshot to properly expire stale sessions
+        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        
         const onlineUsers = snapshot.docs
           .map((doc) => {
             const data = doc.data();
@@ -96,14 +97,16 @@ export const usePresenceStore = create<PresenceState>((set, get) => ({
             };
           })
           .filter((user) => {
-            // Only show users active in the last 5 minutes
+            // Only show users active in the last 5 minutes and marked as online
             return user.lastSeen > fiveMinutesAgo && user.status === "online";
           });
 
-        set({ onlineUsers });
+        set({ onlineUsers, isConnected: true });
       },
       (error) => {
         console.error("Error listening to presence:", error);
+        // Mark as disconnected on listener error
+        set({ isConnected: false });
       }
     );
 

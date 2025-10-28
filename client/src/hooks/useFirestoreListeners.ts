@@ -72,6 +72,19 @@ export function useFirestoreListeners() {
     };
   }, [isAuthenticated, user, setUserOffline]);
 
+  // Heartbeat to keep presence updated (every 2 minutes)
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    const heartbeatInterval = setInterval(() => {
+      updateUserPage(user.uid, location);
+    }, 2 * 60 * 1000); // Update every 2 minutes
+
+    return () => {
+      clearInterval(heartbeatInterval);
+    };
+  }, [isAuthenticated, user, location, updateUserPage]);
+
   return {
     isConnected: usePresenceStore((state) => state.isConnected),
     onlineCount: usePresenceStore((state) => state.getOnlineCount()),
