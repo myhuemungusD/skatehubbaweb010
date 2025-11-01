@@ -59,11 +59,8 @@ export default function SkateGamePage() {
 
   const createGameMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/games/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.uid }),
-      });
+      const response = await apiRequest('POST', '/api/games/create', { userId: user?.uid });
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -76,11 +73,8 @@ export default function SkateGamePage() {
 
   const joinGameMutation = useMutation({
     mutationFn: async (gameId: string) => {
-      return await apiRequest(`/api/games/${gameId}/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.uid }),
-      });
+      const response = await apiRequest('POST', `/api/games/${gameId}/join`, { userId: user?.uid });
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -93,11 +87,8 @@ export default function SkateGamePage() {
 
   const submitTrickMutation = useMutation({
     mutationFn: async ({ gameId, trick }: { gameId: string; trick: string }) => {
-      return await apiRequest(`/api/games/${gameId}/trick`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.uid, trick }),
-      });
+      const response = await apiRequest('POST', `/api/games/${gameId}/trick`, { userId: user?.uid, trick });
+      return response.json();
     },
     onSuccess: () => {
       toast({
