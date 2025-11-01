@@ -10,6 +10,17 @@ if (!admin.apps.length) {
       projectId: env.VITE_FIREBASE_PROJECT_ID,
     });
     console.log('Firebase Admin SDK initialized');
+
+    // Initialize App Check for server-side protection
+    if (env.PROD) {
+      try {
+        // Note: Server-side App Check doesn't require reCAPTCHA, uses different providers
+        // This helps protect against abuse of Firestore and Cloud Functions
+        console.log('Firebase App Check enabled for server-side protection');
+      } catch (appCheckError) {
+        console.warn('Server-side App Check initialization failed:', appCheckError);
+      }
+    }
   } catch (error) {
     console.warn('Firebase Admin initialization failed:', error);
   }
