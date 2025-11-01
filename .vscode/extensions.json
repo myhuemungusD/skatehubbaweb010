@@ -1,0 +1,48 @@
+{
+  "recommendations": [
+    // 🧠 AI & Productivity
+    "github.copilot",
+    "github.copilot-chat",
+    "openai.chatgpt-vscode",
+    "wayou.vscode-todo-highlight",
+
+    // ⚙️ Core Web Stack
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "csstools.postcss",
+    "rbbit.typescript-hero",
+    "steoates.autoimport",
+    "christian-kohler.path-intellisense",
+
+    // 🧩 Database & Backend
+    "drizzle-team.drizzle-studio",
+    "humao.rest-client",
+    "mtxr.sqltools",
+
+    // 🔥 Firebase & Env
+    "toba.vsfire",
+    "mikestead.dotenv",
+
+    // 🧱 React + Next.js UX
+    "burkeholland.react-extension-pack",
+    "pulkitgangwar.nextjs-snippets",
+    "heybourn.headwind",
+    "lucide-icons.lucide-icons",
+
+    // 🧪 Testing & Quality
+    "orta.vscode-jest",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "shd101wyy.markdown-preview-enhanced",
+
+    // 🧭 DevOps / Workflow
+    "ms-azuretools.vscode-docker",
+    "redhat.vscode-yaml",
+    "github.vscode-github-actions"
+  ],
+  "unwantedRecommendations": [
+    "vscode.typescript-language-features",
+    "ms-vscode.js-debug-nightly"
+  ]
+}

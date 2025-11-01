@@ -78,11 +78,17 @@ export class DatabaseStorage implements IStorage {
   // For consistency with the original code's approach, we'll assume `db` is used directly.
 
   constructor() {
-    // Initialize with default tutorial steps
-    this.initializeDefaultTutorialSteps();
+    // Only initialize tutorial steps if database is available
+    if (db) {
+      this.initializeDefaultTutorialSteps();
+    } else {
+      console.log('Database not available, skipping tutorial steps initialization');
+    }
   }
 
   private async initializeDefaultTutorialSteps() {
+    if (!db) return;
+
     try {
       // Test database connection first
       const testQuery = await db.select().from(tutorialSteps).limit(1);
@@ -518,4 +524,273 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+class MockStorage implements IStorage {
+  // Mock implementations that don't use database
+  async getUser(id: string): Promise<User | undefined> {
+    console.log(`MockStorage: getUser(${id}) - returning undefined`);
+    return undefined;
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    console.log(`MockStorage: upsertUser - returning mock user`);
+    return {
+      id: user.id,
+      email: user.email || '',
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      profileImageUrl: null,
+      onboardingCompleted: false,
+      currentTutorialStep: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as User;
+  }
+
+  async updateUserOnboardingStatus(userId: string, completed: boolean, currentStep?: number): Promise<User | undefined> {
+    console.log(`MockStorage: updateUserOnboardingStatus(${userId}, ${completed})`);
+    return undefined;
+  }
+
+  async getAllTutorialSteps(): Promise<TutorialStep[]> {
+    console.log(`MockStorage: getAllTutorialSteps - returning empty array`);
+    return [];
+  }
+
+  async getTutorialStep(id: number): Promise<TutorialStep | undefined> {
+    console.log(`MockStorage: getTutorialStep(${id}) - returning undefined`);
+    return undefined;
+  }
+
+  async createTutorialStep(step: InsertTutorialStep): Promise<TutorialStep> {
+    console.log(`MockStorage: createTutorialStep - returning mock step`);
+    return {
+      id: 1,
+      title: step.title,
+      description: step.description || '',
+      type: step.type,
+      content: step.content,
+      order: step.order,
+      isActive: step.isActive,
+    } as TutorialStep;
+  }
+
+  async getUserProgress(userId: string): Promise<UserProgress[]> {
+    console.log(`MockStorage: getUserProgress(${userId}) - returning empty array`);
+    return [];
+  }
+
+  async getUserStepProgress(userId: string, stepId: number): Promise<UserProgress | undefined> {
+    console.log(`MockStorage: getUserStepProgress(${userId}, ${stepId}) - returning undefined`);
+    return undefined;
+  }
+
+  async createUserProgress(progress: InsertUserProgress): Promise<UserProgress> {
+    console.log(`MockStorage: createUserProgress - returning mock progress`);
+    return {
+      id: 1,
+      userId: progress.userId,
+      stepId: progress.stepId,
+      completed: progress.completed,
+      completedAt: null,
+      timeSpent: null,
+      interactionData: null,
+    } as UserProgress;
+  }
+
+  async updateUserProgress(userId: string, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined> {
+    console.log(`MockStorage: updateUserProgress(${userId}, ${stepId}) - returning undefined`);
+    return undefined;
+  }
+
+  async createSubscriber(data: CreateSubscriber): Promise<Subscriber> {
+    console.log(`MockStorage: createSubscriber - returning mock subscriber`);
+    return {
+      id: 1,
+      email: data.email,
+      firstName: data.firstName,
+      isActive: data.isActive ?? true,
+      createdAt: new Date(),
+    } as Subscriber;
+  }
+
+  async getSubscribers(): Promise<Subscriber[]> {
+    console.log(`MockStorage: getSubscribers - returning empty array`);
+    return [];
+  }
+
+  async getSubscriber(email: string): Promise<Subscriber | undefined> {
+    console.log(`MockStorage: getSubscriber(${email}) - returning undefined`);
+    return undefined;
+  }
+
+  async createDonation(donation: { firstName: string; amount: number; paymentIntentId: string; status: string; }) {
+    console.log(`MockStorage: createDonation - returning mock donation`);
+    return { id: 1, ...donation, createdAt: new Date() };
+  }
+
+  async updateDonationStatus(paymentIntentId: string, status: string) {
+    console.log(`MockStorage: updateDonationStatus(${paymentIntentId}, ${status})`);
+    return undefined;
+  }
+
+  async getRecentDonors(limit: number = 10): Promise<{ firstName: string; createdAt: Date }[]> {
+    console.log(`MockStorage: getRecentDonors(${limit}) - returning empty array`);
+    return [];
+  }
+
+  async getAllProducts(): Promise<Product[]> {
+    console.log(`MockStorage: getAllProducts - returning empty array`);
+    return [];
+  }
+
+  async getProduct(productId: string): Promise<Product | undefined> {
+    console.log(`MockStorage: getProduct(${productId}) - returning undefined`);
+    return undefined;
+  }
+
+  async createProduct(product: InsertProduct): Promise<Product> {
+    console.log(`MockStorage: createProduct - returning mock product`);
+    return {
+      id: 1,
+      name: product.name,
+      description: product.description || '',
+      price: product.price,
+      productId: product.productId || 'mock',
+      imageUrl: product.imageUrl,
+      icon: product.icon,
+      category: product.category,
+      isActive: product.isActive,
+      createdAt: new Date(),
+    } as Product;
+  }
+
+  async createOrder(order: InsertOrder): Promise<Order> {
+    console.log(`MockStorage: createOrder - returning mock order`);
+    return {
+      id: 1,
+      userId: order.userId,
+      userEmail: order.userEmail,
+      items: order.items,
+      total: order.total,
+      status: order.status,
+      paymentIntentId: order.paymentIntentId,
+      createdAt: new Date(),
+    } as Order;
+  }
+
+  async getOrders(userId?: string): Promise<Order[]> {
+    console.log(`MockStorage: getOrders(${userId}) - returning empty array`);
+    return [];
+  }
+
+  async getOrder(id: number): Promise<Order | undefined> {
+    console.log(`MockStorage: getOrder(${id}) - returning undefined`);
+    return undefined;
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    console.log(`MockStorage: updateOrderStatus(${id}, ${status}) - returning undefined`);
+    return undefined;
+  }
+
+  async getAllSpots(): Promise<Spot[]> {
+    console.log(`MockStorage: getAllSpots - returning empty array`);
+    return [];
+  }
+
+  async getSpot(spotId: string): Promise<Spot | undefined> {
+    console.log(`MockStorage: getSpot(${spotId}) - returning undefined`);
+    return undefined;
+  }
+
+  async createSpot(spot: InsertSpot): Promise<Spot> {
+    console.log(`MockStorage: createSpot - returning mock spot`);
+    return {
+      id: 'mock',
+      name: spot.name,
+      lat: spot.lat,
+      lng: spot.lng,
+      address: spot.address || null,
+      description: spot.description || null,
+      tags: spot.tags || null,
+      tier: spot.tier || null,
+      checkinCount: spot.checkinCount || null,
+      totalVisitors: spot.totalVisitors || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Spot;
+  }
+
+  async getAllGames(): Promise<Game[]> {
+    console.log(`MockStorage: getAllGames - returning empty array`);
+    return [];
+  }
+
+  async getGame(gameId: string): Promise<Game | undefined> {
+    console.log(`MockStorage: getGame(${gameId}) - returning undefined`);
+    return undefined;
+  }
+
+  async getGamesByPlayer(playerId: string): Promise<Game[]> {
+    console.log(`MockStorage: getGamesByPlayer(${playerId}) - returning empty array`);
+    return [];
+  }
+
+  async createGame(game: InsertGame): Promise<Game> {
+    console.log(`MockStorage: createGame - returning mock game`);
+    return {
+      id: 'mock',
+      player1Id: game.player1Id,
+      player1Name: game.player1Name,
+      player2Id: game.player2Id || null,
+      player2Name: game.player2Name || null,
+      status: game.status || 'waiting',
+      currentTurn: game.currentTurn || null,
+      winnerId: game.winnerId || null,
+      winnerName: null,
+      lastTrickDescription: game.lastTrickDescription || null,
+      lastTrickBy: game.lastTrickBy || null,
+      player1Letters: '',
+      player2Letters: '',
+      completedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as unknown as Game;
+  }
+
+  async joinGame(gameId: string, player2Id: string, player2Name: string): Promise<Game | undefined> {
+    console.log(`MockStorage: joinGame(${gameId}, ${player2Id}) - returning undefined`);
+    return undefined;
+  }
+
+  async updateGame(gameId: string, updates: Partial<Game>): Promise<Game | undefined> {
+    console.log(`MockStorage: updateGame(${gameId}) - returning undefined`);
+    return undefined;
+  }
+
+  async submitTrick(gameId: string, playerId: string, playerName: string, trick: string): Promise<{ game: Game; turnAdded: boolean }> {
+    console.log(`MockStorage: submitTrick(${gameId}, ${playerId}) - throwing error`);
+    throw new Error('Database not available');
+  }
+
+  async getGameTurns(gameId: string): Promise<GameTurn[]> {
+    console.log(`MockStorage: getGameTurns(${gameId}) - returning empty array`);
+    return [];
+  }
+
+  async createGameTurn(turn: InsertGameTurn): Promise<GameTurn> {
+    console.log(`MockStorage: createGameTurn - returning mock turn`);
+    return {
+      id: 1,
+      gameId: turn.gameId,
+      playerId: turn.playerId,
+      playerName: turn.playerName,
+      turnNumber: turn.turnNumber,
+      trickDescription: turn.trickDescription,
+      result: turn.result,
+      createdAt: new Date(),
+    } as GameTurn;
+  }
+}
+
+export const storage = db ? new DatabaseStorage() : new MockStorage();
