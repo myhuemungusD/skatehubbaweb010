@@ -4,6 +4,7 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+.release-notes.md
 
 # Build and deployment logs
 build.log
