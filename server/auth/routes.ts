@@ -4,6 +4,16 @@ import { authenticateUser } from './middleware.ts';
 import { authLimiter, passwordResetLimiter } from '../middleware/security.ts';
 import { admin } from '../admin.ts';
 
+/**
+ * Setup authentication routes for Firebase-based authentication
+ * 
+ * Configures endpoints for:
+ * - Login/Registration with Firebase ID token
+ * - Current user information retrieval
+ * - Logout and session management
+ * 
+ * @param app - Express application instance
+ */
 export function setupAuthRoutes(app: Express) {
   // Single login/register endpoint - Firebase ID token only (with rate limiting)
   app.post('/api/auth/login', authLimiter, async (req, res) => {

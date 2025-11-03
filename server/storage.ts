@@ -72,6 +72,20 @@ export interface IStorage {
   createGameTurn(turn: InsertGameTurn): Promise<GameTurn>;
 }
 
+/**
+ * Database storage implementation for SkateHubba
+ * 
+ * Provides data access layer for all application entities including:
+ * - Users and authentication
+ * - Tutorial steps and progress
+ * - Subscribers
+ * - Donations
+ * - Products and orders
+ * - Skate spots
+ * - S.K.A.T.E. games
+ * 
+ * Uses Drizzle ORM for type-safe database operations
+ */
 export class DatabaseStorage implements IStorage {
   // Use a private property to hold the db instance if needed for multiple methods,
   // or directly use the imported `db` as done in the original code.
