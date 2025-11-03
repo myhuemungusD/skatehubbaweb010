@@ -29,6 +29,7 @@ import { sendSubscriberNotification } from "./email";
 import { setupAuthRoutes } from "./auth/routes.ts";
 import OpenAI from "openai";
 import { initializeDatabase } from "./db";
+import { generateHTMLDocs, apiDocumentation } from "./api-docs.ts";
 
 // Stripe and OpenAI will be initialized inside registerRoutes to allow test env overrides
 let stripe: Stripe | null = null;
@@ -174,6 +175,26 @@ export async function registerRoutes(app: express.Application): Promise<void> {
       env: env.NODE_ENV,
       time: new Date().toISOString()
     });
+  });
+
+  // API Documentation endpoint
+  app.get('/api/docs', (req: Request, res: Response) => {
+    const format = req.query.format as string;
+    
+    if (format === 'json') {
+      // Return JSON format for programmatic access
+      res.json({
+        version: '1.0.0',
+        title: 'SkateHubba™ API',
+        description: 'REST API for the SkateHubba skateboarding platform',
+        baseUrl: '/api',
+        categories: apiDocumentation
+      });
+    } else {
+      // Return HTML documentation by default
+      res.setHeader('Content-Type', 'text/html');
+      res.send(generateHTMLDocs());
+    }
   });
 
   // Removed /api/auth/user - now using Firebase-only authentication
