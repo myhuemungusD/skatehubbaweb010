@@ -28,6 +28,19 @@ import { execSync } from 'child_process';
 const CHANGELOG_PATH = './CHANGELOG.md';
 const PACKAGE_JSON_PATH = './package.json';
 
+// Version validation regex - only allow digits and dots
+const VERSION_REGEX = /^[\d.]+$/;
+
+// Commit type regex for conventional commits
+const COMMIT_TYPE_REGEX = /^(feat|feature|fix|docs|style|refactor|perf|test|chore):\s*/i;
+
+/**
+ * Escape shell argument by wrapping in single quotes and escaping any single quotes
+ */
+function shellEscape(arg) {
+  return `'${arg.replace(/'/g, "'\\''")}'`;
+}
+
 /**
  * Execute git command and return output
  */
@@ -197,7 +210,7 @@ function bumpVersion(bumpType) {
  */
 function formatCommit(commit) {
   const shortHash = commit.hash.substring(0, 7);
-  const subject = commit.subject.replace(/^(feat|feature|fix|docs|style|refactor|perf|test|chore):\s*/i, '');
+  const subject = commit.subject.replace(COMMIT_TYPE_REGEX, '');
   return `- ${subject} ([${shortHash}](../../commit/${commit.hash}))`;
 }
 
@@ -315,12 +328,14 @@ function updateChangelog(entry) {
  */
 function createGitTag(version) {
   // Validate version to prevent command injection
-  if (!/^[\d.]+$/.test(version)) {
+  if (!VERSION_REGEX.test(version)) {
     throw new Error(`Invalid version format: ${version}`);
   }
   
   const tagName = `v${version}`;
-  git(`tag -a ${tagName} -m "Release ${tagName}"`);
+  const escapedTagName = shellEscape(tagName);
+  const escapedMessage = shellEscape(`Release ${tagName}`);
+  git(`tag -a ${escapedTagName} -m ${escapedMessage}`);
   console.log(`✅ Created git tag: ${tagName}`);
   return tagName;
 }
@@ -431,10 +446,11 @@ async function main() {
   console.log('\n💾 Committing changes...');
   git('add package.json CHANGELOG.md');
   // Validate version format before using in commit message
-  if (!/^[\d.]+$/.test(newVersion)) {
+  if (!VERSION_REGEX.test(newVersion)) {
     throw new Error(`Invalid version format for commit: ${newVersion}`);
   }
-  git(`commit -m "chore(release): ${newVersion}"`);
+  const escapedCommitMsg = shellEscape(`chore(release): ${newVersion}`);
+  git(`commit -m ${escapedCommitMsg}`);
   console.log('   ✅ Changes committed');
   
   // 7. Create tag
