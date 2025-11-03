@@ -2,7 +2,11 @@
 import type { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 
-// Rate limiting for email signups
+/**
+ * Rate limiter for email signup attempts
+ * Limits to 5 signup attempts per 15 minutes per IP address
+ * Helps prevent automated account creation and spam
+ */
 export const emailSignupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // Limit each IP to 5 signup attempts per windowMs
@@ -13,7 +17,12 @@ export const emailSignupLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Rate limiting for authentication endpoints
+/**
+ * Rate limiter for authentication endpoints (login/register)
+ * Limits to 10 authentication attempts per 15 minutes per IP address
+ * Does not count successful logins, only failed attempts
+ * Helps prevent brute force attacks
+ */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // Limit each IP to 10 login attempts per window
@@ -25,7 +34,11 @@ export const authLimiter = rateLimit({
   skipSuccessfulRequests: true, // Don't count successful logins
 });
 
-// Strict rate limiting for password reset
+/**
+ * Strict rate limiter for password reset requests
+ * Limits to 3 password reset attempts per hour per IP address
+ * Prevents abuse of password reset functionality
+ */
 export const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3, // Only 3 password reset requests per hour
@@ -36,7 +49,11 @@ export const passwordResetLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// General API rate limiting
+/**
+ * General API rate limiter for all endpoints
+ * Limits to 100 requests per minute per IP address
+ * Prevents API abuse and DDoS attacks
+ */
 export const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 100, // 100 requests per minute
@@ -47,7 +64,13 @@ export const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Honeypot validation middleware
+/**
+ * Honeypot validation middleware to catch bots
+ * Checks for a hidden form field that humans won't fill but bots will
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function
+ */
 export const validateHoneypot = (req: Request, res: Response, next: NextFunction) => {
   const { company } = req.body;
   
@@ -59,7 +82,13 @@ export const validateHoneypot = (req: Request, res: Response, next: NextFunction
   next();
 };
 
-// Email validation middleware
+/**
+ * Email validation middleware
+ * Validates email format and normalizes the email address
+ * @param req - Express request object with email in body
+ * @param res - Express response object
+ * @param next - Express next function
+ */
 export const validateEmail = (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;
   
@@ -80,6 +109,14 @@ export const validateEmail = (req: Request, res: Response, next: NextFunction) =
 };
 
 // User agent validation
+/**
+ * User agent validation middleware
+ * Rejects requests with suspicious or missing user agents
+ * Helps block simple bot attacks and scrapers
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function
+ */
 export const validateUserAgent = (req: Request, res: Response, next: NextFunction) => {
   const userAgent = req.get('User-Agent');
   
@@ -107,6 +144,13 @@ export const validateUserAgent = (req: Request, res: Response, next: NextFunctio
 };
 
 // IP logging middleware
+/**
+ * IP address logging middleware for security monitoring
+ * Logs client IP addresses for suspicious activity tracking
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function
+ */
 export const logIPAddress = (req: Request, res: Response, next: NextFunction) => {
   // Get real IP address (accounting for proxies)
   const ip = req.headers['x-forwarded-for'] || 

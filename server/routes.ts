@@ -141,6 +141,26 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request & { validatedBody
   }
 };
 
+/**
+ * Registers all API routes for the SkateHubba application
+ * 
+ * This function sets up all REST API endpoints including:
+ * - Authentication (Firebase-based)
+ * - Tutorial steps and user progress
+ * - Spot discovery and check-ins
+ * - Product catalog and shopping
+ * - Payment processing (Stripe)
+ * - S.K.A.T.E. game functionality
+ * - AI chat assistant
+ * - Subscriber management
+ * 
+ * @param app - Express application instance
+ * @returns Promise that resolves when all routes are registered
+ * 
+ * @example
+ * const app = express();
+ * await registerRoutes(app);
+ */
 export async function registerRoutes(app: express.Application): Promise<void> {
   // Initialize Stripe (done here to allow test env override)
   // Test framework may use TESTING_STRIPE_SECRET_KEY

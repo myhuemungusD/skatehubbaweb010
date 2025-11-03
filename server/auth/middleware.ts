@@ -12,7 +12,19 @@ declare global {
   }
 }
 
-// Middleware to authenticate requests - Cookie-based session (preferred) or Firebase ID token
+/**
+ * Authentication middleware to protect routes
+ * 
+ * Verifies user authentication through:
+ * 1. HttpOnly session cookie (preferred - XSS safe)
+ * 2. Firebase ID token in Authorization header (fallback)
+ * 
+ * Adds authenticated user to req.currentUser if valid
+ * 
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function
+ */
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Option 1: Check for HttpOnly session cookie (PREFERRED - XSS safe)
@@ -72,7 +84,17 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
   }
 };
 
-// Optional authentication - sets user if token is valid, but doesn't require it
+/**
+ * Optional authentication middleware
+ * 
+ * Attempts to authenticate user but doesn't require authentication.
+ * Useful for endpoints that provide different content for authenticated vs anonymous users.
+ * Sets req.currentUser if authentication succeeds, continues either way.
+ * 
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function
+ */
 export const optionalAuthentication = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
@@ -95,7 +117,16 @@ export const optionalAuthentication = async (req: Request, res: Response, next: 
   }
 };
 
-// Middleware to require email verification
+/**
+ * Email verification requirement middleware
+ * 
+ * Requires that the authenticated user has verified their email address.
+ * Must be used after authenticateUser middleware.
+ * 
+ * @param req - Express request object with currentUser
+ * @param res - Express response object
+ * @param next - Express next function
+ */
 export const requireEmailVerification = (req: Request, res: Response, next: NextFunction) => {
   if (!req.currentUser) {
     return res.status(401).json({ error: 'Authentication required' });

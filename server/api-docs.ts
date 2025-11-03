@@ -3,6 +3,9 @@
  * Provides comprehensive documentation for all SkateHubba API endpoints
  */
 
+/**
+ * API endpoint documentation structure
+ */
 export interface APIEndpoint {
   method: string;
   path: string;
@@ -27,6 +30,9 @@ export interface APIEndpoint {
   notes?: string[];
 }
 
+/**
+ * API category grouping related endpoints
+ */
 export interface APICategory {
   name: string;
   description: string;
@@ -35,6 +41,7 @@ export interface APICategory {
 
 /**
  * Complete API documentation structure
+ * Organized by functional categories with detailed endpoint information
  */
 export const apiDocumentation: APICategory[] = [
   {
