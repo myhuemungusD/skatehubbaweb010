@@ -162,7 +162,14 @@ function determineVersionBump(categories) {
  */
 function bumpVersion(bumpType) {
   const pkg = JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf8'));
-  const [major, minor, patch] = pkg.version.split('.').map(Number);
+  const versionParts = pkg.version.split('.');
+  
+  // Validate version format
+  if (versionParts.length < 3 || versionParts.some(p => isNaN(parseInt(p, 10)))) {
+    throw new Error(`Invalid version format in package.json: ${pkg.version}`);
+  }
+  
+  const [major, minor, patch] = versionParts.map(p => parseInt(p, 10));
   
   let newVersion;
   switch (bumpType) {
@@ -272,7 +279,13 @@ function generateChangelogEntry(version, categories) {
  * Update CHANGELOG.md
  */
 function updateChangelog(entry) {
-  let changelog = readFileSync(CHANGELOG_PATH, 'utf8');
+  let changelog;
+  try {
+    changelog = readFileSync(CHANGELOG_PATH, 'utf8');
+  } catch (error) {
+    // If CHANGELOG doesn't exist, create a new one with a header
+    changelog = '# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n---\n\n';
+  }
   
   // Find the position after the header to insert new entry
   const lines = changelog.split('\n');
@@ -301,6 +314,11 @@ function updateChangelog(entry) {
  * Create git tag and push
  */
 function createGitTag(version) {
+  // Validate version to prevent command injection
+  if (!/^[\d.]+$/.test(version)) {
+    throw new Error(`Invalid version format: ${version}`);
+  }
+  
   const tagName = `v${version}`;
   git(`tag -a ${tagName} -m "Release ${tagName}"`);
   console.log(`✅ Created git tag: ${tagName}`);
@@ -412,6 +430,10 @@ async function main() {
   // 6. Commit changes
   console.log('\n💾 Committing changes...');
   git('add package.json CHANGELOG.md');
+  // Validate version format before using in commit message
+  if (!/^[\d.]+$/.test(newVersion)) {
+    throw new Error(`Invalid version format for commit: ${newVersion}`);
+  }
   git(`commit -m "chore(release): ${newVersion}"`);
   console.log('   ✅ Changes committed');
   
@@ -437,6 +459,6 @@ async function main() {
 
 // Run the script
 main().catch(error => {
-  console.error('❌ Release failed:', error.message);
+  console.error('❌ Release failed:', error.stack || error.message || error);
   process.exit(1);
 });
