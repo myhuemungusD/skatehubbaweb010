@@ -72,15 +72,23 @@ jobs:
         run: |
           node scripts/release.mjs
           
-          # Check if release was created (package.json was modified)
-          if git diff --quiet HEAD~1 package.json 2>/dev/null; then
+          # Check if release was created (package.json was modified in last commit)
+          # Use git show to safely check if package.json changed in last commit
+          if git show HEAD:package.json > /tmp/new_pkg.json 2>/dev/null && \
+             git show HEAD^:package.json > /tmp/old_pkg.json 2>/dev/null; then
+            if ! diff -q /tmp/new_pkg.json /tmp/old_pkg.json > /dev/null 2>&1; then
+              NEW_VERSION=$(node -p "require('./package.json').version")
+              echo "release_created=true" >> $GITHUB_OUTPUT
+              echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+              echo "tag_name=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+            else
+              echo "release_created=false" >> $GITHUB_OUTPUT
+              echo "No release created - no significant changes"
+            fi
+          else
+            # First commit or error checking - assume no release
             echo "release_created=false" >> $GITHUB_OUTPUT
             echo "No release created - no significant changes"
-          else
-            NEW_VERSION=$(node -p "require('./package.json').version")
-            echo "release_created=true" >> $GITHUB_OUTPUT
-            echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
-            echo "tag_name=v${NEW_VERSION}" >> $GITHUB_OUTPUT
           fi
       
       - name: Push changes and tag

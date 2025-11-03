@@ -52,14 +52,16 @@ function getLastReleaseTag() {
 
 /**
  * Get commits since last release
+ * Prioritizes merge commits to detect PRs, falls back to all commits
  */
 function getCommitsSinceLastRelease() {
   const lastTag = getLastReleaseTag();
   const range = lastTag ? `${lastTag}..HEAD` : 'HEAD';
   
+  // First try to get merge commits (these represent merged PRs)
   const log = git(`log ${range} --pretty=format:"%H|%s|%b" --merges`);
   if (!log) {
-    // If no merge commits, get all commits
+    // If no merge commits found, get all commits
     const allLog = git(`log ${range} --pretty=format:"%H|%s|%b"`);
     return parseCommits(allLog);
   }
@@ -133,6 +135,13 @@ function categorizeCommits(commits) {
 }
 
 /**
+ * Check if categories have any significant changes
+ */
+function hasAnyChanges(categories) {
+  return Object.values(categories).some(arr => arr.length > 0);
+}
+
+/**
  * Determine version bump type based on commits
  */
 function determineVersionBump(categories) {
@@ -142,14 +151,7 @@ function determineVersionBump(categories) {
   if (categories.features.length > 0) {
     return 'minor';
   }
-  if (categories.fixes.length > 0 || 
-      categories.perf.length > 0 ||
-      categories.refactor.length > 0 ||
-      categories.docs.length > 0 ||
-      categories.style.length > 0 ||
-      categories.test.length > 0 ||
-      categories.chore.length > 0 ||
-      categories.other.length > 0) {
+  if (hasAnyChanges(categories)) {
     return 'patch';
   }
   return null;
@@ -347,6 +349,19 @@ function generateReleaseNotes(version, categories) {
 }
 
 /**
+ * Calculate total count of other changes (non-breaking, non-feature, non-fix)
+ */
+function countOtherChanges(categories) {
+  return categories.docs.length + 
+         categories.style.length + 
+         categories.refactor.length + 
+         categories.perf.length + 
+         categories.test.length + 
+         categories.chore.length + 
+         categories.other.length;
+}
+
+/**
  * Main release function
  */
 async function main() {
@@ -370,7 +385,7 @@ async function main() {
   console.log(`   Breaking: ${categories.breaking.length}`);
   console.log(`   Features: ${categories.features.length}`);
   console.log(`   Fixes: ${categories.fixes.length}`);
-  console.log(`   Other: ${categories.docs.length + categories.style.length + categories.refactor.length + categories.perf.length + categories.test.length + categories.chore.length + categories.other.length}`);
+  console.log(`   Other: ${countOtherChanges(categories)}`);
   
   // 3. Determine version bump
   console.log('\n🔢 Determining version bump...');
