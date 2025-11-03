@@ -190,7 +190,7 @@ function bumpVersion(bumpType) {
  */
 function formatCommit(commit) {
   const shortHash = commit.hash.substring(0, 7);
-  const subject = commit.subject.replace(/^(feat|fix|docs|style|refactor|perf|test|chore):\s*/i, '');
+  const subject = commit.subject.replace(/^(feat|feature|fix|docs|style|refactor|perf|test|chore):\s*/i, '');
   return `- ${subject} ([${shortHash}](../../commit/${commit.hash}))`;
 }
 
