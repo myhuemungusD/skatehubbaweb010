@@ -114,7 +114,7 @@ jobs:
         continue-on-error: true
         run: |
           # Check if Vercel is configured
-          if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
+          if [ -n "$VERCEL_TOKEN" ]; then
             echo "Vercel token found, proceeding with deployment"
 
             # Install Vercel CLI if needed
@@ -122,15 +122,14 @@ jobs:
               npm install -g vercel
             fi
 
-            # Deploy to production
-            vercel --prod --token="${{ secrets.VERCEL_TOKEN }}" \
-              --yes 2>&1 | tee vercel_deploy.log
+            # Deploy to production using environment variable for token
+            vercel --prod --yes 2>&1 | tee vercel_deploy.log
             VERCEL_STATUS=${PIPESTATUS[0]}
             echo "status=$VERCEL_STATUS" >> $GITHUB_OUTPUT
 
             if [ $VERCEL_STATUS -eq 0 ]; then
-              # Extract deployment URL if available
-              DEPLOY_URL=$(grep -oP "https://[^\s]+" vercel_deploy.log | tail -1 || echo "")
+              # Extract deployment URL if available (using basic grep)
+              DEPLOY_URL=$(grep -o "https://[^[:space:]]*" vercel_deploy.log | tail -1 || echo "")
               echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
               echo "result=✅ Vercel deployment successful" >> $GITHUB_OUTPUT
             else
@@ -142,6 +141,7 @@ jobs:
             echo "result=⏭️ Vercel not configured" >> $GITHUB_OUTPUT
           fi
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
