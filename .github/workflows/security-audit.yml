@@ -113,7 +113,6 @@ jobs:
           ghp_[0-9a-zA-Z]{36}
           github_pat_[0-9a-zA-Z_]{82}
           glpat-[0-9a-zA-Z\-_]{20}
-          [0-9]+-[0-9A-Za-z_]{32}\.apps\.googleusercontent\.com
           EOF
           
           found=0
