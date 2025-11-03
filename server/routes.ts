@@ -8,7 +8,7 @@ import { users, tutorialSteps, userProgress } from "../shared/schema";
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress } from './middleware/security.ts';
+import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress, apiLimiter } from './middleware/security.ts';
 import { admin } from './admin.ts';
 import { env } from './config/env';
 
@@ -197,8 +197,8 @@ export async function registerRoutes(app: express.Application): Promise<void> {
     });
   });
 
-  // API Documentation endpoint
-  app.get('/api/docs', (req: Request, res: Response) => {
+  // API Documentation endpoint (with rate limiting to prevent abuse)
+  app.get('/api/docs', apiLimiter, (req: Request, res: Response) => {
     const format = req.query.format as string;
     
     if (format === 'json') {
