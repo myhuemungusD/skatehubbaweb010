@@ -34,7 +34,7 @@ export const paymentAmountSchema = z.number()
 export const sanitizedStringSchema = z.string()
   .trim()
   .max(1000, "String too long")
-  .transform((str) => (str as string).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
+  .transform((str) => (str).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''));
 
 
 import { pgTable, text, serial, integer, boolean, timestamp, json, varchar, index, real } from "drizzle-orm/pg-core";
