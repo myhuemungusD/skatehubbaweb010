@@ -12,6 +12,8 @@
     "build:server": "node scripts/build-server.mjs",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "lint": "npx eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "npx eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "check": "tsc --noEmit",
     "deploy:firestore": "firebase deploy --only firestore",
     "deploy:rules": "firebase deploy --only firestore:rules"
@@ -118,6 +120,7 @@
     "stripe": "^16.8.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
+    "typescript-eslint": "^8.46.2",
     "validator": "^13.15.20",
     "vite": "^7.1.12",
     "web-vitals": "^5.1.0",

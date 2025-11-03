@@ -5,11 +5,23 @@ import ts from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
-  ...ts.configs.recommendedTypeChecked,
   {
-    files: ['**/*.{ts,tsx,js}'],
+    files: ['**/*.{js,mjs,cjs}'],
     languageOptions: {
-      parserOptions: { project: ['./tsconfig.json'] },
+      globals: { ...globals.browser, ...globals.node }
+    }
+  },
+  ...ts.configs.recommendedTypeChecked.map(config => ({
+    ...config,
+    files: ['**/*.{ts,tsx}']
+  })),
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: { 
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname
+      },
       globals: { ...globals.browser, ...globals.node }
     },
     rules: {
