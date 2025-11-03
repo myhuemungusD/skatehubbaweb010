@@ -1092,7 +1092,19 @@ export const apiDocumentation: APICategory[] = [
 ];
 
 /**
- * Generate HTML documentation page
+ * Generate a comprehensive HTML documentation page for the API
+ * 
+ * Creates a fully-styled, responsive HTML page documenting all API endpoints.
+ * The page includes:
+ * - Visual categorization of endpoints by function
+ * - Color-coded HTTP methods (GET, POST, PATCH, etc.)
+ * - Parameter documentation with types and requirements
+ * - Request/response examples with JSON formatting
+ * - Authentication requirements
+ * - Implementation notes and security considerations
+ * - Mobile-responsive design
+ * 
+ * @returns HTML string containing the complete documentation page
  */
 export function generateHTMLDocs(): string {
   return `

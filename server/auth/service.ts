@@ -20,6 +20,11 @@ export class AuthService {
 
   /**
    * Hash a plaintext password using bcrypt
+   * 
+   * Uses bcrypt with 12 salt rounds for secure password hashing.
+   * Bcrypt is chosen for its adaptive nature - it remains secure as hardware
+   * improves by allowing the number of rounds to be increased over time.
+   * 
    * @param password - The plaintext password to hash
    * @returns Promise resolving to the hashed password
    */

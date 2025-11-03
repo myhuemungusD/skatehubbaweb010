@@ -66,8 +66,12 @@ export const apiLimiter = rateLimit({
 
 /**
  * Honeypot validation middleware to catch bots
- * Checks for a hidden form field that humans won't fill but bots will
- * @param req - Express request object
+ * 
+ * Checks for a hidden form field named 'company' that humans won't fill but bots will.
+ * On the frontend, include a hidden input: <input type="text" name="company" style="display:none" />
+ * Legitimate users won't see or fill this field, but automated bots typically fill all fields.
+ * 
+ * @param req - Express request object with 'company' field in body
  * @param res - Express response object
  * @param next - Express next function
  */

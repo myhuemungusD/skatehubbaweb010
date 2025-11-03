@@ -26,10 +26,20 @@ export async function generateText(prompt: string) {
 
 /**
  * Generate text as a stream using Google's Gemini Pro AI model
- * Useful for progressive rendering of AI responses
+ * 
+ * Useful for progressive rendering of AI responses.
+ * Returns an async generator that yields text chunks as they're generated.
+ * 
  * @param prompt - Text prompt to generate content from
- * @returns Promise resolving to async iterable stream of text chunks
+ * @returns Promise resolving to async generator that yields text chunks
  * @throws Error if generation fails
+ * 
+ * @example
+ * const stream = await generateTextStream("Write a story");
+ * for await (const chunk of stream) {
+ *   const text = chunk.text();
+ *   console.log(text); // Process each chunk as it arrives
+ * }
  */
 export async function generateTextStream(prompt: string) {
   try {
