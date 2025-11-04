@@ -5,3 +5,18 @@ server/public
 vite.config.ts.*
 *.tar.gz
 .release-notes.md
+
+# Build and deployment logs
+build.log
+firebase_deploy.log
+vercel_deploy.log
+build_summary.md
+deployment_summary.md
+
+# Vercel
+.vercel
+
+# Firebase
+.firebase
+firebase-debug.log
+firebase-debug.*.log

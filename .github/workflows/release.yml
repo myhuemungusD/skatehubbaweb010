@@ -74,9 +74,11 @@ jobs:
           
           # Check if release was created (package.json was modified in last commit)
           # Use git show to safely check if package.json changed in last commit
-          if git show HEAD:package.json > /tmp/new_pkg.json 2>/dev/null && \
-             git show HEAD^:package.json > /tmp/old_pkg.json 2>/dev/null; then
-            if ! diff -q /tmp/new_pkg.json /tmp/old_pkg.json > /dev/null 2>&1; then
+          NEW_PKG=$(mktemp)
+          OLD_PKG=$(mktemp)
+          if git show HEAD:package.json > "$NEW_PKG" 2>/dev/null && \
+             git show HEAD^:package.json > "$OLD_PKG" 2>/dev/null; then
+            if ! diff -q "$NEW_PKG" "$OLD_PKG" > /dev/null 2>&1; then
               NEW_VERSION=$(node -p "require('./package.json').version")
               echo "release_created=true" >> $GITHUB_OUTPUT
               echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
@@ -85,8 +87,10 @@ jobs:
               echo "release_created=false" >> $GITHUB_OUTPUT
               echo "No release created - no significant changes"
             fi
+            rm -f "$NEW_PKG" "$OLD_PKG"
           else
             # First commit or error checking - assume no release
+            rm -f "$NEW_PKG" "$OLD_PKG"
             echo "release_created=false" >> $GITHUB_OUTPUT
             echo "No release created - no significant changes"
           fi

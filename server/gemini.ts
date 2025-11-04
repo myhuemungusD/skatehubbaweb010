@@ -6,6 +6,12 @@ const genAI = new GoogleGenerativeAI(env.GOOGLE_AI_API_KEY || '');
 // Get the Gemini Pro model
 const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
+/**
+ * Generate text using Google's Gemini Pro AI model
+ * @param prompt - Text prompt to generate content from
+ * @returns Promise resolving to generated text
+ * @throws Error if generation fails
+ */
 export async function generateText(prompt: string) {
   try {
     const result = await model.generateContent(prompt);
@@ -18,6 +24,23 @@ export async function generateText(prompt: string) {
   }
 }
 
+/**
+ * Generate text as a stream using Google's Gemini Pro AI model
+ * 
+ * Useful for progressive rendering of AI responses.
+ * Returns an async generator that yields text chunks as they're generated.
+ * 
+ * @param prompt - Text prompt to generate content from
+ * @returns Promise resolving to async generator that yields text chunks
+ * @throws Error if generation fails
+ * 
+ * @example
+ * const stream = await generateTextStream("Write a story");
+ * for await (const chunk of stream) {
+ *   const text = chunk.text();
+ *   console.log(text); // Process each chunk as it arrives
+ * }
+ */
 export async function generateTextStream(prompt: string) {
   try {
     const result = await model.generateContentStream(prompt);
@@ -28,7 +51,14 @@ export async function generateTextStream(prompt: string) {
   }
 }
 
-// For multimodal content (text + images)
+/**
+ * Generate content from text prompt and image data (multimodal)
+ * Allows AI to analyze and respond to image content
+ * @param prompt - Text prompt describing what to do with the image
+ * @param imageData - Base64-encoded image data
+ * @returns Promise resolving to generated text based on image and prompt
+ * @throws Error if generation fails
+ */
 export async function generateFromTextAndImage(prompt: string, imageData: string) {
   try {
     const imagePart = {

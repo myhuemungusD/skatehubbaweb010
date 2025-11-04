@@ -9,6 +9,17 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+/**
+ * Send email notification when a new user subscribes to the beta list
+ * 
+ * Sends an email to the site administrator with subscriber details.
+ * Failure to send email will not prevent subscription from being recorded.
+ * 
+ * @param subscriberData - Subscriber information
+ * @param subscriberData.firstName - Subscriber's first name
+ * @param subscriberData.email - Subscriber's email address
+ * @returns Promise that resolves when email is sent or fails silently
+ */
 export async function sendSubscriberNotification(subscriberData: { firstName: string; email: string }) {
   const mailOptions = {
     from: env.EMAIL_USER,

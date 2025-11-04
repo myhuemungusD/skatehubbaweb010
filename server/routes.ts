@@ -8,7 +8,7 @@ import { users, tutorialSteps, userProgress } from "../shared/schema";
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress } from './middleware/security.ts';
+import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress, apiLimiter } from './middleware/security.ts';
 import { admin } from './admin.ts';
 import { env } from './config/env';
 
@@ -29,6 +29,7 @@ import { sendSubscriberNotification } from "./email";
 import { setupAuthRoutes } from "./auth/routes.ts";
 import OpenAI from "openai";
 import { initializeDatabase } from "./db";
+import { generateHTMLDocs, apiDocumentation } from "./api-docs.ts";
 
 // Stripe and OpenAI will be initialized inside registerRoutes to allow test env overrides
 let stripe: Stripe | null = null;
@@ -140,6 +141,26 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request & { validatedBody
   }
 };
 
+/**
+ * Registers all API routes for the SkateHubba application
+ * 
+ * This function sets up all REST API endpoints including:
+ * - Authentication (Firebase-based)
+ * - Tutorial steps and user progress
+ * - Spot discovery and check-ins
+ * - Product catalog and shopping
+ * - Payment processing (Stripe)
+ * - S.K.A.T.E. game functionality
+ * - AI chat assistant
+ * - Subscriber management
+ * 
+ * @param app - Express application instance
+ * @returns Promise that resolves when all routes are registered
+ * 
+ * @example
+ * const app = express();
+ * await registerRoutes(app);
+ */
 export async function registerRoutes(app: express.Application): Promise<void> {
   // Initialize Stripe (done here to allow test env override)
   // Test framework may use TESTING_STRIPE_SECRET_KEY
@@ -174,6 +195,26 @@ export async function registerRoutes(app: express.Application): Promise<void> {
       env: env.NODE_ENV,
       time: new Date().toISOString()
     });
+  });
+
+  // API Documentation endpoint (with rate limiting to prevent abuse)
+  app.get('/api/docs', apiLimiter, (req: Request, res: Response) => {
+    const format = req.query.format as string;
+    
+    if (format === 'json') {
+      // Return JSON format for programmatic access
+      res.json({
+        version: '1.0.0',
+        title: 'SkateHubba™ API',
+        description: 'REST API for the SkateHubba skateboarding platform',
+        baseUrl: '/api',
+        categories: apiDocumentation
+      });
+    } else {
+      // Return HTML documentation by default
+      res.setHeader('Content-Type', 'text/html');
+      res.send(generateHTMLDocs());
+    }
   });
 
   // Removed /api/auth/user - now using Firebase-only authentication

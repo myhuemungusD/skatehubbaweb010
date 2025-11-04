@@ -1,0 +1,223 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Detect package manager
+        id: pm
+        run: |
+          if [ -f pnpm-lock.yaml ]; then echo "pm=pnpm" >> $GITHUB_OUTPUT; else echo "pm=npm" >> $GITHUB_OUTPUT; fi
+
+      - name: Setup pnpm
+        if: steps.pm.outputs.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then pnpm install --frozen-lockfile; else npm ci; fi
+
+      - name: Build application
+        id: build
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee build.log
+          BUILD_STATUS=${PIPESTATUS[0]}
+          echo "status=$BUILD_STATUS" >> $GITHUB_OUTPUT
+          if [ $BUILD_STATUS -ne 0 ]; then
+            echo "Build failed with status $BUILD_STATUS"
+            exit $BUILD_STATUS
+          fi
+
+      - name: Check build logs for errors
+        id: check_logs
+        run: |
+          ERROR_COUNT=$(grep -i "error" build.log | wc -l || echo 0)
+          WARNING_COUNT=$(grep -i "warning" build.log | wc -l || echo 0)
+          echo "errors=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNING_COUNT" >> $GITHUB_OUTPUT
+
+          if [ $ERROR_COUNT -gt 0 ]; then
+            echo "⚠️ Found $ERROR_COUNT error(s) in build logs"
+            echo "### Build Errors:" >> build_summary.md
+            grep -i "error" build.log | head -20 >> build_summary.md || true
+          else
+            echo "✅ No errors found in build logs"
+          fi
+
+          if [ $WARNING_COUNT -gt 0 ]; then
+            echo "⚠️ Found $WARNING_COUNT warning(s) in build logs"
+          fi
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            build.log
+
+      - name: Deploy Firebase Functions
+        id: firebase_deploy
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: |
+          # Check if firebase.json exists and has functions configured
+          if [ -f firebase.json ] && grep -q "functions" firebase.json; then
+            echo "Firebase Functions configuration found"
+
+            # Install Firebase CLI if needed
+            if ! command -v firebase &> /dev/null; then
+              npm install -g firebase-tools
+            fi
+
+            # Deploy functions
+            firebase deploy --only functions --non-interactive 2>&1 | tee firebase_deploy.log
+            FIREBASE_STATUS=${PIPESTATUS[0]}
+            echo "status=$FIREBASE_STATUS" >> $GITHUB_OUTPUT
+
+            if [ $FIREBASE_STATUS -eq 0 ]; then
+              echo "result=✅ Firebase Functions deployed successfully" >> $GITHUB_OUTPUT
+            else
+              echo "result=❌ Firebase Functions deployment failed" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No Firebase Functions configuration found, skipping"
+            echo "status=0" >> $GITHUB_OUTPUT
+            echo "result=⏭️ No Firebase Functions to deploy" >> $GITHUB_OUTPUT
+          fi
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Deploy to Vercel
+        id: vercel_deploy
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: |
+          # Check if Vercel is configured
+          if [ -n "$VERCEL_TOKEN" ]; then
+            echo "Vercel token found, proceeding with deployment"
+
+            # Install Vercel CLI if needed
+            if ! command -v vercel &> /dev/null; then
+              npm install -g vercel
+            fi
+
+            # Deploy to production using environment variable for token
+            vercel --prod --yes 2>&1 | tee vercel_deploy.log
+            VERCEL_STATUS=${PIPESTATUS[0]}
+            echo "status=$VERCEL_STATUS" >> $GITHUB_OUTPUT
+
+            if [ $VERCEL_STATUS -eq 0 ]; then
+              # Extract deployment URL if available (using basic grep)
+              DEPLOY_URL=$(grep -o "https://[^[:space:]]*" vercel_deploy.log | tail -1 || echo "")
+              echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+              echo "result=✅ Vercel deployment successful" >> $GITHUB_OUTPUT
+            else
+              echo "result=❌ Vercel deployment failed" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No Vercel token configured, skipping"
+            echo "status=0" >> $GITHUB_OUTPUT
+            echo "result=⏭️ Vercel not configured" >> $GITHUB_OUTPUT
+          fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Create deployment summary
+        id: summary
+        if: always()
+        run: |
+          cat > deployment_summary.md << 'EOF'
+          ## 🚀 Deployment Summary
+
+          ### Build Status
+          - **Status**: ${{ steps.build.outcome == 'success' && '✅ Success' || '❌ Failed' }}
+          - **Errors**: ${{ steps.check_logs.outputs.errors || '0' }}
+          - **Warnings**: ${{ steps.check_logs.outputs.warnings || '0' }}
+
+          ### Firebase Functions
+          ${{ steps.firebase_deploy.outputs.result || '⏭️ Skipped (not on main branch)' }}
+
+          ### Vercel Deployment
+          ${{ steps.vercel_deploy.outputs.result || '⏭️ Skipped (not on main branch)' }}
+          ${{ steps.vercel_deploy.outputs.url && format('**URL**: {0}', steps.vercel_deploy.outputs.url) || '' }}
+
+          ### Workflow Details
+          - **Branch**: ${{ github.ref_name }}
+          - **Commit**: ${{ github.sha }}
+          - **Author**: ${{ github.actor }}
+          - **Run**: [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+
+          cat deployment_summary.md
+
+      - name: Post deployment summary to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('deployment_summary.md', 'utf8');
+
+            // Check if we already commented
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('🚀 Deployment Summary')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: summary
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary
+              });
+            }
+
+      - name: Upload deployment logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-logs
+          path: |
+            deployment_summary.md
+            firebase_deploy.log
+            vercel_deploy.log
+          if-no-files-found: ignore
