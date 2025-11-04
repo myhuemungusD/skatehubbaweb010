@@ -18,10 +18,15 @@ interface LocationPickerProps {
 }
 
 // Dynamic imports for Leaflet to avoid SSR issues
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let MapContainer: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let TileLayer: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let Marker: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let useMapEvents: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let L: any;
 
 const loadLeaflet = async () => {
@@ -37,6 +42,7 @@ const loadLeaflet = async () => {
   useMapEvents = reactLeaflet.useMapEvents;
 
   // Fix default marker icon issue with webpack
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -50,6 +56,7 @@ const DEFAULT_CENTER: Location = { lat: 34.0522, lng: -118.2437, address: "Los A
 
 function MapClickHandler({ onLocationClick }: { onLocationClick: (lat: number, lng: number) => void }) {
   useMapEvents({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     click: (e: any) => {
       onLocationClick(e.latlng.lat, e.latlng.lng);
     },
