@@ -1,0 +1,160 @@
+name: Automated Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type (major, minor, patch)'
+        required: false
+        type: choice
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+        default: auto
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Only run on main branch pushes (merged PRs) or manual trigger
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper tag detection
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Detect package manager
+        id: pm
+        run: |
+          if [ -f pnpm-lock.yaml ]; then 
+            echo "pm=pnpm" >> $GITHUB_OUTPUT
+          else 
+            echo "pm=npm" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Setup pnpm
+        if: steps.pm.outputs.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      
+      - name: Install dependencies
+        run: |
+          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then
+            pnpm install --frozen-lockfile
+          else
+            npm ci
+          fi
+      
+      - name: Run release script
+        id: release
+        run: |
+          node scripts/release.mjs
+          
+          # Check if release was created (package.json was modified in last commit)
+          # Use git show to safely check if package.json changed in last commit
+          NEW_PKG=$(mktemp)
+          OLD_PKG=$(mktemp)
+          if git show HEAD:package.json > "$NEW_PKG" 2>/dev/null && \
+             git show HEAD^:package.json > "$OLD_PKG" 2>/dev/null; then
+            if ! diff -q "$NEW_PKG" "$OLD_PKG" > /dev/null 2>&1; then
+              NEW_VERSION=$(node -p "require('./package.json').version")
+              echo "release_created=true" >> $GITHUB_OUTPUT
+              echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+              echo "tag_name=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+            else
+              echo "release_created=false" >> $GITHUB_OUTPUT
+              echo "No release created - no significant changes"
+            fi
+            rm -f "$NEW_PKG" "$OLD_PKG"
+          else
+            # First commit or error checking - assume no release
+            rm -f "$NEW_PKG" "$OLD_PKG"
+            echo "release_created=false" >> $GITHUB_OUTPUT
+            echo "No release created - no significant changes"
+          fi
+      
+      - name: Push changes and tag
+        if: steps.release.outputs.release_created == 'true'
+        run: |
+          git push origin main
+          git push origin ${{ steps.release.outputs.tag_name }}
+      
+      - name: Create GitHub Release
+        if: steps.release.outputs.release_created == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const version = '${{ steps.release.outputs.version }}';
+            const tagName = '${{ steps.release.outputs.tag_name }}';
+            
+            // Read release notes
+            let releaseNotes = '';
+            try {
+              releaseNotes = fs.readFileSync('.release-notes.md', 'utf8');
+            } catch (error) {
+              releaseNotes = `Release ${version}`;
+            }
+            
+            // Create GitHub release
+            try {
+              const release = await github.rest.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: tagName,
+                name: `Release ${version}`,
+                body: releaseNotes,
+                draft: false,
+                prerelease: false
+              });
+              
+              core.info(`✅ Created release: ${release.data.html_url}`);
+            } catch (error) {
+              core.setFailed(`Failed to create release: ${error.message}`);
+            }
+      
+      - name: Upload release notes artifact
+        if: steps.release.outputs.release_created == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: .release-notes.md
+      
+      - name: Summary
+        if: steps.release.outputs.release_created == 'true'
+        run: |
+          echo "# 🚀 Release ${{ steps.release.outputs.version }} Created!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ steps.release.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Release Notes" >> $GITHUB_STEP_SUMMARY
+          cat .release-notes.md >> $GITHUB_STEP_SUMMARY
+      
+      - name: No release summary
+        if: steps.release.outputs.release_created == 'false'
+        run: |
+          echo "# ℹ️ No Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "No significant changes detected since last release." >> $GITHUB_STEP_SUMMARY
