@@ -26,6 +26,7 @@ const Home = lazy(() => import("./pages/home"));
 const Tutorial = lazy(() => import("./pages/tutorial"));
 const Demo = lazy(() => import("./pages/demo"));
 const DonationPage = lazy(() => import("./pages/donate"));
+const LoginPage = lazy(() => import("./pages/login"));
 const AuthPage = lazy(() => import("./pages/auth"));
 const SignupPage = lazy(() => import("./pages/signup"));
 const SigninPage = lazy(() => import("./pages/signin"));
@@ -41,6 +42,7 @@ const ClosetPage = lazy(() => import("./pages/closet"));
 const MapPage = lazy(() => import("./pages/map"));
 const SkateGamePage = lazy(() => import("./pages/skate-game"));
 const LeaderboardPage = lazy(() => import("./pages/leaderboard"));
+const TrickMintPage = lazy(() => import("./pages/trickmint"));
 
 function AppRoutes() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -65,6 +67,7 @@ function AppRoutes() {
           <Route path="/checkout" component={CheckoutPage} />
           <Route path="/order-confirmation" component={OrderConfirmationPage} />
           <Route path="/closet" component={ClosetPage} />
+          <Route path="/login" component={LoginPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/signup" component={SignupPage} />
           <Route path="/signin" component={SigninPage} />
@@ -73,10 +76,11 @@ function AppRoutes() {
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/verified" component={VerifiedPage} />
           <Route path="/tutorial" component={() => <AuthPage />} />
-          {/* Protected routes with email verification */}
+          {/* Protected routes */}
           <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
           <Route path="/leaderboard" component={() => <ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
+          <Route path="/trickmint" component={() => <ProtectedRoute><TrickMintPage /></ProtectedRoute>} />
         </>
       ) : (
         <>
@@ -88,6 +92,7 @@ function AppRoutes() {
           <Route path="/checkout" component={CheckoutPage} />
           <Route path="/order-confirmation" component={OrderConfirmationPage} />
           <Route path="/closet" component={ClosetPage} />
+          <Route path="/login" component={LoginPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/signup" component={SignupPage} />
           <Route path="/signin" component={SigninPage} />
@@ -95,10 +100,11 @@ function AppRoutes() {
           <Route path="/auth/verify" component={AuthVerifyPage} />
           <Route path="/verify-email" component={VerifyEmailPage} />
           <Route path="/verified" component={VerifiedPage} />
-          {/* Protected routes with email verification */}
+          {/* Protected routes */}
           <Route path="/map" component={() => <ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/skate-game" component={() => <ProtectedRoute><SkateGamePage /></ProtectedRoute>} />
           <Route path="/leaderboard" component={() => <ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
+          <Route path="/trickmint" component={() => <ProtectedRoute><TrickMintPage /></ProtectedRoute>} />
           <Route path="/tutorial" component={() => {
             return user ? <ProtectedRoute><Tutorial userId={user.uid} /></ProtectedRoute> : <Home />;
           }} />

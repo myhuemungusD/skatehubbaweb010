@@ -9,6 +9,7 @@ import {
   RecaptchaVerifier,
   GoogleAuthProvider,
   signInWithPopup,
+  signInAnonymously,
   updateProfile,
   type ConfirmationResult
 } from "firebase/auth";
@@ -114,6 +115,13 @@ export async function loginWithGoogle() {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   const userCredential = await signInWithPopup(auth, provider);
+  const firebaseUser = userCredential.user;
+
+  return authenticateWithBackend(firebaseUser);
+}
+
+export async function loginAnonymously() {
+  const userCredential = await signInAnonymously(auth);
   const firebaseUser = userCredential.user;
 
   return authenticateWithBackend(firebaseUser);

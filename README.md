@@ -206,6 +206,83 @@ PRODUCTION_URL=https://skatehubba.com
 
 ---
 
+## 🔐 Auth + Map Setup
+
+### Firebase Configuration
+
+1. **Create a Firebase Project**
+   - Go to [Firebase Console](https://console.firebase.com)
+   - Create a new project or select an existing one
+   - Enable Google Analytics (optional)
+
+2. **Enable Authentication Methods**
+   - Navigate to Authentication → Sign-in method
+   - Enable **Google** provider (add authorized domains)
+   - Enable **Anonymous** provider
+   - Enable **Email/Password** provider (optional)
+
+3. **Set up Firestore Database**
+   - Go to Firestore Database → Create database
+   - Start in **production mode** or **test mode** (update rules later)
+   - Choose a location close to your users
+
+4. **Set up Firebase Storage**
+   - Go to Storage → Get started
+   - Use default security rules or customize as needed
+   - This is used for storing trick videos and user uploads
+
+5. **Get Firebase Configuration**
+   - Go to Project Settings → General
+   - Under "Your apps", add a web app (</>) if not already added
+   - Copy the Firebase config object
+   - Add the values to your `.env` file
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and fill in your Firebase credentials:
+
+```bash
+# Firebase Client (Required for Auth + Firestore)
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
+
+# Firebase Admin (Backend)
+FIREBASE_ADMIN_KEY=path/to/serviceAccountKey.json
+
+# App URL (for OAuth callbacks)
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+```
+
+### Geolocation & Maps
+
+The LocationPicker component uses the browser's Geolocation API and Leaflet maps:
+
+- **HTTPS Required**: Geolocation may require HTTPS in production browsers (Chrome, Safari)
+- **Permissions**: Users must grant location permission for "Use Current Location" feature
+- **Fallback**: Manual coordinate entry is always available
+- **Map Tiles**: Uses OpenStreetMap tiles (free, no API key required)
+
+### Firestore Collections
+
+The app creates the following Firestore collections:
+
+- `tricks` - Stores user-uploaded tricks with location data
+  - Fields: name, description, videoUrl, location (lat/lng/address), userId, createdAt, likes, views
+
+### Security Notes
+
+- Anonymous users can access most features but may have limited permissions
+- Email verification is optional for anonymous users
+- Protected routes redirect unauthenticated users to `/login`
+- Firestore security rules should be configured to protect user data
+
+---
+
 ## 💻 Development
 
 ### Available Scripts
