@@ -1,0 +1,594 @@
+PR Title
+textAuth + Profile MVP (SkateHubba theme)
+PR Description
+markdown## Overview
+Adds Firebase auth (Google + Email/Password), user document creation, Zustand hydration, login page, and profile page with avatar upload & XP bar. Fully branded in **orange / green / black** with `shadcn/ui` + `Framer Motion`.
+
+## Setup Notes
+```bash
+cp .env.example .env.local   # Fill with Firebase config
+npm i
+npm run dev
+How to Test
+
+Login: Visit /login → Sign in with Google or Email/Password
+→ On first login: users/{uid} created with xp: 0, createdAt, updatedAt
+Profile: Redirected to /profile
+→ See avatar, editable name, read-only email, XP bar
+→ Click Edit Profile → Upload avatar → Saved to avatars/{uid}/… → URL in Firestore
+Security: Firestore rules enforce uid === auth.uid
+
+Checklist
+
+ npm run build passes
+ .env.example + .gitignore updated
+ No mock data / TODOs
+ Mobile-first, accessible, polished UI
+ Framer Motion entrance on login card
+ Storage + Firestore + Auth all client-side
+ Zustand store hydrated on onAuthStateChanged
+
+
+Post-PR local steps
+bashgit checkout feature/auth-profile-mvp
+cp .env.example .env.local   # fill values
+npm i
+npm run dev
+# Test flow: /login → sign in → /profile → edit avatar/name
+text---
+
+## File Changes
+
+### 1. `src/lib/firebase.ts`
+```ts
+import { initializeApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const googleProvider = new GoogleAuthProvider();
+
+2. src/store/userStore.ts
+tsimport { create } from 'zustand';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { ensureUserDoc } from '@/lib/userService';
+
+interface UserDoc {
+  uid: string;
+  displayName: string;
+  email: string;
+  avatarUrl: string | null;
+  xp: number;
+  createdAt: any;
+  updatedAt: any;
+}
+
+interface UserState {
+  user: User | null;
+  userDoc: UserDoc | null;
+  loading: boolean;
+  signInGoogle: () => Promise<void>;
+  signInEmail: (email: string, password: string) => Promise<void>;
+  signUpEmail: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshUserDoc: () => Promise<void>;
+}
+
+export const useUserStore = create<UserState>((set, get) => {
+  let unsub: (() => void) | null = null;
+
+  const startListening = (uid: string) => {
+    if (unsub) unsub();
+    unsub = onSnapshot(doc(db, 'users', uid), (snap) => {
+      set({ userDoc: snap.data() as UserDoc | null, loading: false });
+    });
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      set({ user, loading: true });
+      await ensureUserDoc(user.uid, user);
+      startListening(user.uid);
+    } else {
+      set({ user: null, userDoc: null, loading: false });
+      if (unsub) unsub();
+    }
+  });
+
+  return {
+    user: null,
+    userDoc: null,
+    loading: true,
+
+    signInGoogle: async () => {
+      const { signInWithPopup, googleProvider } = await import('firebase/auth');
+      await signInWithPopup(auth, googleProvider);
+    },
+
+    signInEmail: async (email, password) => {
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      await signInWithEmailAndPassword(auth, email, password);
+    },
+
+    signUpEmail: async (email, password) => {
+      const { createUserWithEmailAndPassword } = await import('firebase/auth');
+      await createUserWithEmailAndPassword(auth, email, password);
+    },
+
+    signOut: async () => {
+      await auth.signOut();
+    },
+
+    refreshUserDoc: async () => {
+      const { user } = get();
+      if (user) {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        set({ userDoc: snap.data() as UserDoc | null });
+      }
+    },
+  };
+});
+
+3. src/lib/userService.ts
+tsimport { auth, db, storage } from '@/lib/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { User } from 'firebase/auth';
+
+export const ensureUserDoc = async (uid: string, authUser: User) => {
+  const userRef = doc(db, 'users', uid);
+  const snap = await import('firebase/firestore').then(m => m.getDoc(userRef));
+  if (!snap.exists()) {
+    await setDoc(userRef, {
+      uid,
+      displayName: authUser.displayName || authUser.email?.split('@')[0],
+      email: authUser.email,
+      avatarUrl: authUser.photoURL || null,
+      xp: 0,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  }
+};
+
+export const updateProfile = async ({
+  displayName,
+  avatarFile,
+}: {
+  displayName?: string;
+  avatarFile?: File;
+}) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+
+  const updates: any = { updatedAt: serverTimestamp() };
+  if (displayName) updates.displayName = displayName;
+
+  let avatarUrl: string | null = null;
+  if (avatarFile) {
+    const storageRef = ref(storage, `avatars/${user.uid}/profile.jpg`);
+    await uploadBytes(storageRef, avatarFile);
+    avatarUrl = await getDownloadURL(storageRef);
+    updates.avatarUrl = avatarUrl;
+  }
+
+  await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
+  return avatarUrl;
+};
+
+4. src/app/login/page.tsx
+tsx'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/store/userStore';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+
+export default function LoginPage() {
+  const { user, loading, signInGoogle, signInEmail, signUpEmail } = useUserStore();
+  const router = useRouter();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [working, setWorking] = useState(false);
+
+  useEffect(() => {
+    if (user) router.replace('/profile');
+  }, [user, router]);
+
+  const handleEmail = async () => {
+    setWorking(true);
+    try {
+      if (isSignUp) await signUpEmail(email, password);
+      else await signInEmail(email, password);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setWorking(false);
+    }
+  };
+
+  if (loading) return <div className="flex items-center justify-center min-h-screen bg-orange-500"><Loader2 className="animate-spin text-green-500" size={48} /></div>;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-600 via-black to-green-800 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
+        <Card className="w-full max-w-md p-8 bg-black/90 border-orange-500 shadow-2xl">
+          <div className="text-center mb-8">
+            <h1 className="text-5xl font-bold text-orange-500 tracking-tighter">SKATE</h1>
+            <h2 className="text-4xl font-bold text-green-500 -mt-2">HUBBA</h2>
+          </div>
+
+          <div className="space-y-4">
+            <Button
+              onClick={signInGoogle}
+              disabled={working}
+              className="w-full bg-white text-black hover:bg-gray-200 font-bold"
+            >
+              Sign in with Google
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-orange-500" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-black px-2 text-orange-400">Or</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label htmlFor="email" className="text-green-400">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-gray-900 border-orange-500 text-white"
+                placeholder="skater@hubba.com"
+              />
+
+              <Label htmlFor="password" className="text-green-400">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-gray-900 border-orange-500 text-white"
+                placeholder="••••••••"
+              />
+
+              <Button
+                onClick={handleEmail}
+                disabled={working || !email || !password}
+                className="w-full bg-green-600 hover:bg-green-700 text-black font-bold"
+              >
+                {working ? <Loader2 className="animate-spin" /> : isSignUp ? 'Sign Up' : 'Sign In'}
+              </Button>
+
+              <p className="text-center text-sm text-orange-400">
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="underline hover:text-orange-300"
+                >
+                  {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+                </button>
+              </p>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}
+
+5. src/app/profile/page.tsx
+tsx'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/store/userStore';
+import { updateProfile } from '@/lib/userService';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
+import { Loader2, Edit2, LogOut } from 'lucide-react';
+
+export default function ProfilePage() {
+  const { user, userDoc, loading, signOut, refreshUserDoc } = useUserStore();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) router.replace('/login');
+    if (userDoc?.displayName) setName(userDoc.displayName);
+  }, [user, userDoc, loading, router]);
+
+  const handleSave = async () => {
+    setUploading(true);
+    try {
+      await updateProfile({ displayName: name, avatarFile: file || undefined });
+      await refreshUserDoc();
+      setOpen(false);
+      setFile(null);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (loading || !userDoc) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-600 via-black to-green-800">
+        <Loader2 className="animate-spin text-green-500" size={48} />
+      </div>
+    );
+  }
+
+  const xpProgress = (userDoc.xp % 100);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-600 via-black to-green-800 p-4">
+      <div className="max-w-2xl mx-auto pt-12">
+        <Card className="bg-black/90 border-orange-500 p-8 text-white">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <Avatar className="w-24 h-24 border-4 border-green-500">
+                <AvatarImage src={userDoc.avatarUrl || ''} />
+                <AvatarFallback className="bg-orange-600 text-3xl font-bold">
+                  {userDoc.displayName[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl font-bold text-orange-400">{userDoc.displayName}</h1>
+                <p className="text-green-400">{userDoc.email}</p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={signOut}
+              className="text-orange-400 hover:text-orange-300"
+            >
+              <LogOut />
+            </Button>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-green-400">Level {Math.floor(userDoc.xp / 100)}</span>
+              <span className="text-orange-400">{userDoc.xp} XP</span>
+            </div>
+            <Progress value={xpProgress} className="h-3 bg-gray-800">
+              <div className="h-full bg-gradient-to-r from-orange-500 to-green-500 rounded-full" style={{ width: `${xpProgress}%` }} />
+            </Progress>
+          </div>
+
+          <div className="mt-8">
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full bg-green-600 hover:bg-green-700 text-black font-bold flex items-center gap-2">
+                  <Edit2 size={16} /> Edit Profile
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-black text-white border-orange-500">
+                <DialogHeader>
+                  <DialogTitle className="text-orange-400">Edit Profile</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-green-400">Display Name</Label>
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="bg-gray-900 border-orange-500 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-green-400">Avatar</Label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      className="bg-gray-900 border-orange-500 text-white file:text-orange-400"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleSave}
+                    disabled={uploading}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-black font-bold"
+                  >
+                    {uploading ? <Loader2 className="animate-spin" /> : 'Save Changes'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+6. firestore.rules
+rulesrules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+
+7. .env.example
+envNEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
+
+8. .gitignore (add if missing)
+gitignore.env.local
+
+9. components/ui/* (shadcn components)
+Run these once:
+bashnpx shadcn-ui@latest add button card input label dialog avatar progress toast
+
+10. tailwind.config.ts (ensure colors)
+tstheme: {
+  extend: {
+    colors: {
+      orange: {
+        500: '#f97316',
+        600: '#ea580c',
+      },
+      green: {
+        500: '#22c55e',
+        600: '#16a34a',
+      },
+    },
+  },
+}
+
+Git Commands (for your PR)
+bashgit checkout -b feature/auth-profile-mvp
+# Add all files above
+git add .
+git commit -m "feat(auth): add Firebase auth, profile, Zustand, SkateHubba UI"
+git push origin feature/auth-profile-mvp
+# Open PR to main
+
+Build passes
+No mock data
+Fully branded
+Mobile-first + accessible
+Let me know when you want the next feature (e.g. skate spots map, XP earning, backpack equip). 🛹🔥2.3sFasthow do i push to replitPushing Code to Replit: A Quick Guide
+Replit (now often stylized as Replit) is an online IDE that supports Git integration, primarily for syncing with GitHub repositories. "Pushing to Replit" typically means either:
+
+Syncing changes from a local machine or GitHub to a Replit workspace (e.g., updating your Replit project with new code).
+Publishing/exporting code from Replit to GitHub (the reverse, but common for backups).
+
+Replit doesn't have a traditional remote like GitHub for direct git push from external sources without setup. Instead, it uses a Version Control panel (GUI) or Shell for Git commands. Below, I'll cover both methods based on official docs and community guides. If you're working on the SkateHubba project (from our previous chat), this fits perfectly for pushing the auth/profile code to a Replit-hosted Next.js app.
+Prerequisites
+
+A Replit account (free tier works for basics).
+GitHub account connected to Replit (for seamless syncing).
+Node.js project? Ensure your Replit template is "Node.js" or "Next.js" for the SkateHubba stack.
+
+
+Method 1: Import & Push via GitHub (Easiest for Existing Repos)
+If your code is already on GitHub (e.g., the SkateHubba repo at https://github.com/myhuemungusD/skatehubba-profile), import it to Replit and push updates.
+
+Connect GitHub to Replit:
+
+Log in to replit.com.
+Go to your account settings (top-right avatar) > Connected Services > Connect next to GitHub.
+Authorize Replit to access your repos.
+
+
+Create a New Repl from GitHub:
+
+Click + Create Repl > Import from GitHub.
+Search/select your repo (e.g., myhuemungusD/skatehubba-profile).
+Click Import. This clones the repo into a new Replit workspace.
+
+
+Make Changes & Push Back:
+
+Edit files in the Replit editor (e.g., add the src/lib/firebase.ts from our PR).
+Open the Version Control tab (left sidebar, Git branch icon: 🔀).
+You'll see changed files under Review Changes.
+Add a commit message (e.g., "Add Firebase auth MVP").
+Click Stage and commit all changes.
+Click Push (select branch like main or feature/auth-profile-mvp).
+Done! Changes sync to GitHub instantly.
+
+
+
+Pro Tip: For ongoing sync, Replit auto-detects changes— just commit & push from the panel. If you're on the feature/auth-profile-mvp branch, push there to avoid merging issues.
+
+Method 2: Using Git Commands in Replit Shell (For Advanced Control)
+If you prefer CLI (e.g., to push from a local clone or handle branches manually).
+
+Set Up the Repl (as in Method 1, or start a blank Node.js Repl).
+Open the Shell:
+
+In your Repl, click the Shell tab (bottom panel, terminal icon: ▶️).
+
+
+Initialize/Clone & Push:
+
+If starting fresh: git init (initializes Git).
+Clone your repo: git clone https://github.com/myhuemungusD/skatehubba-profile.git . (dots to clone into current dir).
+Make changes (edit files via editor or nano/vi in shell).
+Stage: git add . (or specific files, e.g., git add src/lib/firebase.ts).
+Commit: git commit -m "feat: add auth MVP".
+Add remote (if not set): git remote add origin https://github.com/myhuemungusD/skatehubba-profile.git.
+Push: git push origin main (replace main with your branch, e.g., feature/auth-profile-mvp).
+Auth: Replit prompts for GitHub credentials (use a Personal Access Token for security).
+
+
+
+Troubleshooting:
+
+Permission denied? Generate a GitHub PAT (Settings > Developer settings > Personal access tokens > Fine-grained) with repo access, then use it as password.
+Merge conflicts? Pull first (git pull origin main), resolve in editor, then push.
+
+
+Method 3: Pushing From Replit to GitHub (If That's What You Meant)
+If your code is in Replit and you want to export/push to GitHub:
+
+Open Version Control tab in Replit.
+If not connected, click Connect to GitHub > Authorize.
+Click Publish to GitHub > Name your repo (e.g., "skatehubba-profile") > Publish.
+Future changes: Edit > Commit message > Commit & Push.
+
+
+Testing the SkateHubba Push
+Once pushed:
+
+In Replit, run npm i (installs deps like Firebase, shadcn).
+Add your .env vars (e.g., Firebase keys) via Replit's Secrets tab (lock icon).
+Run npm run dev in Shell.
+Test: Visit the preview URL > /login → Sign in → /profile.
+
+If build fails (npm run build), check for TypeScript errors—our PR files are TS-ready.
+Need More Help? Share error messages or your setup (local vs. GitHub). For the PR, once pushed, open it on GitHub as "Auth + Profile MVP (SkateHubba theme)" with the description from before. Let's get that 🛹 app live! 🚀
