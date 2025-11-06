@@ -3,12 +3,9 @@ import { AuthService } from './service.ts';
 import type { CustomUser } from '../../shared/schema.ts';
 import { admin } from '../admin.ts';
 
-// Extend Express Request type to include user
-declare global {
-  namespace Express {
-    interface Request {
-      currentUser?: CustomUser;
-    }
+declare module 'express-serve-static-core' {
+  interface Request {
+    currentUser?: CustomUser;
   }
 }
 
@@ -111,7 +108,7 @@ export const optionalAuthentication = async (req: Request, res: Response, next: 
       }
     }
     next();
-  } catch (error) {
+  } catch {
     // Ignore authentication errors in optional mode
     next();
   }

@@ -1,35 +1,20 @@
-import express, { type Request, type Response, type NextFunction } from "express";
-import { createServer, type Server } from "http";
-import { z } from "zod";
-import { Resend } from "resend";
-import { db } from "./db";
-import { eq } from "drizzle-orm";
-import { users, tutorialSteps, userProgress } from "../shared/schema";
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { emailSignupLimiter, validateHoneypot, validateEmail, validateUserAgent, logIPAddress, apiLimiter } from './middleware/security.ts';
-import { admin } from './admin.ts';
-import { env } from './config/env';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
-import Stripe from "stripe";
-import { storage } from "./storage";
-import { 
-  insertUserProgressSchema, 
+import type { Express, Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
+import Stripe from 'stripe';
+import { storage } from './storage';
+import {
+  insertUserProgressSchema,
   updateUserProgressSchema,
   NewSubscriberInput
-} from "../shared/schema.ts";
-import crypto from "crypto";
-import validator from "validator";
-import { sendSubscriberNotification } from "./email";
-import { setupAuthRoutes } from "./auth/routes.ts";
-import OpenAI from "openai";
-import { initializeDatabase } from "./db";
-import { generateHTMLDocs, apiDocumentation } from "./api-docs.ts";
+} from '../shared/schema.ts';
+import crypto from 'crypto';
+import validator from 'validator';
+import { apiLimiter } from './middleware/security.ts';
+import { env } from './config/env';
+import { sendSubscriberNotification } from './email';
+import { setupAuthRoutes } from './auth/routes.ts';
+import OpenAI from 'openai';
+import { generateHTMLDocs, apiDocumentation } from './api-docs.ts';
 
 // Stripe and OpenAI will be initialized inside registerRoutes to allow test env overrides
 let stripe: Stripe | null = null;
@@ -48,31 +33,6 @@ const validateId = (id: string): boolean => {
 };
 
 
-
-const validateUserId = (userId: string): boolean => {
-  // Validate Replit user ID format
-  return validator.isLength(userId, { min: 1, max: 100 }) && 
-         validator.matches(userId, /^[a-zA-Z0-9_-]+$/);
-};
-
-// Per-user rate limiting store
-const userRateLimits = new Map();
-
-const createUserRateLimit = (userId: string, maxRequests: number, windowMs: number) => {
-  const now = Date.now();
-  const userKey = `${userId}_${Math.floor(now / windowMs)}`;
-
-  if (!userRateLimits.has(userKey)) {
-    userRateLimits.set(userKey, 0);
-    // Clean up old entries
-    setTimeout(() => userRateLimits.delete(userKey), windowMs);
-  }
-
-  const count = userRateLimits.get(userKey) + 1;
-  userRateLimits.set(userKey, count);
-
-  return count <= maxRequests;
-};
 
 // Admin API key middleware with timing attack protection
 const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
@@ -96,54 +56,9 @@ const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// Enhanced user validation middleware
-const validateUserAccess = (req: Request & { user?: any }, res: Response, next: NextFunction) => {
-  const { userId } = req.params;
-  const authenticatedUserId = req.user?.claims?.sub;
-
-  if (!authenticatedUserId) {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-
-  if (!validateUserId(userId)) {
-    return res.status(400).json({ error: "Invalid user ID format" });
-  }
-
-  // Users can only access their own data (except admins)
-  if (userId !== authenticatedUserId && !req.user?.isAdmin) {
-    return res.status(403).json({ error: "Access denied" });
-  }
-
-  // Check per-user rate limits
-  if (!createUserRateLimit(authenticatedUserId, 100, 60000)) { // 100 requests per minute
-    return res.status(429).json({ error: "Rate limit exceeded for user" });
-  }
-
-  next();
-};
-
-// Remove old authentication - now using Replit Auth
-
-// Request validation middleware
-const validateRequest = (schema: z.ZodSchema) => (req: Request & { validatedBody?: any }, res: Response, next: NextFunction) => {
-  try {
-    const result = schema.safeParse(req.body);
-    if (!result.success) {
-      return res.status(400).json({ 
-        error: "Invalid request data", 
-        details: result.error.errors 
-      });
-    }
-    req.validatedBody = result.data;
-    next();
-  } catch (error) {
-    res.status(400).json({ error: "Request validation failed" });
-  }
-};
-
 /**
  * Registers all API routes for the SkateHubba application
- * 
+ *
  * This function sets up all REST API endpoints including:
  * - Authentication (Firebase-based)
  * - Tutorial steps and user progress
@@ -161,7 +76,7 @@ const validateRequest = (schema: z.ZodSchema) => (req: Request & { validatedBody
  * const app = express();
  * await registerRoutes(app);
  */
-export async function registerRoutes(app: express.Application): Promise<void> {
+export async function registerRoutes(app: Express): Promise<void> {
   // Initialize Stripe (done here to allow test env override)
   // Test framework may use TESTING_STRIPE_SECRET_KEY
   const stripeKey = env.TESTING_STRIPE_SECRET_KEY || env.STRIPE_SECRET_KEY;
@@ -370,7 +285,8 @@ export async function registerRoutes(app: express.Application): Promise<void> {
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
       const clientIP = req.ip || req.connection.remoteAddress;
-      const userAgent = req.get('User-Agent');
+      const rawUserAgent = req.get('User-Agent');
+      const sanitizedUserAgent = rawUserAgent ? sanitizeString(rawUserAgent).slice(0, 200) : 'unknown';
 
       const { amount, currency = "usd", description = "SkateHubba Donation" } = req.body;
 
@@ -413,7 +329,8 @@ export async function registerRoutes(app: express.Application): Promise<void> {
         payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
         metadata: {
           source: 'skatehubba_website',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          userAgent: sanitizedUserAgent,
         }
       }, {
         idempotencyKey
