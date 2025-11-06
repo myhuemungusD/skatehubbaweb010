@@ -1,18 +1,8 @@
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import Background from "../components/BackgroundCarousel";
 import Navigation from "../components/Navigation";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
-import { useToast } from "../hooks/use-toast";
-import { analytics } from "../lib/analytics";
-import { z } from "zod";
-import { ChevronDown, Play, CheckCircle, Zap, MapPin, Users, Trophy } from "lucide-react";
-
-const subscribeSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  firstName: z.string().min(1, "First name is required"),
-});
+import { CheckCircle, Zap, MapPin, Users, Trophy } from "lucide-react";
 
 // Apple-level micro-interaction hooks
 const useSpringAnimation = (isVisible: boolean) => {
@@ -35,29 +25,6 @@ const useSpringAnimation = (isVisible: boolean) => {
   };
 };
 
-// Mobile-optimized loading button
-const LoadingButton = ({ isLoading, children, className, ...props }: any) => (
-  <button
-    {...props}
-    disabled={isLoading}
-    className={`${className} relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed`}
-    style={{
-      minHeight: '48px',
-      fontSize: '16px',
-      WebkitTapHighlightColor: 'transparent',
-      touchAction: 'manipulation'
-    }}
-  >
-    <span className={`transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-      {children}
-    </span>
-    {isLoading && (
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-      </div>
-    )}
-  </button>
-);
 
 // Systematic component spacing
 const Section = ({ children, className = "", ...props }: any) => (
@@ -94,8 +61,6 @@ const SkateHubbaLogo = () => (
 );
 
 export default function UnifiedLanding() {
-  const [showDetailedFeatures, setShowDetailedFeatures] = useState(false);
-  
   // Progressive disclosure with intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -195,36 +160,34 @@ export default function UnifiedLanding() {
         </div>
       </Section>
 
-      {/* Expandable Detailed Features */}
-      {showDetailedFeatures && (
-        <Section className="bg-gradient-to-br from-orange-500/10 to-purple-600/10 border-y border-orange-400/20 fade-in-section">
-          <div className="text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-              More Than Just an App
-            </h2>
-            <div className="grid md:grid-cols-2 gap-8 text-left">
-              <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-orange-400">Core Features</h3>
-                <div className="space-y-4 text-gray-300">
-                  <p><strong className="text-white">Remote S.K.A.T.E.:</strong> Video challenges with 24-hour timers and trick validation</p>
-                  <p><strong className="text-white">Live Sessions:</strong> Stream and spectate with the community</p>
-                  <p><strong className="text-white">Trenches Feed:</strong> Share clips and get feedback</p>
-                  <p><strong className="text-white">Digital Closet:</strong> Customize avatars and flex gear</p>
-                </div>
+      {/* Detailed Features */}
+      <Section className="bg-gradient-to-br from-orange-500/10 to-purple-600/10 border-y border-orange-400/20 fade-in-section">
+        <div className="text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            More Than Just an App
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8 text-left">
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-orange-400">Core Features</h3>
+              <div className="space-y-4 text-gray-300">
+                <p><strong className="text-white">Remote S.K.A.T.E.:</strong> Video challenges with 24-hour timers and trick validation</p>
+                <p><strong className="text-white">Live Sessions:</strong> Stream and spectate with the community</p>
+                <p><strong className="text-white">Trenches Feed:</strong> Share clips and get feedback</p>
+                <p><strong className="text-white">Digital Closet:</strong> Customize avatars and flex gear</p>
               </div>
-              <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-orange-400">Collectibles System</h3>
-                <div className="space-y-4 text-gray-300">
-                  <p><strong className="text-white">Blockchain Verified:</strong> Your tricks are minted as unique collectibles</p>
-                  <p><strong className="text-white">Trade & Collect:</strong> Exchange rare gear and earn exclusive drops</p>
-                  <p><strong className="text-white">Pro Collaborations:</strong> Unlock secret challenges from your favorite pros</p>
-                  <p><strong className="text-white">Moment Ownership:</strong> From first-try rails to MBD at your local spot</p>
-                </div>
+            </div>
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-orange-400">Collectibles System</h3>
+              <div className="space-y-4 text-gray-300">
+                <p><strong className="text-white">Blockchain Verified:</strong> Your tricks are minted as unique collectibles</p>
+                <p><strong className="text-white">Trade & Collect:</strong> Exchange rare gear and earn exclusive drops</p>
+                <p><strong className="text-white">Pro Collaborations:</strong> Unlock secret challenges from your favorite pros</p>
+                <p><strong className="text-white">Moment Ownership:</strong> From first-try rails to MBD at your local spot</p>
               </div>
             </div>
           </div>
-        </Section>
-      )}
+        </div>
+      </Section>
 
       {/* CTA Section */}
       <Section className="text-center">

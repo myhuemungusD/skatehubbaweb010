@@ -561,7 +561,7 @@ class MockStorage implements IStorage {
   }
 
   async updateUserOnboardingStatus(userId: string, completed: boolean, currentStep?: number): Promise<User | undefined> {
-    console.log(`MockStorage: updateUserOnboardingStatus(${userId}, ${completed})`);
+    console.log(`MockStorage: updateUserOnboardingStatus(${userId}, ${completed}, step=${currentStep ?? "n/a"})`);
     return undefined;
   }
 
@@ -612,7 +612,7 @@ class MockStorage implements IStorage {
   }
 
   async updateUserProgress(userId: string, stepId: number, updates: UpdateUserProgress): Promise<UserProgress | undefined> {
-    console.log(`MockStorage: updateUserProgress(${userId}, ${stepId}) - returning undefined`);
+    console.log(`MockStorage: updateUserProgress(${userId}, ${stepId}, updates=${JSON.stringify(updates)}) - returning undefined`);
     return undefined;
   }
 
@@ -773,17 +773,17 @@ class MockStorage implements IStorage {
   }
 
   async joinGame(gameId: string, player2Id: string, player2Name: string): Promise<Game | undefined> {
-    console.log(`MockStorage: joinGame(${gameId}, ${player2Id}) - returning undefined`);
+    console.log(`MockStorage: joinGame(${gameId}, ${player2Id}, ${player2Name}) - returning undefined`);
     return undefined;
   }
 
   async updateGame(gameId: string, updates: Partial<Game>): Promise<Game | undefined> {
-    console.log(`MockStorage: updateGame(${gameId}) - returning undefined`);
+    console.log(`MockStorage: updateGame(${gameId}, updates=${JSON.stringify(updates)}) - returning undefined`);
     return undefined;
   }
 
   async submitTrick(gameId: string, playerId: string, playerName: string, trick: string): Promise<{ game: Game; turnAdded: boolean }> {
-    console.log(`MockStorage: submitTrick(${gameId}, ${playerId}) - throwing error`);
+    console.log(`MockStorage: submitTrick(${gameId}, ${playerId}, ${playerName}, ${trick}) - throwing error`);
     throw new Error('Database not available');
   }
 
