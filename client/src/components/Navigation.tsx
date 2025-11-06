@@ -1,12 +1,28 @@
+import { useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
 import { Home, ShoppingCart, DollarSign, LogIn, User, Package, Map, Gamepad2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { logoutUser } from "../lib/auth";
 import CartDrawer from "./cart/CartDrawer";
 
 export default function Navigation() {
   const [location] = useLocation();
   const { isAuthenticated, user } = useAuth();
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await logoutUser();
+    } catch {
+      // Best-effort logout: swallow errors to ensure UI still resets state
+    } finally {
+      window.location.href = '/';
+    }
+  }, []);
+
+  const profileLabel = user?.isAnonymous
+    ? "Guest"
+    : user?.email || user?.displayName || "Profile";
 
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -71,15 +87,14 @@ export default function Navigation() {
                   data-testid="button-nav-profile"
                 >
                   <User className="w-4 h-4 mr-2" />
-                  {user?.email || "Profile"}
+                  {profileLabel}
                 </Button>
                 <Button
                   variant="ghost"
                   className="text-gray-300 hover:bg-neutral-800 hover:text-white"
                   data-testid="button-nav-logout"
                   onClick={() => {
-                    localStorage.removeItem('sessionToken');
-                    window.location.href = '/';
+                    void handleLogout();
                   }}
                 >
                   Logout
