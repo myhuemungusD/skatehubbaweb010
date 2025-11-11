@@ -44,9 +44,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then 
-            pnpm install --frozen-lockfile
-          else 
+          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then
+            pnpm install --no-frozen-lockfile
+          else
             npm ci
           fi
 
