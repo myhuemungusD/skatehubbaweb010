@@ -70,7 +70,7 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            build/
+            .next/
             build.log
           if-no-files-found: ignore
 
