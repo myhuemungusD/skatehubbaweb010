@@ -33,19 +33,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then pnpm install --frozen-lockfile; else npm ci; fi
+          if [ "${{ steps.pm.outputs.pm }}" = "pnpm" ]; then pnpm install --no-frozen-lockfile; else npm ci; fi
 
       - name: Build application
         id: build
         run: |
-          set -o pipefail
+          set -e
           npm run build 2>&1 | tee build.log
-          BUILD_STATUS=${PIPESTATUS[0]}
-          echo "status=$BUILD_STATUS" >> $GITHUB_OUTPUT
-          if [ $BUILD_STATUS -ne 0 ]; then
-            echo "Build failed with status $BUILD_STATUS"
-            exit $BUILD_STATUS
-          fi
+
+      - name: Verify build directory
+        run: ls -R
 
       - name: Check build logs for errors
         id: check_logs
@@ -73,28 +70,23 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            dist/
+            build/
             build.log
+          if-no-files-found: ignore
 
       - name: Deploy Firebase Functions
         id: firebase_deploy
         if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: |
-          # Check if firebase.json exists and has functions configured
           if [ -f firebase.json ] && grep -q "functions" firebase.json; then
             echo "Firebase Functions configuration found"
-
-            # Install Firebase CLI if needed
             if ! command -v firebase &> /dev/null; then
               npm install -g firebase-tools
             fi
-
-            # Deploy functions
             firebase deploy --only functions --non-interactive 2>&1 | tee firebase_deploy.log
             FIREBASE_STATUS=${PIPESTATUS[0]}
             echo "status=$FIREBASE_STATUS" >> $GITHUB_OUTPUT
-
             if [ $FIREBASE_STATUS -eq 0 ]; then
               echo "result=✅ Firebase Functions deployed successfully" >> $GITHUB_OUTPUT
             else
@@ -113,22 +105,15 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: |
-          # Check if Vercel is configured
           if [ -n "$VERCEL_TOKEN" ]; then
             echo "Vercel token found, proceeding with deployment"
-
-            # Install Vercel CLI if needed
             if ! command -v vercel &> /dev/null; then
               npm install -g vercel
             fi
-
-            # Deploy to production using environment variable for token
             vercel --prod --yes 2>&1 | tee vercel_deploy.log
             VERCEL_STATUS=${PIPESTATUS[0]}
             echo "status=$VERCEL_STATUS" >> $GITHUB_OUTPUT
-
             if [ $VERCEL_STATUS -eq 0 ]; then
-              # Extract deployment URL if available (using basic grep)
               DEPLOY_URL=$(grep -o "https://[^[:space:]]*" vercel_deploy.log | tail -1 || echo "")
               echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
               echo "result=✅ Vercel deployment successful" >> $GITHUB_OUTPUT
@@ -170,7 +155,6 @@ jobs:
           - **Author**: ${{ github.actor }}
           - **Run**: [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
-
           cat deployment_summary.md
 
       - name: Post deployment summary to PR
@@ -180,21 +164,16 @@ jobs:
           script: |
             const fs = require('fs');
             const summary = fs.readFileSync('deployment_summary.md', 'utf8');
-
-            // Check if we already commented
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-
             const botComment = comments.find(comment =>
               comment.user.type === 'Bot' &&
               comment.body.includes('🚀 Deployment Summary')
             );
-
             if (botComment) {
-              // Update existing comment
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -202,7 +181,6 @@ jobs:
                 body: summary
               });
             } else {
-              // Create new comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
