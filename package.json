@@ -4,6 +4,7 @@
   "description": "SkateHubba landing page and API server",
   "main": "index.js",
   "type": "module",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "start": "NODE_ENV=production node dist/server/index.js",
     "dev": "NODE_ENV=development npx tsx server/index.ts",
